@@ -3,8 +3,8 @@
  * @file     mainPage.vue
  * @menu     메인페이지 vue
  * @author   astems
- * @since    2026-06-17
- * @version  1.3 (전역 이벤트 버스 및 스토리지 예외 완벽 대응)
+ * @since    2026-06-22
+ * @version  1.0
  */
 
 // ==================================================
@@ -81,7 +81,7 @@ const hideMenuToggled = (e: boolean) => {
 const goPage = (m: any) => {
     // 💡 방어 코드: menuList 데이터가 정상적으로 바인딩되었는지 체크
     if (!menuList.value || menuList.value.length === 0) {
-        console.warn('메뉴 데이터가 아직 로드되지 않았습니다.');
+        console.warn('메뉴  데이터가 아직 로드되지 않았습니다.');
         return;
     }
 
