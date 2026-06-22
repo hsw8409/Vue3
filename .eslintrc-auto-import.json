@@ -1,0 +1,8 @@
+{
+  "globals": {
+    "PopupMessageProps": true,
+    "PopupProps": true,
+    "popupStore": true,
+    "useI18n": true
+  }
+}

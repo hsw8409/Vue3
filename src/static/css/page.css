@@ -1,0 +1,1157 @@
+@charset "UTF-8";
+
+/* Setting */
+/* Color */
+/* Font */
+/* 가상 선택자 content, display 설정 */
+/* Title */
+/*  Font */
+/* @font-face {
+  font-family: "NanumGothic";
+  font-weight: normal;
+  font-style: normal;
+  src: url(/fonts/NanumGothic.ttf) format("truetype");
+} */
+@font-face {
+    font-family: "Jost";
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+    src: url("@/static/font/Jost-200-Thin.woff") format("woff");
+    src: url("@/static/font/Jost-200-Thin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Jost";
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+    src: url("@/static/font/Jost-300-Light.woff") format("woff");
+    src: url("@/static/font/Jost-300-Light.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Jost";
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url("@/static/font/Jost-400-Book.woff") format("woff");
+    src: url("@/static/font/Jost-400-Book.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Jost";
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+    src: url("@/static/font/Jost-500-Medium.woff") format("woff");
+    src: url("@/static/font/Jost-500-Medium.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Jost";
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+    src: url("@/static/font/Jost-600-Semi.woff") format("woff");
+    src: url("@/static/font/Jost-600-Semi.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Jost";
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: url("@/static/font/Jost-700-Bold.woff") format("woff");
+    src: url("@/static/font/Jost-700-Bold.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Jost";
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+    src: url("@/static/font/Jost-800-Heavy.woff") format("woff");
+    src: url("@/static/font/Jost-800-Heavy.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Jost";
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+    src: url("@/static/font/Jost-900-Black.woff") format("woff");
+    src: url("@/static/font/Jost-900-Black.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 100;
+    font-display: swap;
+    src: url("@/static/font/NotoSansKR-Thin.woff") format("woff");
+    src: url("@/static/font/NotoSans-Thin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 300;
+    src: url("@/static/font/NotoSans-Light.woff2") format("woff2");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("@/static/font/NotoSans-Regular.woff2") format("woff2");
+    src: url("@/static/font/NotoSansKR-Regular.woff") format("woff");
+}
+
+@font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("@/static/font/NotoSans-Medium.woff2") format("woff2");
+    src: url("@/static/font/NotoSansKR-Medium.woff") format("woff");
+}
+
+@font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("@/static/font/NotoSans-Bold.woff2") format("woff2");
+    src: url("@/static/font/NotoSansKR-Bold.woff") format("woff");
+}
+
+@font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url("@/static/font/NotoSans-Black.woff2") format("woff2");
+    src: url("@/static/font/NotoSansKR-Black.woff") format("woff");
+}
+
+/* 스크롤 디자인 */
+/* Placeholder */
+/* 말줄임 */
+/* Tooltip Arrow */
+.M_SearchBox {
+    padding: 10px 10px 5px 10px;
+    background: #f4f4f4;
+    margin-bottom: 10px;
+    border-top: 2px solid #707070;
+    border-right: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
+    border-left: 1px solid #d9d9d9;
+    height: fit-content;
+    width: 100%;
+}
+
+.M_SearchBox .SearchInner {
+    align-items: center;
+}
+
+.M_SearchBox .SearchInner > li {
+    /* padding-left: 20px; */
+    padding-bottom: 5px;
+    align-items: center;
+}
+
+.M_SearchBox .SearchInner li div,
+.M_SearchBox .SearchInner li div div {
+    vertical-align: middle;
+    align-items: center;
+    height: auto;
+}
+
+.M_SearchBox .SearchInner li div div .form_wrap.form_check input[type="checkbox"] + label {
+    vertical-align: middle !important;
+    align-items: center !important;
+}
+
+.M_SearchBox .SearchInner > li .form_wrap label,
+.M_SearchBox .SearchInner > li .form_wrap .label {
+    font: 500 14px/18px "Pretendard";
+    display: inline-block;
+
+    /* width: 100px !important; */
+}
+
+.M_SearchBox .SearchInner > li.radioWrap {
+    display: flex;
+    align-items: center;
+}
+
+.M_SearchBox .SearchInner > li.radioWrap .label {
+    display: inline-block;
+    font: 500 14px/18px "Pretendard";
+    /* width: 100px !important; */
+}
+
+.M_SearchBox .SearchInner > li.radioWrap .form_wrap {
+    /* margin-right: 30px; */
+}
+
+.M_SearchBox .FindWrap2 .flex_left {
+    flex: 0 0 auto;
+}
+
+.M_SearchBox .FindWrap2 .flex_left input {
+    width: 100%;
+}
+
+.SearchBox {
+    padding: 7px;
+    background: #f4f4f4;
+    margin-bottom: 5px;
+    border-top: 2px solid #707070;
+    border-right: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
+    border-left: 1px solid #d9d9d9;
+    /* min-width: 1300px; */
+    width: 100%;
+    /* 부모에 맞게 꽉 차도록 */
+    box-sizing: border-box;
+}
+
+.SearchBox.popup_search {
+    padding: 10px;
+    background: #f4f4f4;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-top: 2px solid #707070;
+    border-right: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
+    border-left: 1px solid #d9d9d9;
+    min-width: 1140px;
+}
+
+.SearchBox .SearchInner {
+    flex-wrap: wrap;
+    display: flex;
+    /* align-items: center; */
+    /* max-width: 100%; */
+    align-items: flex-start;
+    /* gap: 10px;  */
+    /* li 사이 간격 */
+}
+
+.SearchBox .SearchInner li {
+    flex: 0 0 25%;
+    /* 고정 비율: 한 줄에 최대 4개 */
+    max-width: 25%;
+    /* 최대 너비도 25%로 제한 */
+    min-width: 250px;
+    /* 최소 250px, 공간이 있으면 유동적으로 늘어남 */
+    width: 25%;
+    padding-left: 20px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.SearchBox .SearchInner .search_container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.SearchBox .SearchInner li label {
+    font: 500 14px/18px "Pretendard";
+    text-align: right;
+    display: flex;
+    margin-right: 8px;
+    max-width: 40%;
+    min-width: 27%;
+    justify-content: end;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.SearchBox .SearchInner li .essential {
+    color: #eb170d;
+    font-weight: 600;
+}
+
+.SearchBox .SearchInner .long_wrap {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+}
+
+.SearchBox .SearchInner .long_wrap .search_cell {
+    display: flex;
+    width: 100%;
+}
+
+.SearchBox .SearchInner .search_cell {
+    display: flex;
+    width: 60%;
+}
+
+.SearchBox .SearchInner .search_cell.radio_cell {
+    margin-left: 24px;
+}
+
+.SearchBox .SearchInner .search_cell.search_cell_long {
+    display: flex;
+    width: 100%;
+}
+
+.SearchBox .SearchInner .search_cell .search_radio {
+    width: 100%;
+    display: flex;
+}
+
+.SearchBox .SearchInner .search_cell .search_radio.four_radio {
+    width: 100%;
+    margin-right: 30%;
+    display: inline-flex;
+}
+
+.SearchBox .SearchInner .search_cell .search_radio.three_radio {
+    width: 100%;
+    margin-right: 10%;
+    display: inline-flex;
+}
+
+.SearchBox .SearchInner .search_cell .search_radio span {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.SearchBox .SearchInner .search_cell .search_radio input {
+    display: block;
+    margin: 0px 5px 0px 0px;
+    height: 18px;
+}
+
+input[type="radio"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    transition: border 0.1s ease-in-out;
+    border: 1px solid #c7c7c7;
+    background-color: #fff;
+}
+
+.search_radio input[type="radio"]:checked {
+    border: 0.4em solid #1565c0;
+}
+
+.SearchBox .SearchInner .search_cell .search_radio label {
+    position: relative;
+    margin: 0px;
+    padding-left: 10px;
+}
+
+.SearchBox .SearchInner .search_input {
+    width: 100%;
+    display: inline-block;
+    border: 1px solid #c7c7c7;
+    font: 500 14px/18px "Pretendard";
+    transition: all 0.2s ease;
+    height: 28px;
+    padding: 4px 8px;
+    position: relative;
+    background: #fff;
+    color: #454545;
+    white-space: nowrap;
+}
+
+.SearchBox .SearchInner .search_input.search_select2 {
+    /* background: url("/src/static/img/btn_arrow.svg") no-repeat 100% 50%; */
+    background-color: #fff;
+    cursor: pointer;
+    padding: 2px 8px !important;
+    /* -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none; */
+    font: 500 14px/18px "Pretendard";
+    /* text-align: right; */
+    display: flex;
+    margin-right: 60px;
+    /* max-width: 40%; */
+    /* min-width: 27%; */
+    justify-content: end;
+    white-space: nowrap;
+    /* position: relative; */
+}
+
+.SearchBox .SearchInner .search_input.search_select {
+    /* background: url("/src/static/img/btn_arrow.svg") no-repeat 100% 50%; */
+    background-color: #fff;
+    cursor: pointer;
+    padding: 2px 8px !important;
+    /* -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none; */
+}
+
+.SearchBox .SearchInner .search_date .v3dp__input_wrapper input {
+    width: 100%;
+    min-width: 100px;
+    display: inline-block;
+    border: 1px solid #c7c7c7;
+    font: 500 14px/18px "Pretendard";
+    transition: all 0.2s ease;
+    height: 28px;
+    padding: 4px 8px;
+    position: relative;
+    background: #fff;
+    color: #454545;
+    white-space: nowrap;
+    text-align: center;
+    cursor: pointer;
+}
+
+.subBtnWrap .search_input {
+    border: 1px solid #c7c7c7;
+    font: 500 14px/18px "Pretendard";
+    transition: all 0.2s ease;
+    max-height: 28px;
+    padding: 4px 8px !important;
+    position: relative;
+    background: #fff;
+    color: #454545;
+    white-space: nowrap;
+}
+.subBtnWrap .search_input:focus {
+    outline: none;
+}
+
+.popupOpen_wrap {
+    display: flex;
+    min-width: 60%;
+    flex-grow: 1;
+}
+
+.popupOpen_wrap .popupOpen_code {
+    width: 40%;
+    max-width: 40%;
+    display: inline-flex;
+}
+
+.popupOpen_wrap .popupOpen_code input {
+    width: 100%;
+}
+
+.popupOpen_wrap .popupOpen_code .btn_input.input_search {
+    height: 28px;
+    top: 0;
+    right: 0;
+    background: #969696 url("/src/static/img/btn_search.svg") no-repeat center center/28px 28px;
+    user-select: auto !important;
+    /* z-index: 1000; */
+}
+
+.search_cell .search_input:focus,
+.search_cell .search_input:active {
+    border: 1px solid #707070;
+    outline: none;
+}
+
+.popupOpen_wrap .popupOpen_code .search_input:focus,
+.popupOpen_wrap .popupOpen_code .search_input:active,
+.popupOpen_name .search_input:focus,
+.popupOpen_name .search_input:active {
+    border: 1px solid #707070;
+    outline: none;
+}
+
+.popupOpen_wrap .popupOpen_code .btn_input.input_search:hover {
+    background: #9f9f9f url("/src/static/img/btn_search.svg") no-repeat center center/28px 28px;
+}
+
+.popupOpen_wrap .popupOpen_name {
+    width: 60%;
+    display: inline-flex;
+    margin-left: 5px;
+}
+
+.popupOpen_wrap .popupOpen_name span {
+    flex-grow: 1;
+}
+
+.popupOpen_wrap .popupOpen_name input {
+    width: 100%;
+}
+
+.SearchBox .SearchInner .search_container .rangeDate_wrap {
+    display: flex;
+    align-items: center; /* 수직 정렬 */
+}
+
+.SearchBox .SearchInner .search_container .rangeDate_wrap span {
+    width: 100%;
+}
+
+/* .SearchBox .SearchInner > li.w50 {
+  width: unset !important;
+  justify-content: flex-start;
+  flex-grow: 1;
+}
+
+.SearchBox .SearchInner > li:first-child, .SearchBox .SearchInner > li:nth-child(5) {
+  padding-left: 0px !important;
+}
+.SearchBox .SearchInner > li:first-child .form_cell:not(:has(.input_search)), .SearchBox .SearchInner > li:nth-child(5) .form_cell:not(:has(.input_search)) {
+  width: 100%;
+}
+.SearchBox .SearchInner > li:first-child .form_cell:not(:has(.input_search)) input, .SearchBox .SearchInner > li:nth-child(5) .form_cell:not(:has(.input_search)) input {
+  width: 100%;
+}
+.SearchBox .SearchInner > li:nth-child(n+5) {
+  margin-top: 10px;
+}
+.SearchBox .SearchInner > li > .form_wrap {
+  width: 100%;
+}
+.SearchBox .SearchInner > li > .form_wrap label, .SearchBox .SearchInner > li > .form_wrap .label {
+  font: 500 14px/18px "Noto Sans KR";
+  width: 100px !important;
+  text-align: right;
+}
+.SearchBox .SearchInner > li > .form_wrap .label {
+  display: inline-block;
+}
+.SearchBox .SearchInner > li > .form_wrap .form_cell {
+  width: 100%;
+}
+.SearchBox .SearchInner > li > .form_wrap .form_cell input {
+  width: 100%;
+}
+.SearchBox .SearchInner > li .select_wrap {
+  width: 100%;
+}
+.SearchBox .SearchInner > li .select_wrap .label {
+  width: 100px !important;
+  text-align: right;
+}
+.SearchBox .SearchInner > li .select_wrap .select-custom {
+  width: calc(100% - 100px);
+}
+.SearchBox .SearchInner > li .select_wrap .select-custom .select-custom {
+  width: 100%;
+}
+.SearchBox .SearchInner > li .select_wrap .select-custom .select {
+  width: 100%;
+}
+.SearchBox .SearchInner > li.radioWrap {
+  display: flex;
+  align-items: center;
+}
+.SearchBox .SearchInner > li.radioWrap .label {
+  display: inline-block;
+  font: 500 14px/18px "Noto Sans KR";
+  width: 100px !important;
+}
+.SearchBox .SearchInner > li.radioWrap .form_wrap {
+  width: calc((100% - 100px) / 2);
+}
+.SearchBox .SearchRadioGroup {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  height: 32px;
+}
+.SearchBox .SearchRadioGroup .label {
+  width: 100px;
+  font: 500 14px/18px "Noto Sans KR";
+}
+.SearchBox .SearchRadioGroup .form_wrap {
+  width: calc((100% - 100px) / 4);
+}
+.SearchBox + #auiGrid {
+  margin-top: 0px;
+} */
+
+/* .address div + div {
+  margin-top: 5px;
+} */
+.address div + div .form_wrap {
+    width: 100%;
+}
+
+.address .addressDtl {
+    width: 72%;
+    display: inline-flex;
+}
+
+.address .cst_addressDtl {
+    width: 90%;
+    display: inline-flex;
+}
+
+/* .address div + div .form_wrap input {
+  width: 40%;
+} */
+
+.flex {
+    display: flex;
+    height: 38px;
+    align-items: center;
+}
+
+.flex * + * {
+    margin-left: 5px;
+}
+
+.flex.small {
+    width: 20%;
+}
+
+.flex.small01 {
+    width: 40%;
+}
+
+.flex.small_w10 {
+    width: 30%;
+}
+
+.flex.small_w20 {
+    width: 20%;
+}
+
+.w56 {
+    width: 56%;
+}
+
+.w100px {
+    width: 100px !important;
+}
+
+.email {
+    display: inline-flex;
+    width: 40%;
+}
+
+.email .emailMark {
+    padding: 0px 10px;
+    font-size: 15px;
+}
+
+.email .select_wrap {
+    margin-right: 5px;
+}
+
+.cst_email {
+    display: inline-flex;
+    width: 90%;
+}
+
+.cst_email .emailMark {
+    padding: 0px 10px;
+    font-size: 15px;
+}
+
+.halfDiv,
+.halfDiv2,
+.halfDiv3,
+.halfDiv4,
+.halfDiv5 {
+    display: flex;
+    /* align-items: flex-start; */
+    justify-content: space-between;
+}
+
+.halfDiv:has(:not(.subTitle)) > #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv > div {
+    width: calc((100% - 20px) / 2) !important;
+}
+
+.halfDiv + div {
+    margin-top: 15px;
+}
+
+.halfDiv + div #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv + div .subTitle + #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv > div:not(:has(h3)) > #auiGrid {
+    margin-top: 3px;
+}
+
+.halfDiv > div:not(:has(h3)) > #auiGrid > div {
+    width: 100%;
+    width: 100% !important;
+}
+
+.halfDiv > div:not(:has(h3)) > #auiGrid > div .aui-grid-content-panel-mask {
+    width: calc(100% - 80px);
+}
+
+.halfDiv2:has(:not(.subTitle)) > #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv2 > div:nth-child(1) {
+    width: calc((100% - 20px) * 0.3) !important;
+}
+
+.halfDiv2 > div:nth-child(2) {
+    width: calc((100% - 20px) * 0.7) !important;
+}
+
+.halfDiv2 + div {
+    margin-top: 30px;
+}
+
+.halfDiv2 + div #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv2 + div .subTitle + #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv2 > div:not(:has(h3)) > #auiGrid {
+    margin-top: 3px;
+}
+
+.halfDiv2 > div:not(:has(h3)) > #auiGrid > div {
+    width: 100%;
+    width: 100% !important;
+}
+
+.halfDiv2 > div:not(:has(h3)) > #auiGrid > div .aui-grid-content-panel-mask {
+    width: calc(100% - 80px);
+}
+
+.halfDiv3 > div {
+    width: calc((100% - 20px) / 2) !important;
+}
+
+.halfDiv4:has(:not(.subTitle)) > #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv4 > div:nth-child(1) {
+    width: calc((100% - 20px) * 0.4) !important;
+}
+
+.halfDiv4 > div:nth-child(2) {
+    width: calc((100% - 20px) * 0.6) !important;
+}
+
+.halfDiv4 + div {
+    margin-top: 30px;
+}
+
+.halfDiv4 + div #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv4 + div .subTitle + #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv4 > div:not(:has(h3)) > #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv5:has(:not(.subTitle)) > #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv5 > div:nth-child(1) {
+    width: calc((100% - 20px) * 0.65) !important;
+}
+
+.halfDiv5 > div:nth-child(2) {
+    width: calc((100% - 20px) * 0.35) !important;
+}
+
+.halfDiv5 + div {
+    margin-top: 30px;
+}
+
+.halfDiv5 + div #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv5 + div .subTitle + #auiGrid {
+    margin-top: 0px;
+}
+
+.halfDiv5 > div:not(:has(h3)) > #auiGrid {
+    margin-top: 0px;
+}
+
+.thirdDiv {
+    display: flex;
+    align-items: flex-start;
+}
+
+.thirdDiv > div {
+    width: calc((100% - 20px) / 3);
+}
+
+.thirdDiv > div + div {
+    margin-left: 20px;
+}
+
+.thirdDiv2 {
+    display: flex;
+    gap: 20px;
+}
+
+.thirdDiv2 > div:nth-child(1) {
+    width: calc((100% - 40px) * 0.25) !important;
+}
+
+.thirdDiv2 > div:nth-child(2) {
+    width: calc((100% - 40px) * 0.25) !important;
+}
+
+.thirdDiv2 > div:nth-child(3) {
+    width: calc((100% - 40px) * 0.5) !important;
+}
+
+h3 {
+    font-weight: 700;
+    font-size: 16px;
+    display: inline-block;
+    align-items: center;
+    height: auto;
+    margin-bottom: 5px;
+    padding-bottom: 3px;
+}
+.tableLayout.termsBox {
+    margin-top: 3px !important;
+}
+h3 .column {
+    font: 700 18px/16px "Pretendard";
+    color: #796a45;
+}
+
+h3 + #auiGrid {
+    margin-top: 0px;
+}
+
+.FindWrap2 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.FindWrap {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.FindWrap > .form_wrap:not(:has(.input_search)) {
+    width: 30%;
+    padding-left: 5px !important;
+}
+
+.FindWrap > .form_wrap:not(:has(.input_search)) .form_cell input {
+    width: 100%;
+}
+
+.FindWrap > .form_wrap:has(.input_search) {
+    width: 70% !important;
+}
+
+.FindWrap > .form_wrap:has(.input_search) label {
+    width: 100px !important;
+    text-align: right;
+}
+
+.FindWrap > .form_wrap:has(.input_search) .form_cell {
+    width: calc(100% - 100px);
+}
+
+.FindWrap > .form_wrap:has(.input_search) .form_cell input {
+    width: 100%;
+}
+
+.state {
+    margin-top: 0px !important;
+}
+
+.subTitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 28px !important;
+    min-height: 28px;
+    /* margin-bottom: 5px; */
+}
+.subTitle h3 {
+    padding-left: 8px;
+    border-left: 6px solid #1565C0;
+}
+
+.subTitle:not(:has(h3)) {
+    justify-content: flex-end;
+}
+
+.subTitle > h3 {
+    margin-bottom: 0px;
+    line-height: auto;
+    user-select: none;
+}
+
+.subTitle + .subTitle {
+    margin-top: 3px;
+}
+
+.subTitle + #auiGrid {
+    margin-top: 3px !important;
+}
+.subTitle + .SearchBox {
+    margin-top: 3px !important;
+}
+
+.subTitle.column {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.subTitle.column > * {
+    width: 100%;
+}
+
+.subTitle.column > div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.subTitle.column > div:first-child + .caption {
+    margin-top: 5px;
+}
+
+.subTitle:has(.caption):not(:has(h3)) {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.caption {
+    font: 500 13px "Pretendard";
+    color: #eb170d;
+}
+
+.termsBox + #auiGrid {
+    margin-top: 3px !important;
+}
+
+#auiGrid.mobile {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    position: relative;
+}
+#auiGrid.mobile > div {
+    position: absolute !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+#auiGrid.mobile > div > div {
+    position: absolute !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: auto !important;
+}
+
+/* 디폴트 칼럼 스타일 */
+#auiGrid.mobile .aui-grid-default-column {
+    font: 400 12px/14px "Pretendard" !important;
+    color: #454545 !important;
+}
+
+#auiGrid.mobile .aui-grid-default-header {
+    font: 800 12px/14px "Pretendard" !important;
+    color: #454545 !important;
+}
+
+/* 대시보드 용 */
+.dashboard-title {
+    color: #006cb7;
+    text-align: center;
+}
+
+.dashboard-number {
+    text-align: right;
+    padding-right: 17px !important;
+}
+
+.blank-td {
+    border-top: 0px white !important;
+    border-bottom: 0px white !important;
+}
+
+/**인쇄 */
+@media print {
+    .no-print,
+    .no-print * {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+
+    .report-wrapper {
+        display: block !important;
+        position: static !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background: white !important;
+    }
+    .report-wrapper * {
+        visibility: visible !important;
+    }
+
+    /* 레이아웃 좌측 마진 제거 (예: sidebar 빠지고도 남는 공간 보정) */
+    #main,
+    .content-wrapper,
+    .page-wrapper {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    /* 그 외 UI 요소는 완전히 제거 */
+    .sidebar,
+    .navbar,
+    .search-area,
+    .tabs,
+    .button-area,
+    .no-print {
+        display: none !important;
+    }
+
+    /* 버튼 등 제외할 요소 지정 (예: 조회 버튼 영역) */
+    #gnb,
+  #sidebar,
+  #lnb,
+  .header,
+  #topbar,
+  .logout-area,
+  /* 실제 로그아웃 있는 영역 클래스 추가 필요 */
+  .button-area,
+  .no-print {
+        display: none !important;
+    }
+
+    /**테이블 잘림 방지 */
+    thead {
+        display: table-header-group;
+        /* 헤더가 각 페이지에 반복 출력됨 */
+    }
+
+    tr {
+        break-inside: avoid;
+    }
+
+    .detail-section {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        page-break-before: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    .detail-table {
+        page-break-inside: auto !important;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    .summary-table tbody tr,
+    .detail-table tbody tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    .summary-table {
+        margin-bottom: 10px !important;
+    }
+    .detail-section {
+        margin-bottom: 0 !important;
+    }
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        width: 100% !important;
+        overflow: visible !important;
+    }
+
+    #app,
+    .page-wrapper,
+    main,
+    .content-wrapper,
+    .report-wrapper {
+        height: auto !important;
+        overflow: visible !important;
+    }
+    /* 페이지 자동 분할 위해 요소 일부는 쪼개도 되게 둠 */
+    table {
+        page-break-inside: auto !important;
+    }
+
+    thead {
+        display: table-header-group !important;
+    }
+
+    tfoot {
+        display: table-footer-group !important;
+    }
+
+    /* 일부 요소는 쪼개지 않도록 */
+    tr,
+    td {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* 강제적으로 막지는 않음 */
+    tr {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+    /* 화면용 스크롤 제거 */
+    * {
+        overflow: visible !important;
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}

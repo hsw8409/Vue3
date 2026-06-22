@@ -1,0 +1,43 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitAny": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+        // ✅ 추가: ESLint 및 IDE 인식 향상을 위해 필요
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+
+        "types": ["vite/client", "node"],
+
+        "paths": {
+            "@/*": ["./src/*"] // 경로를 명시적으로 루트(.)로부터 시작하게 수정
+        },
+
+        "plugins": [
+            {
+                "name": "@vue/language-plugin-vue"
+            }
+        ]
+    },
+
+    "include": [
+        "./src/auto-imports.d.ts", // 🌟 루트 경로(./)를 명시하여 컴파일러가 최우선으로 스캔하도록 최상단 배치
+        "./src/**/*.ts",
+        "./src/**/*.d.ts",
+        "./src/**/*.tsx",
+        "./src/**/*.vue",
+        "./eslint.config.js"
+    ],
+
+    "exclude": ["node_modules", "dist"]
+}
