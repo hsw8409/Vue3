@@ -79,12 +79,7 @@ const setup = (mitt: Mitt): void => {
         (res: AxiosResponse): any => {
             const loadingStore = useLoadingStore();
             loadingStore.decrementLoading();
-
-            if (res.config.url === '/api/v1/login' || res.config.url === '/api/v1/token/refresh') {
-                return res;
-            }
-
-            return res.data;
+            return res;
         },
 
         async (err: AxiosError<ApiResponse>): Promise<any> => {

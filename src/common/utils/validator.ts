@@ -19,6 +19,12 @@ import {
 } from '@vuelidate/validators';
 import { usePopupStore } from '@/common/stores/popup';
 
+export interface ValidateProps {
+    name: string;
+    value: string;
+    required: boolean;
+}
+
 /**
  * 업무 공통 데이터 검증 및 그리드 유틸리티 모듈
  */

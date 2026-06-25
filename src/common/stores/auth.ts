@@ -1,76 +1,75 @@
 /**
- * @file     /store/auth.ts
+ * @file     /common/stores/auth.ts
+ * @menu     인증 상태 관리
  * @author   astems
- * @since    2026-06-17
+ * @since    2026-06-23
  * @version  1.0
- *
- * @description
- * 권한관리 관련 API (Vuex -> Pinia 완벽 이관 버전)
  */
 import { defineStore } from 'pinia';
 import AuthService from '@/common/service/auth';
 import TokenService from '@/common/service/token';
-import type { LoginRegProps } from '@/types/auth';
+import type { UserProps } from '@/types/auth';
 
 interface AuthState {
-    user: LoginRegProps | null;
+    user: UserProps | null;
     isLoggedOut: boolean;
     loggedIn: boolean;
 }
 
 export const useAuthStore = defineStore('auth', {
-    // 1. State: 초기값 설정 로직 완벽 동기화
-    state: (): AuthState => {
-        const user = TokenService.getUser();
-        const token = TokenService.getToken();
-        return {
-            user: user || null,
-            loggedIn: !!(user && token),
-            isLoggedOut: false,
-        };
-    },
+    // 1. State
+    state: (): AuthState => ({
+        user: TokenService.getUser() || null,
+        loggedIn: !!(TokenService.getUser() && TokenService.getToken()),
+        isLoggedOut: false,
+    }),
 
     // 2. Getters
     getters: {
-        isLoggedIn: (state) => state.loggedIn,
-        getUser: (state) => state.user,
+        isLoggedIn: (state): boolean => !!state.user && state.loggedIn,
+        getUser: (state): UserProps | null => state.user,
     },
 
+    // 3. Actions
     actions: {
-        async login(user: LoginRegProps) {
+        // 로그인 처리
+        async login(user: UserProps) {
             try {
-                const res = (await AuthService.login(user)) as LoginRegProps;
-
+                const res = await AuthService.login(user);
                 this.user = res;
                 this.loggedIn = true;
                 this.isLoggedOut = false;
-
                 return res;
             } catch (error) {
-                this.user = null;
-                this.loggedIn = false;
-                this.isLoggedOut = true;
-
+                this.resetState();
                 throw error;
             }
         },
 
+        // 로그아웃 처리
         async logout() {
             try {
                 await AuthService.logout();
             } finally {
-                this.user = null;
-                this.loggedIn = false;
-                this.isLoggedOut = true;
+                this.resetState();
             }
         },
 
+        // 상태 초기화 (중복 로직 통합)
+        resetState() {
+            this.user = null;
+            this.loggedIn = false;
+            this.isLoggedOut = true;
+        },
+
+        // 토큰 갱신
         refreshToken(accessToken: string) {
             if (this.user) {
-                this.user = { ...this.user, accessToken } as any;
+                this.user.accessToken = accessToken;
             }
         },
 
+        // 회원가입 성공/실패 핸들러
         registerSuccess() {
             this.loggedIn = false;
         },
@@ -79,12 +78,7 @@ export const useAuthStore = defineStore('auth', {
             this.loggedIn = false;
         },
 
-        resetState() {
-            this.user = null;
-            this.loggedIn = false;
-            this.isLoggedOut = true;
-        },
-
+        // 로그아웃 상태 플래그 설정
         setLoggedOut(status: boolean) {
             this.isLoggedOut = status;
         },

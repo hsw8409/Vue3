@@ -1,10 +1,10 @@
 <script setup lang="ts">
-/*
+/**
  * @file     VueHeader.vue
  * @menu     상단 공통 헤더
  * @author   astems
  * @since    2026-06-17
- * @version  1.1 (TypeScript 안정성 및 팝업 규격 보정)
+ * @version  1.0
  */
 
 // ==================================================
@@ -12,8 +12,6 @@
 // ==================================================
 import { computed, inject } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/common/stores/auth';
-import { usePopupStore } from '@/common/stores/popup';
 import TokenService from '@/common/service/token';
 
 // ==================================================
@@ -57,9 +55,10 @@ const logout = () => {
 // 마이페이지 정보 수정 팝업 오픈
 const myPage = () => {
     popup.openPopup('biz', 'UI_USR_P03', {
-        props: searchParameter,
-        width: 1200,
-        height: 500,
+        userId: searchParameter.userId,
+        userNm: searchParameter.userNm,
+        width: 800,
+        height: 400,
     });
 };
 </script>

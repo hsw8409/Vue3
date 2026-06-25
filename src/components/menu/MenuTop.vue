@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/*
+ * @file     MenuTop.vue
+ * @menu     업무화면 상단
+ * @author   astems
+ * @since    2026-06-22
+ * @version  1.0
+ */
+
 // ==================================================
 // import 영역
 // ==================================================
@@ -6,7 +14,8 @@ import { onMounted, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TokenService from '@/common/service/token';
 import { biz } from '@/common/utils/biz';
-import { deleteFavorite, addFavorite, selectFavoriteMenu } from '@/api/favorite';
+import { selectFavoriteMenu } from '@/api/favorite';
+import { useFavoriteStore } from '@/common/stores/favorite';
 
 // ==================================================
 // 타입 정의 영역 (TypeScript Type Interfaces)
@@ -51,6 +60,7 @@ const loginUser = TokenService.getUser();
 
 // 공통 버튼 리스트 정적 타이핑
 const btnList = ref<ButtonItem[]>([]);
+const favStore = useFavoriteStore();
 
 // ==================================================
 // 사용자 정의 함수 영역 (Methods)
@@ -69,23 +79,15 @@ const favoriteToggle = async () => {
     const menuCd = props.menuInfo?.menuSclsCd;
     if (!menuCd || !loginUser?.userId) return;
 
-    const apiParams = {
-        loginId: loginUser.userId,
-        menuSclsCd: menuCd,
-        flag: !favorite.onOffFlag,
-        pmenuCd: menuCd,
-    };
-
     try {
-        if (favorite.onOffFlag) {
-            await deleteFavorite(apiParams);
-            favorite.onOffFlag = false;
-        } else {
-            await addFavorite(apiParams);
-            favorite.onOffFlag = true;
-        }
+        // 스토어 액션 호출: 여기서 알아서 API 호출 후 목록을 갱신함
+        await favStore.toggleFavorite(loginUser.userId, menuCd, favorite.onOffFlag);
+
+        // 버튼 상태값만 로컬에서 반전
+        favorite.onOffFlag = !favorite.onOffFlag;
     } catch (error) {
-        console.error('Favorite Toggle Error:', error);
+        // 에러 핸들링
+        console.info('error>>', error);
     }
 };
 

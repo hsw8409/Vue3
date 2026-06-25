@@ -1,5 +1,5 @@
-import type { TokenProps } from '@/types/auth';
 import type { UserProps } from '@/types/auth';
+import type { TokenProps } from '@/types/token';
 
 class TokenService {
     getLocalAccessToken(): string | undefined {

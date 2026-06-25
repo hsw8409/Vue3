@@ -1,46 +1,60 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
-import { useLoadingStore } from '@/common/stores/loadingState'; // 🌟 신규 Pinia 스토어 임포트
+/**
+ * @file    components/main/MainLoading.vue
+ * @menu    로딩바
+ * @author  astems
+ * @since    2026-06-23
+ * @version  1.1
+ */
 
-const loadingStore = useLoadingStore();
+// ==================================================
+// import 영역
+// ==================================================
+import { computed, ref } from 'vue';
 
-// 🌟 기존 loadingState.isLoading 구조에서 Pinia 상태 구조로 체인지!
-const isLoading = computed(() => loadingStore.isLoading);
+// ==================================================
+// Type 선언 영역
+// ==================================================
 
-const easterEggState = {
-    count: 0,
-    timer: null as ReturnType<typeof setTimeout> | null,
-};
-const easterEgg = reactive({ ...easterEggState });
+// ==================================================
+// 변수 선언 영역
+// ==================================================
+const loading = useLoadingStore();
 
+const isLoading = computed(() => loading.isLoading);
+const count = ref(0);
+const timer = ref<ReturnType<typeof setTimeout> | null>(null);
+
+// ==================================================
+// 사용자 정의 함수 영역
+// ==================================================
+/**
+ * 로딩바 선택시 강제 종료
+ *
+ */
 const handleClick = () => {
-    if (easterEgg.timer === null) {
-        startTimer();
+    // 3초 내에 연속 클릭하지 않으면 타이머 초기화됨
+    if (timer.value === null) {
+        timer.value = setTimeout(reset, 3000);
     }
 
-    easterEgg.count++;
+    count.value++;
 
-    if (easterEgg.count >= 5) {
-        executeFunction();
-    }
-};
-
-const startTimer = () => {
-    easterEgg.timer = setTimeout(() => {
+    // 5회 이상 클릭 시 로딩 강제 종료
+    if (count.value >= 5) {
+        loading.reset();
         reset();
-    }, 3000);
-};
-
-const executeFunction = () => {
-    reset();
-    loadingStore.reset(); // 🌟 Pinia 리셋 액션 호출
+    }
 };
 
 const reset = () => {
-    if (easterEgg.timer) clearTimeout(easterEgg.timer);
-    easterEgg.timer = null;
-    easterEgg.count = 0;
+    if (timer.value) clearTimeout(timer.value);
+    timer.value = null;
+    count.value = 0;
 };
+// ==================================================
+// Hook 영역
+// ==================================================
 </script>
 
 <template>
@@ -50,7 +64,12 @@ const reset = () => {
             <div class="rhombus"></div>
             <div class="rhombus"></div>
         </div>
-        <button class="subBtn easter-egg" @click="handleClick"></button>
+        <button
+            type="button"
+            class="subBtn easter-egg"
+            aria-label="로딩 강제 초기화"
+            @click="handleClick"
+        ></button>
     </div>
 </template>
 
@@ -60,13 +79,18 @@ const reset = () => {
     position: absolute;
     bottom: 0;
     right: 0;
+    width: 50px; /* 버튼 크기 명시 */
+    height: 50px;
     border: 0;
-}
-.easter-egg:hover {
-    background-color: #fff;
-    cursor: auto;
+    background: transparent; /* 투명하게 처리하여 사용자에게 노출되지 않음 */
+    cursor: default;
 }
 
+.easter-egg:hover {
+    background-color: transparent;
+}
+
+/* 스피너 스타일 유지 */
 .looping-rhombuses-spinner,
 .looping-rhombuses-spinner * {
     box-sizing: border-box;
@@ -93,11 +117,9 @@ const reset = () => {
 .looping-rhombuses-spinner .rhombus:nth-child(1) {
     animation-delay: calc(2500ms * 1 / -1.5);
 }
-
 .looping-rhombuses-spinner .rhombus:nth-child(2) {
     animation-delay: calc(2500ms * 2 / -1.5);
 }
-
 .looping-rhombuses-spinner .rhombus:nth-child(3) {
     animation-delay: calc(2500ms * 3 / -1.5);
 }
@@ -120,8 +142,7 @@ const reset = () => {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0);
-    /* background: rgba(255, 255, 255, 0.7); */
+    background: rgba(255, 255, 255, 0.5); /* 반투명 배경 추가로 로딩 체감 향상 */
     display: flex;
     justify-content: center;
     align-items: center;

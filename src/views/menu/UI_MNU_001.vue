@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/*
+ * @file     UI_MNU_001.vue
+ * @menu     메뉴분류관리
+ * @author   astems
+ * @since    2026-06-22
+ * @version  1.0
+ */
+
 // ==================================================
 // import 영역
 // ==================================================
@@ -266,7 +274,7 @@ const reset = () => {
             undefined,
             {
                 onOk: async () => {
-                    okCallback;
+                    okCallback();
                 },
             },
         );
@@ -283,7 +291,6 @@ const searchMainCategory = () => {
     // 대분류목록 조회
     selectLmenuList()
         .then((res) => {
-            // 💡 res?.result를 res?.data?.result로 변경
             grid.setGridData(res?.data?.result);
             grid.removeAjaxLoader();
 
@@ -493,9 +500,8 @@ const saveMiddleCategory = async () => {
     // 변경된 데이터 가져오기
     const middleCategoryData = utils.validator.getGridSaveData(grid2);
 
-    popup.confirm(t('com.message.confirmSave'), undefined).then((isConfirmed) => {
-        // 팝업 모듈의 리턴값 설계에 따라 (isConfirmed === true) 또는 조건문 없이 바로 실행
-        if (isConfirmed) {
+    popup.confirm(t('com.message.confirmSave'), undefined, {
+        onOk: async () => {
             saveMmenu(middleCategoryData)
                 .then((res: any) => {
                     popup.alert(t('com.message.itemProcessed', [res?.result]));
@@ -506,7 +512,7 @@ const saveMiddleCategory = async () => {
                     popup.alert(e?.message || String(e));
                     grid2.removeAjaxLoader();
                 });
-        }
+        },
     });
 };
 
@@ -588,19 +594,18 @@ const saveProgram = async () => {
         return;
     }
 
-    popup.confirm(t('com.message.confirmSave'), undefined).then((isConfirmed) => {
-        // 팝업 모듈의 리턴값 설계에 따라 (isConfirmed === true) 또는 조건문 없이 바로 실행
-        if (isConfirmed) {
+    popup.confirm(t('com.message.confirmSave'), undefined, {
+        onOk: async () => {
             savePmenu(programData)
                 .then((res: any) => {
-                    popup.alert(t('com.message.itemProcessed', [res?.result]));
+                    popup.alert(t('com.message.itemProcessed', [res?.data?.result]));
                     searchProgram();
                 })
                 .catch((e) => {
                     popup.alert(e?.message || String(e));
                     grid3.removeAjaxLoader();
                 });
-        }
+        },
     });
 };
 

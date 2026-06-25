@@ -29,9 +29,12 @@
             }
         ]
     },
-
+    "vueCompilerOptions": {
+        "strictTemplates": true
+    },
     "include": [
-        "./src/auto-imports.d.ts", // 🌟 루트 경로(./)를 명시하여 컴파일러가 최우선으로 스캔하도록 최상단 배치
+        "components.d.ts",
+        "./src/auto-imports.d.ts",
         "./src/**/*.ts",
         "./src/**/*.d.ts",
         "./src/**/*.tsx",

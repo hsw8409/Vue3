@@ -3,10 +3,10 @@
 import { defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
-import AutoImport from 'unplugin-auto-import/vite'; // 🌟 [추가] 자동 임포트 플러그인 가져오기
+import AutoImport from 'unplugin-auto-import/vite';
+import Components from 'unplugin-vue-components/vite';
 
 export default defineConfig(({ mode }) => {
-    // 🌟 mode별 환경변수 로드
     const env = loadEnv(mode, process.cwd());
 
     return {
@@ -18,24 +18,26 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             vue(),
-            // 🌟 [추가] unplugin-auto-import 설정 영역
+            // 🌟 API 자동 임포트 설정
             AutoImport({
-                // 🎯 기존 'vue-i18n' 문자열 대신 객체 형태로 함수명을 정확히 찝어줍니다.
-                // 이렇게 해야 Vite 빌드 타임에 useI18n 코드가 빠짐없이 런타임 주입됩니다.
                 imports: [
+                    'vue',
+                    'vue-router',
                     {
                         'vue-i18n': ['useI18n'],
                     },
                 ],
-                dirs: [
-                    // './src/common/stores/**', 🌟 이 생성 경로 지정 부분을 삭제하거나 주역 처리하세요!
-                ],
+                dirs: ['src/common/stores'],
                 dts: 'src/auto-imports.d.ts',
-                // 🌟 eslint 연동
                 eslintrc: {
-                    enabled: true, // 생성 활성화
-                    filepath: './.eslintrc-auto-import.json', // 파일 위치
+                    enabled: true,
+                    filepath: './.eslintrc-auto-import.json',
                 },
+            }),
+            // 🌟 컴포넌트 자동 임포트 설정 (Ctrl+클릭 지원)
+            Components({
+                dirs: ['src/components'], // 자동 등록할 컴포넌트 폴더
+                dts: 'components.d.ts', // 타입 정의 파일 생성
             }),
             {
                 name: 'project-name-banner',
@@ -46,7 +48,6 @@ export default defineConfig(({ mode }) => {
                         console.log('\n=============================');
                         console.log(`${projectName}`);
                         console.log('=============================\n');
-
                         originalPrint();
                     };
                 },
@@ -55,7 +56,6 @@ export default defineConfig(({ mode }) => {
         base: '/',
         resolve: {
             alias: {
-                // 🌟 모던 Node.js 및 TS 호환성이 높은 fileURLToPath 기반 Alias 세팅 반영
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
                 '@common': fileURLToPath(new URL('./src/common', import.meta.url)),
                 '/@views': fileURLToPath(new URL('./src/views', import.meta.url)),
@@ -65,15 +65,14 @@ export default defineConfig(({ mode }) => {
             outDir: 'dist',
             assetsDir: 'static',
             chunkSizeWarningLimit: 5000,
-            emptyOutDir: true, // 캐시 비우기
-            // 🌟 실서버 배포 시 원본 소스 코드가 브라우저 F12에 노출되는 것을 방지
+            emptyOutDir: true,
             sourcemap: false,
         },
         clearScreen: true,
         logLevel: 'info',
         server: {
             host: '0.0.0.0',
-            port: Number(env.VITE_PORT) || 3001, // SMS 포트 (TS 호환을 위해 Number 변환)
+            port: Number(env.VITE_PORT) || 3001,
             proxy: {
                 '/api': {
                     target: env.VITE_BACKEND_URL || 'http://localhost:9081',

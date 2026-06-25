@@ -3,8 +3,8 @@
  * @file     MainLeft.vue
  * @menu     메인화면 - 좌측 (LNB 메뉴바)
  * @author   astems
- * @since    2026-06-17
- * @version  1.3 (TypeScript 완전 결합 및 부모 컴포넌트 Expose 매핑 완료)
+ * @since    2026-06-22
+ * @version  1.0
  */
 
 // ==================================================
@@ -13,7 +13,8 @@
 import { ref, watch, inject, onMounted } from 'vue';
 import { selectMenu } from '@/api/main';
 import { selectFavoriteMenu, addFavorite, deleteFavorite } from '@/api/favorite';
-
+import { useFavoriteStore } from '@/common/stores/favorite';
+import { storeToRefs } from 'pinia';
 // ----------------------------------------------------------------------
 // 1. 타입 정의 (Interfaces)
 // ----------------------------------------------------------------------
@@ -56,7 +57,6 @@ const emit = defineEmits<{
     (e: 'menuListEmit', menuList: MenuItem[]): void;
 }>();
 
-const favoriteList = ref<MenuItem[]>([]);
 const menuList = ref<MenuItem[]>([]);
 const menuDepthList = ref<MenuItem[]>([]);
 const isLnbOn = ref<boolean>(true);
@@ -65,6 +65,8 @@ const selectedMenu = ref<SelectedMenu | null>(null);
 const searchQuery = ref<string>('');
 const filteredMenu = ref<MenuItem[]>([]);
 const filterFlag = ref<boolean>(false); // true: 검색 중 상태 / false: 기본 트리 상태
+const favStore = useFavoriteStore();
+const { items: favoriteList } = storeToRefs(favStore);
 
 // ==================================================
 // 사용자 정의 함수 영역
@@ -120,7 +122,7 @@ const optimizeFunction = async (): Promise<MenuItem[]> => {
         loginId: loginUser.userId,
     });
 
-    const queryResult: MenuItem[] = (response as any)?.result || [];
+    const queryResult: MenuItem[] = response?.data?.result || [];
     if (!Array.isArray(queryResult)) return [];
 
     menuList.value = queryResult;
@@ -356,10 +358,14 @@ watch(searchQuery, (nv) => {
     filterFlag.value = nv !== '';
 });
 
+// 3. onMounted 수정
 onMounted(async () => {
-    if (loginUser && loginUser.userId) {
+    if (loginUser?.userId) {
+        // 메뉴 리스트 로드
         menuDepthList.value = await optimizeFunction();
-        favoriteList.value = await createFavoriteMenu();
+
+        // 즐겨찾기 로드
+        await favStore.fetchFavoriteList(loginUser.userId);
     }
 });
 

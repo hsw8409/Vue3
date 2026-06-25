@@ -1,9 +1,9 @@
 <script setup lang="ts">
-/*
- * @file     LoginPage.vue
+/**
+ * @file     /coponents/login/LoginPage.vue
  * @menu     로그인화면
  * @author   astems
- * @since    2026-06-16
+ * @since    2026-06-23
  * @version  1.0
  */
 
@@ -12,17 +12,12 @@
 // ==================================================
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-
-import { useAuthStore } from '@/common/stores/auth';
-import { usePopupStore } from '@/common/stores/popup';
 import { utils } from '@/common/utils';
-
-import type { UserReqProps } from '@/types/auth';
-import type { ValidateProps } from '@/types/validate';
 
 // ==================================================
 // Type 선언 영역
 // ==================================================
+import type { UserProps } from '@/types/auth';
 
 // ==================================================
 // 변수 선언 영역
@@ -30,11 +25,14 @@ import type { ValidateProps } from '@/types/validate';
 const router = useRouter();
 const { t } = useI18n();
 
+// stores
 const auth = useAuthStore();
 const popup = usePopupStore();
+
 const userId = ref<string>('');
 const passwd = ref<string>('');
 const saveUserId = ref<boolean>(false);
+const isLoggingIn = ref<boolean>(false); // 중복 클릭 방지 상태
 
 // ==================================================
 // 사용자 정의 함수 영역
@@ -43,16 +41,17 @@ const saveUserId = ref<boolean>(false);
 /**
  * 로그인 이벤트
  *
- * @param
  */
 const doLogin = async () => {
+    if (isLoggingIn.value) return;
+
     if (saveUserId.value) {
         localStorage.setItem('savedId', userId.value);
     } else {
         localStorage.removeItem('savedId');
     }
 
-    const checkItems: ValidateProps[] = [
+    const checkItems: any[] = [
         { name: t('com.label.userId'), value: userId.value, required: true },
         { name: t('com.label.password'), value: passwd.value, required: true },
     ];
@@ -73,7 +72,9 @@ const doLogin = async () => {
  * @param userId 사용자아이디
  * @param passwd 비밀번호
  */
-const authLogin = async (params: UserReqProps) => {
+const authLogin = async (params: UserProps) => {
+    isLoggingIn.value = true;
+
     // 1. 로그인 시작 시 로그아웃 상태를 false로 설정 (기존 소스 동일)
     auth.setLoggedOut(false);
 
@@ -83,12 +84,16 @@ const authLogin = async (params: UserReqProps) => {
 
         // 3. 로그인 성공 시 로그아웃 상태를 다시 false로 확정 (기존 소스 동일)
         auth.setLoggedOut(false);
-
         // 비밀번호 초기화 대상인 경우
-        if (res.resetTarget === 1) {
-            await popup.openPopup('biz', 'UI_USR_P02', {
+        if (res.resetTarget === '1') {
+            popup.openPopup('biz', 'UI_USR_P02', {
                 userId: userId.value,
                 passwd: passwd.value,
+                width: 600,
+                height: 400,
+                onOk: () => {
+                    console.log('비밀번호 변경 이후 로그인화면에서 해야할 것이 있는 경우...');
+                },
             });
             return;
         }
@@ -103,8 +108,10 @@ const authLogin = async (params: UserReqProps) => {
     } catch (error) {
         const err = error as Error;
 
-        // 로그인 에러 발생 시 메시지 팝업 호출
+        // {0} \n 로그인 중 오류가 발생했습니다.
         popup.alert(t('user.message.errorOccurredWhileLogin', [err?.message]));
+    } finally {
+        isLoggingIn.value = false;
     }
 };
 
@@ -127,7 +134,7 @@ onMounted(() => {
             <svg
                 class="waves"
                 xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
+                href="http://www.w3.org/1999/xlink"
                 viewBox="0 24 150 28"
                 preserveAspectRatio="none"
                 shape-rendering="auto"
@@ -139,9 +146,9 @@ onMounted(() => {
                     />
                 </defs>
                 <g class="parallax">
-                    <use xlink:href="#gentle-wave" x="48" y="0" fill="#990011cb" />
-                    <use xlink:href="#gentle-wave" x="48" y="5" fill="#FCDEDEcb" />
-                    <use xlink:href="#gentle-wave" x="48" y="3" fill="#FFD21Ecb" />
+                    <use href="#gentle-wave" x="48" y="0" fill="#990011cb" />
+                    <use href="#gentle-wave" x="48" y="5" fill="#FCDEDEcb" />
+                    <use href="#gentle-wave" x="48" y="3" fill="#FFD21Ecb" />
                 </g>
             </svg>
         </div>
@@ -151,34 +158,37 @@ onMounted(() => {
                 <div class="logo"></div>
                 <div class="Hgroup">
                     <div class="form_wrap">
-                        <ComInput
-                            v-model="userId"
-                            :params="{ spanClass: 'form_cell form_input login' }"
-                            :placeholder="t('com.label.id')"
-                            @enter="doLogin"
-                        />
+                        <span class="form_cell form_input login">
+                            <input
+                                id="login_userId"
+                                v-model="userId"
+                                type="text"
+                                :placeholder="t('com.label.id')"
+                                maxlength="30"
+                                @keyup.enter="doLogin"
+                            />
+                        </span>
                     </div>
                     <div class="form_wrap">
-                        <ComInput
-                            v-model="passwd"
-                            :params="{ spanClass: 'form_cell form_input login' }"
-                            type="password"
-                            :placeholder="t('com.label.password')"
-                            @enter="doLogin"
-                        />
+                        <span class="form_cell form_input login">
+                            <input
+                                id="login_password"
+                                v-model="passwd"
+                                type="password"
+                                :placeholder="t('com.label.password')"
+                                maxlength="30"
+                                @keyup.enter="doLogin"
+                            />
+                        </span>
                     </div>
                 </div>
                 <div class="LoginMenu">
                     <div>
                         <div class="form_wrap">
-                            <ComCheckbox
-                                v-model="saveUserId"
-                                :params="{
-                                    label: t('user.label.idSave'),
-                                    labelFor: 'check01',
-                                    spanClass: 'form_cell form_check login',
-                                }"
-                            />
+                            <span class="form_cell form_check login">
+                                <input id="check01" v-model="saveUserId" type="checkbox" />
+                                <label for="check01">{{ t('user.label.idSave') }}</label>
+                            </span>
                         </div>
                     </div>
                 </div>

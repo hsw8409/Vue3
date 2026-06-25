@@ -128,16 +128,18 @@ onMounted(() => {
         proxy.$emitter.on('errorMessageEvent', axiosError);
     }
 
-    selectComCd().then((res: any) => {
-        if (res?.result) {
+    selectComCd().then((res) => {
+        const result = res.data?.result; // 서버에서 보낸 실제 데이터
+
+        if (result) {
             try {
-                for (const key in res.result) {
-                    if (Object.prototype.hasOwnProperty.call(res.result, key)) {
-                        localStorage.setItem(key, JSON.stringify(res.result[key] ?? {}));
-                    }
-                }
+                // Object.keys를 사용하면 hasOwnProperty 체크를 생략할 수 있어 코드가 훨씬 간결해집니다.
+                Object.keys(result).forEach((key) => {
+                    const value = result[key] ?? {};
+                    localStorage.setItem(key, JSON.stringify(value));
+                });
             } catch (error) {
-                console.error('공통 코드 공백 할당 중 스토리지 에러 발생:', error);
+                console.error('공통 코드 스토리지 저장 중 에러 발생:', error);
             }
         }
     });

@@ -9,7 +9,6 @@
  */
 import { AxiosRequestConfig } from 'axios';
 import api from '@/common/axios/api';
-import type { ApiResponse } from '@/types/axios';
 
 // =========================
 // Type 선언
@@ -66,7 +65,7 @@ export const tokenCheck = (config?: AxiosRequestConfig) => {
 
 // 메뉴목록 조회
 export function selectMenu(params?: any) {
-    return api.get<any, ApiResponse<MenuProps[]>>(`${BASE}/selectMenu`, { params });
+    return api.get(`${BASE}/selectMenu`, { params });
 }
 
 // 공통코드 조회

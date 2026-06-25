@@ -1,9 +1,9 @@
 <script setup lang="ts">
-/*
+/**
  * @file      App.vue
  * @menu      Root 컴포넌트
  * @author    astems
- * @since     2026-06-15
+ * @since     2026-06-23
  * @version   1.0
  */
 
@@ -12,19 +12,20 @@
 // ==================================================
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import Loading from '@/components/main/MainLoading.vue';
+import MainLoading from '@/components/main/MainLoading.vue';
 import AppPopup from '@/common/utils/popup/AppPopup.vue';
-import { useLayoutStore } from '@/common/stores/layout';
-import { useAuthStore } from '@/common/stores/auth';
-import { useLoadingStore } from '@/common/stores/loadingState';
+
+// ==================================================
+// Type 선언 영역
+// ==================================================
 
 // ==================================================
 // 변수 선언 영역
 // ==================================================
 const router = useRouter();
-const layoutStore = useLayoutStore();
+const layout = useLayoutStore();
 const auth = useAuthStore();
-const loadingStore = useLoadingStore();
+const loading = useLoadingStore();
 
 const appContainer = ref<HTMLElement | null>(null);
 const isMobile = ref(false);
@@ -36,6 +37,10 @@ const isLoggedIn = computed(() => auth.loggedIn);
 // ==================================================
 // 사용자 정의 함수 영역
 // ==================================================
+/**
+ * 브라우저 창 크기 변경 감지
+ *
+ */
 const setupResizeObserver = () => {
     if (!appContainer.value) return;
 
@@ -47,7 +52,7 @@ const setupResizeObserver = () => {
 
         const { width, height } = entry.contentRect;
 
-        layoutStore.setlayoutHeight(height);
+        layout.setlayoutHeight(height);
         isMobile.value = width <= 768;
     });
 
@@ -59,9 +64,14 @@ const setupResizeObserver = () => {
 // ==================================================
 watch(
     isLoggedIn,
-    (cur) => {
-        if (!cur) {
-            router.push(isMobile.value ? '/mlogin' : '/login');
+    (isLoggedIn) => {
+        // 인증 상태가 명확할 때만 리다이렉트 처리
+        if (!isLoggedIn) {
+            const targetPath = isMobile.value ? '/mlogin' : '/login';
+            // 이미 로그인 페이지에 있다면 push를 막아 중복 라우팅 방지
+            if (router.currentRoute.value.path !== targetPath) {
+                router.push(targetPath);
+            }
         }
     },
     { immediate: true },
@@ -80,7 +90,7 @@ onUnmounted(() => {
     <div ref="appContainer" style="min-height: 100vh; background: #f0f0f0">
         <AppPopup />
 
-        <Loading v-if="loadingStore.isLoading" />
+        <MainLoading v-if="loading.isLoading" />
 
         <router-view />
     </div>

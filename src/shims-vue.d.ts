@@ -1,7 +1,15 @@
 declare module '*.vue' {
     import type { DefineComponent } from 'vue';
-    // 빈 객체 {} 대신에 명시적으로 컴포넌트 타입을 정의합니다.
-    // Record<string, unknown>을 사용하여 객체임을 보장합니다.
     const component: DefineComponent<Record<string, unknown>, Record<string, unknown>, unknown>;
     export default component;
+}
+
+// Vue 템플릿 내에서 사용하는 커스텀 속성들을 전역적으로 허용합니다.
+import 'vue';
+
+declare module 'vue' {
+    interface HTMLAttributes {
+        // 팝업 드래그 및 식별을 위한 커스텀 속성
+        'data-popup-id'?: string;
+    }
 }

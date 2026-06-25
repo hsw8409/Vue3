@@ -1,125 +1,143 @@
 <script setup lang="ts">
-/*
- * @file     AppPopup.vue
+/**
+ * @file     common/utils/popup/AppPopup.vue
  * @menu     공통 팝업 컴포넌트
  * @author   astems
- * @since    2026-06-16
+ * @since    2026-06-23
  * @version  1.0
  */
-import { reactive, ref } from 'vue';
-import { usePopupStore, PopupProps } from '@/common/stores/popup';
 
-const popup = usePopupStore();
+// ==================================================
+// import 영역
+// ==================================================
+import { reactive, ref, onUnmounted } from 'vue';
+import type { PopupProps } from '@/types/popup';
 
+// ==================================================
+// Type 선언 영역
+// ==================================================
 interface PopupPosition {
     x: number;
     y: number;
 }
 
-/**
- * 팝업별 이동 위치
- */
+// ==================================================
+// 변수 선언 영역
+// ==================================================
+const popup = usePopupStore();
+
 const positions = reactive<Record<string, PopupPosition>>({});
 
-/**
- * 드래그 정보
- */
-const dragInfo = ref<{
-    id: string | null;
-    startX: number;
-    startY: number;
-}>({
+const dragInfo = ref<{ id: string | null; startX: number; startY: number }>({
     id: null,
     startX: 0,
     startY: 0,
 });
 
+// ==================================================
+// 사용자 정의 함수 영역
+// ==================================================
 /**
- * 메시지 팝업 dim 처리
+ * 팝업 화면 뒤 배경 선택시 팝업 닫기
+ *
  */
 const handleDimClick = (item: PopupProps) => {
-    if (item.type === 'message') {
-        popup.closePopup(item.id);
-    }
+    if (item.type === 'biz') popup.closePopup(item.id);
 };
 
 /**
- * 드래그 시작
+ * 팝업 타이틀 선택후 드래그 시작
+ *
  */
 const startDrag = (event: MouseEvent, item: PopupProps) => {
     if (!positions[item.id]) {
-        positions[item.id] = {
-            x: 0,
-            y: 0,
-        };
+        positions[item.id] = { x: 0, y: 0 };
     }
 
-    const position = positions[item.id];
-
-    if (!position) return;
+    const pos = positions[item.id]!;
 
     dragInfo.value = {
         id: item.id,
-        startX: event.clientX - position.x,
-        startY: event.clientY - position.y,
+        startX: event.clientX - pos.x,
+        startY: event.clientY - pos.y,
     };
 
-    document.addEventListener('mousemove', moveDrag);
-    document.addEventListener('mouseup', stopDrag);
+    window.addEventListener('mousemove', moveDrag);
+    window.addEventListener('mouseup', stopDrag);
 };
 
 /**
- * 드래그 이동
+ * 팝업 타이틀 선택후 드래그 이동
+ *
  */
 const moveDrag = (event: MouseEvent) => {
-    const id = dragInfo.value.id;
-    if (!id) return;
-
-    const position = positions[id];
-    if (!position) return;
+    const { id } = dragInfo.value;
+    if (!id || !positions[id]) return;
 
     const popupElement = document.querySelector(
         `[data-popup-id="${id}"] .popup_content_container`,
     ) as HTMLElement;
-
     if (!popupElement) return;
 
-    const popupWidth = popupElement.offsetWidth;
-    const popupHeight = popupElement.offsetHeight;
-
+    const rect = popupElement.getBoundingClientRect();
     const x = event.clientX - dragInfo.value.startX;
     const y = event.clientY - dragInfo.value.startY;
 
-    const minX = -(window.innerWidth / 2) + popupWidth / 2;
-    const maxX = window.innerWidth / 2 - popupWidth / 2;
-    const minY = -(window.innerHeight / 2) + popupHeight / 2;
-    const maxY = window.innerHeight / 2 - popupHeight / 2;
+    // 화면 경계 계산
+    const maxX = (window.innerWidth - rect.width) / 2;
+    const maxY = (window.innerHeight - rect.height) / 2;
 
-    position.x = Math.min(Math.max(x, minX), maxX);
-    position.y = Math.min(Math.max(y, minY), maxY);
+    positions[id].x = Math.min(Math.max(x, -maxX), maxX);
+    positions[id].y = Math.min(Math.max(y, -maxY), maxY);
 };
 
 /**
- * 드래그 종료
+ * 팝업 타이틀 선택후 드래그 종료
+ *
  */
 const stopDrag = () => {
     dragInfo.value.id = null;
-    document.removeEventListener('mousemove', moveDrag);
-    document.removeEventListener('mouseup', stopDrag);
+    window.removeEventListener('mousemove', moveDrag);
+    window.removeEventListener('mouseup', stopDrag);
 };
 
 /**
- * 팝업 위치 스타일
+ * 팝업 사이즈 등
+ *
  */
 const getPopupStyle = (item: PopupProps) => {
-    const position = positions[item.id];
-    if (!position) {
-        return {};
+    const pos = positions[item.id];
+    const transform = pos ? `translate(${pos.x}px, ${pos.y}px)` : '';
+
+    // 🌟 biz 타입 기본값
+    const defaultWidth = '760px';
+    const defaultHeight = '400px';
+
+    if (item.type === 'biz') {
+        const width = item.props?.width || defaultWidth;
+        const height = item.props?.height || defaultHeight;
+
+        return {
+            transform,
+            width: typeof width === 'number' ? `${width}px` : width,
+            height: typeof height === 'number' ? `${height}px` : height,
+        };
     }
+
+    // 2. 그 외(message 타입)인 경우
+    // message 타입은 크기를 CSS 클래스에 맡기고 위치(transform)만 반환합니다.
     return {
-        transform: `translate(${position.x}px, ${position.y}px)`,
+        transform,
     };
 };
+
+// ==================================================
+// Hook 영역
+// ==================================================
+onUnmounted(() => {
+    window.removeEventListener('mousemove', moveDrag);
+    window.removeEventListener('mouseup', stopDrag);
+});
 </script>
 
 <template>
@@ -128,27 +146,20 @@ const getPopupStyle = (item: PopupProps) => {
         :key="item.id"
         class="popup_overlay"
         :data-popup-id="item.id"
-        :style="{
-            zIndex: 1000 + index,
-        }"
+        :style="{ zIndex: 1000 + index }"
     >
         <div class="popup_dim" @click="handleDimClick(item)" />
-
         <div class="popup_content_container" :class="[item.type]" :style="getPopupStyle(item)">
             <div
                 v-if="item.type === 'biz'"
                 class="popup_header"
                 @mousedown="startDrag($event, item)"
             >
-                <div class="popup_title">
-                    {{ item.props?.title ? item.props.title : '' }}
-                </div>
-
+                <div class="popup_title">{{ item.props?.title || '' }}</div>
                 <button class="popup_close_btn" @mousedown.stop @click="popup.closePopup(item.id)">
                     ✕
                 </button>
             </div>
-
             <div class="popup_body">
                 <component
                     :is="item.component"
@@ -244,35 +255,27 @@ const getPopupStyle = (item: PopupProps) => {
 /* 💡 [핵심 변형] 가로/세로 스크롤바가 완벽하게 잡히는 본문 스펙 */
 .popup_body {
     padding: 16px;
+
     flex: 1;
+    min-height: 0;
 
-    /* 💡 두 축 모두 스크롤바를 자동 생성하도록 강제 */
-    overflow-x: auto !important;
-    overflow-y: auto !important;
-
-    width: 100%;
-    height: auto;
+    overflow-x: auto;
+    overflow-y: auto;
 }
 
 /* size */
 .popup_content_container.message {
     min-width: 300px;
     max-width: 400px;
+
+    height: auto;
 }
 
-/* 비즈니스 팝업 (마이페이지 등) */
+/* 비즈니스 팝업 */
 .popup_content_container.biz {
-    width: 800px;
-
-    /* 💡 [수정] 고정 height를 auto로 바꾸어 콘텐츠 양에 따라 팝업창이 핏하게 줄어들게 만듭니다. */
-    height: auto;
-
-    /* 💡 단, 늘어날 수 있는 마지노선은 화면의 90%로 제한 (넘치면 내부 스크롤 가동) */
+    max-width: 90vw;
     max-height: 90vh;
 
-    /* 테이블 가로 깨짐 방지 최소 너비 */
-    min-width: 760px;
-    max-width: 100% !important;
     display: flex;
     flex-direction: column;
 }

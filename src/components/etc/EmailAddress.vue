@@ -11,10 +11,9 @@
 // import 영역
 // ==================================================
 import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 // ==================================================
-// Props & Emits 정의 (TypeScript 엄격 버전 적용)
+// Type 선언 영역
 // ==================================================
 interface Props {
     modelValue?: string;
@@ -32,9 +31,6 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-// ==================================================
-// 반응형 상태 및 DOM Ref 변수 선언
-// ==================================================
 const emailId = ref('');
 const emailDomain = ref('');
 const readOnlyFg = ref(false);
@@ -56,6 +52,11 @@ const emailOptions = [
 // ==================================================
 // 사용자 정의 함수 영역
 // ==================================================
+
+/**
+ * 도메인 선택
+ *
+ */
 const selectEmail = (event: Event) => {
     // TypeScript 환경에서는 EventTarget을 HTMLSelectElement로 형변환해주어야 value를 인식합니다.
     const target = event.target as HTMLSelectElement;
@@ -70,13 +71,7 @@ const selectEmail = (event: Event) => {
     }
 };
 
-const setFocus = () => {
-    textRef.value?.focus();
-};
-
-defineExpose({
-    setFocus,
-});
+defineExpose({ setFocus: () => textRef.value?.focus() });
 
 // ==================================================
 // Hook / Watch 영역

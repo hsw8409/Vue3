@@ -1,40 +1,27 @@
 import { defineComponent } from 'vue';
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import TokenService from '@/common/service/token';
 import AuthService from '@/common/service/auth';
 import { tokenCheck } from '@/api/main';
 
 const NotFound = defineComponent({ template: '<div>Not Found</div>' });
 
-const routes = [
+const routes: RouteRecordRaw[] = [
+    // 1. 루트 리다이렉트 전용
     {
         path: '/',
-        name: 'root',
         redirect: '/main',
-        children: [
-            // ⭕ mlogin을 children 내부로 이동
-            {
-                path: '/mlogin',
-                name: 'mlogin',
-                component: () => import('@/components/mobile/login.vue'),
-            },
-            {
-                path: '/login',
-                name: 'login',
-                component: () => import('@/components/login/LoginPage.vue'),
-            },
-            {
-                path: '/main',
-                name: 'main',
-                component: () => import('@/components/main/MainPage.vue'),
-                children: [],
-            },
-            {
-                path: '/mobile',
-                name: 'mobile',
-                component: () => import('@/components/mobile/mobileMain.vue'),
-            },
-        ],
+    },
+    // 2. 실제 페이지 라우트 그룹
+    {
+        path: '/login',
+        name: 'login',
+        component: () => import('@/components/login/LoginPage.vue'),
+    },
+    {
+        path: '/main',
+        name: 'main',
+        component: () => import('@/components/main/MainPage.vue'),
     },
     {
         path: '/:catchAll(.*)+',

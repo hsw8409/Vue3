@@ -1,19 +1,30 @@
 <script setup lang="ts">
-/*
+/**
  * @file     PopupMessage.vue
  * @menu     공통 팝업 컴포넌트
  * @author   astems
- * @since    2026-06-16
+ * @since    2026-06-23
  * @version  1.0
  */
+
+// ==================================================
+// import 영역
+// ==================================================
 import { computed } from 'vue';
-import { PopupMessageProps, usePopupStore } from '@/common/stores/popup';
+
+// ==================================================
+// Type 선언 영역
+// ==================================================
+import type { PopupMessageProps } from '@/types/popup';
 
 // 🌟 현재 팝업의 고유 ID를 부모로부터 안전하게 전달받을 수 있도록 props 구조 확장
 interface ExtendedProps extends PopupMessageProps {
     id?: string;
 }
 
+// ==================================================
+// 변수 선언 영역
+// ==================================================
 const props = withDefaults(defineProps<ExtendedProps>(), {
     id: '',
     title: '',
@@ -28,35 +39,43 @@ const emit = defineEmits<{
     (e: 'close'): void;
 }>();
 
-// 🌟 팝업을 직접 제어할 스토어 인스턴스 생성
-const popupStore = usePopupStore();
+const popup = usePopupStore();
 
 const hasTitle = computed(() => props.title.trim().length > 0);
 
+// ==================================================
+// 사용자 정의 함수 영역
+// ==================================================
+/**
+ * ok 버튼 클릭
+ *
+ */
 const handleOkClick = (): void => {
-    // 1. 등록된 콜백 함수가 있으면 먼저 실행하고
     props.onOk?.();
 
-    // 2. 🌟 허공에 emit을 날리는 대신, 내 고유 ID를 가지고 스토어를 직접 종료시킵니다.
     if (props.id) {
-        popupStore.closePopup(props.id);
+        popup.closePopup(props.id);
     } else {
-        // 혹시나 id가 안 넘어왔을 때를 대비한 하위 호환 가드
         emit('close');
     }
 };
 
+/**
+ * cancel 버튼 클릭
+ *
+ */
 const handleCancelClick = (): void => {
-    // 1. 취소 콜백 실행
     props.onCancel?.();
 
-    // 2. 🌟 취소 버튼도 본인의 고유 ID로 스토어를 직접 깨워 확실하게 닫아줍니다.
     if (props.id) {
-        popupStore.closePopup(props.id);
+        popup.closePopup(props.id);
     } else {
         emit('close');
     }
 };
+// ==================================================
+// Hook 영역
+// ==================================================
 </script>
 
 <template>

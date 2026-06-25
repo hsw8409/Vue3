@@ -1,9 +1,9 @@
 <script setup lang="ts">
-/*
+/**
  * @file      AddressFind.vue
  * @menu      주소찾기
  * @author    astems
- * @since     2026-06-18
+ * @since     2026-06-23
  * @version   1.0
  */
 
@@ -12,10 +12,9 @@
 // ==================================================
 import { ref } from 'vue';
 import { biz } from '@/common/utils/biz';
-import { useI18n } from 'vue-i18n';
 
 // ==================================================
-// TypeScript 전역 Window 타입 정의 (daum 객체 에러 방지)
+// Type 선언 영역
 // ==================================================
 declare global {
     interface Window {
@@ -23,9 +22,6 @@ declare global {
     }
 }
 
-// ==================================================
-// Props & Emits 정의 (엄격한 타입 스펙 적용)
-// ==================================================
 interface AddressModel {
     zipno: string;
     roadAddr: string;
@@ -41,6 +37,9 @@ interface Props {
     };
 }
 
+// ==================================================
+// 변수 선언 영역
+// ==================================================
 const props = withDefaults(defineProps<Props>(), {
     params: () => ({ popupYn: false }),
 });
@@ -65,7 +64,10 @@ if (!document.querySelector(`script[src="${scriptSrc}"]`)) {
 // 사용자 정의 함수 영역
 // ==================================================
 
-// 🟩 주소 입력값 초기화 함수 수정
+/**
+ * 주소 초기화
+ *
+ */
 const resetAddress = () => {
     // props를 직접 바꾸지 않고, 완전히 비워진 새 객체를 부모에게 전달합니다.
     emit('update:modelValue', {
@@ -76,7 +78,10 @@ const resetAddress = () => {
     });
 };
 
-// 🟩 kakao 주소찾기 팝업 내 완료 함수 수정
+/**
+ * 다음 주소 팝업 호출
+ *
+ */
 const execDaumPostcode = () => {
     resetAddress();
 
@@ -124,13 +129,7 @@ const execDaumPostcode = () => {
     });
 };
 
-const setFocus = () => {
-    textRef.value?.focus();
-};
-
-defineExpose({
-    setFocus,
-});
+defineExpose({ setFocus: () => textRef.value?.focus() });
 </script>
 
 <template>
@@ -140,7 +139,7 @@ defineExpose({
                 <span class="form_cell form_input">
                     <ComInput
                         ref="textRef"
-                        :value="modelValue.zipno"
+                        :model-value="modelValue.zipno"
                         class="zip_code"
                         type="text"
                         :placeholder="t('com.label.postalNo')"
@@ -157,31 +156,22 @@ defineExpose({
             <div class="form_wrap">
                 <span class="form_cell form_input">
                     <ComInput
-                        :value="modelValue.roadAddr"
+                        :model-value="modelValue.roadAddr"
                         class="road_name"
                         type="text"
                         :placeholder="t('customer.label.roadNameAddress')"
-                        @input="
-                            emit('update:modelValue', {
-                                ...modelValue,
-                                roadAddr: ($event.target as HTMLInputElement).value,
-                            })
-                        "
                     />
                 </span>
             </div>
             <div class="form_wrap">
                 <span class="form_cell form_input ml10">
                     <ComInput
-                        :value="modelValue.roadDtlAddr"
-                        type="text"
+                        :model-value="modelValue.roadDtlAddr"
                         class="detailAdress"
+                        type="text"
                         :placeholder="t('customer.label.detailAddress')"
-                        @input="
-                            emit('update:modelValue', {
-                                ...modelValue,
-                                roadDtlAddr: ($event.target as HTMLInputElement).value,
-                            })
+                        @update:model-value="
+                            emit('update:modelValue', { ...modelValue, roadDtlAddr: $event })
                         "
                     />
                 </span>
