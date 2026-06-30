@@ -11,6 +11,7 @@
 // import 영역
 // ==================================================
 import { computed, ref } from 'vue';
+import { useLoadingStore } from '@/common/stores/loadingState';
 
 // ==================================================
 // Type 선언 영역

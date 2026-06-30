@@ -1,22 +1,29 @@
 /**
- * @file    /service/auth.ts
- * @author  astems
+ * @file     /service/auth.ts
+ * @menu     로그인 서비스
+ * @author   astems
  * @since    2026-06-17
- * @version  1.1
+ * @version  1.0
  *
- * @description 로그인 및 로그아웃 서비스 로직 (타입 안전성 강화)
+ * @description
  */
-import TokenService from '@/common/service/token';
-import { utils } from '@/common/utils';
-import { login, logout } from '@/api/auth';
-import type { UserProps } from '@/types/auth';
-import type { TokenProps } from '@/types/token';
+
+// ==================================================
+// import 영역
+// ==================================================
+import TokenService from '@/common/service/token'; // 토큰 서비스
+
+import { utils } from '@/common/utils'; // 유틸
+
+import type { UserProps } from '@/types/auth'; // 권한 타입
+import type { TokenProps } from '@/types/token'; // 토큰 타입
+
+import { login, logout } from '@/api/auth'; // api
 
 class AuthService {
     /**
      * 로그인 서비스
-     * @param user 사용자 정보
-     * @returns Promise<UserProps>
+     *
      */
     async login(user: UserProps): Promise<UserProps> {
         const res = await login(user);
@@ -31,7 +38,6 @@ class AuthService {
         const loginUser: UserProps = result.user;
         const token: TokenProps = result.token;
 
-        // 토큰 정보를 유저 객체에 통합하여 스토어에서 사용하기 쉽게 함
         loginUser.accessToken = token.accessToken;
 
         // 로컬 저장소에 저장
@@ -43,7 +49,7 @@ class AuthService {
 
     /**
      * 로그아웃 서비스
-     * @returns Promise<boolean>
+     *
      */
     async logout(): Promise<boolean> {
         try {
@@ -55,7 +61,6 @@ class AuthService {
             }
         } catch (error) {
             console.error('로그아웃 API 호출 중 오류 발생:', error);
-            // 에러가 발생해도 로컬 토큰은 삭제하여 강제 로그아웃 처리
         } finally {
             TokenService.logout();
         }

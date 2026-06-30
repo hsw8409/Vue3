@@ -3,8 +3,8 @@
  * @file     MenuTab.vue
  * @menu     메뉴 탭 제어 컴포넌트
  * @author   astems
- * @since    2026-06-17
- * @version  1.2 (ComputedRef 언래핑 버그 수정 및 컨텍스트 메뉴 바인딩)
+ * @since    2026-06-25
+ * @version  1.0
  */
 
 import {
@@ -68,10 +68,8 @@ onBeforeUpdate(() => {
 const tabs = shallowRef<TabItem[]>([]);
 const menuName = ref<any[]>([]);
 const currentIndex = ref(-1);
-const userId = ref('');
 const draggingIndex = ref(-1);
 const nowWidth = ref(0);
-const params = ref<Record<string, any>>({});
 const calcSize = ref(270);
 
 const isContextMenuVisible = ref(false);
@@ -97,19 +95,12 @@ const currentMenu = computed(() => {
 // ==================================================
 // 자식 컴포넌트 방향 데이터 공유 (Provide)
 // ==================================================
-provide(
-    'userIdContext',
-    computed(() => userId.value),
-);
+
 provide(
     'currentMenu',
     computed(() => currentMenu.value),
 );
 provide('addTab', (i: any) => addTab(i));
-provide(
-    'params',
-    computed(() => params.value),
-);
 
 // ==================================================
 // 비즈니스 로직 및 이벤트 메서드 (Methods)
@@ -163,16 +154,17 @@ const handleKeyEvents = (e: KeyboardEvent) => {
 
 // 탭 추가 함수
 const addTab = async (i: any) => {
-    // 💡 부모 computed 껍데기를 해제하여 실제 내장 배열을 할당 받습니다.
     const originList = menuList?.value || [];
-    if (!originList || originList.length === 0) return false;
+    if (!originList.length) return false;
 
-    // 💡 menuList 대신 해제된 원본 list 배열을 타겟으로 순회합니다.
     const findItem = originList.find((menu) => menu.mcd == i.menuSclsCd && menu.lv === 3);
+
     if (!findItem) return false;
 
     const findmItem = originList.find((menu) => menu.mcd === findItem.pcd && menu.lv === 2);
+
     const findlItem = originList.find((menu) => menu.mcd === findmItem.pcd && menu.lv === 1);
+
     const selectedMenu = {
         lname: findlItem.mnm,
         mname: findmItem.mnm,
@@ -189,23 +181,17 @@ const addTab = async (i: any) => {
             return false;
         }
 
-        userId.value = i.userId || '';
-        params.value = i.params || {};
-
         const findTabItem = tabs.value.findIndex(
-            (tab) => tab.menuSclsCd == selectedMenu.menuSclsCd,
+            (tab) => tab.menuSclsCd === selectedMenu.menuSclsCd,
         );
 
-        if (findTabItem == -1) {
-            menuName.value.push({
-                lname: selectedMenu.lname,
-                mname: selectedMenu.mname,
-                sname: selectedMenu.sname,
-                menuSclsCd: selectedMenu.menuSclsCd,
-                path: selectedMenu.path,
-                fileNm: selectedMenu.fileNm,
-                progCd: selectedMenu.progCd,
-            });
+        // 기존 탭의 params 보존
+        const oldParams = findTabItem >= 0 ? (tabs.value[findTabItem]?.params ?? {}) : {};
+
+        const params = i.params ?? oldParams;
+
+        if (findTabItem === -1) {
+            menuName.value.push(selectedMenu);
 
             tabs.value = [
                 ...tabs.value,
@@ -217,29 +203,33 @@ const addTab = async (i: any) => {
                     sname: selectedMenu.sname,
                     key: Date.now(),
                     refreshing: false,
-                    params: i.params || i,
+                    params,
                 },
             ];
 
             await nextTick();
+
             currentIndex.value = tabs.value.length - 1;
         } else {
             tabs.value = tabs.value.map((tab, idx) => {
                 if (idx === findTabItem) {
                     return {
                         ...tab,
-                        params: { ...i },
+                        params,
                     };
                 }
+
                 return tab;
             });
 
             currentIndex.value = findTabItem;
         }
+
         return true;
     } catch (error: any) {
-        const errMsg = error?.message || error.toString();
-        popup.alert(`${errMsg}\n새로고침 후 이용해주세요.`);
+        popup.alert(`${error?.message || error}\n새로고침 후 이용해주세요.`);
+
+        return false;
     }
 };
 
@@ -501,7 +491,7 @@ watch(currentIndex, (newIndex) => {
         <template #default>
             <div id="container">
                 <KeepAlive>
-                    <Component
+                    <component
                         :is="currentTabComponent"
                         :key="currentTabKey"
                         :menu-info="currentMenu"
@@ -517,7 +507,6 @@ watch(currentIndex, (newIndex) => {
 </template>
 
 <style scoped>
-/* 기존 주신 스타일 보존 */
 .context-menu {
     list-style: none;
     position: absolute;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * @file     /coponents/login/LoginPage.vue
+ * @file     LoginPage.vue
  * @menu     로그인화면
  * @author   astems
  * @since    2026-06-23
@@ -10,14 +10,19 @@
 // ==================================================
 // import 영역
 // ==================================================
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { utils } from '@/common/utils';
+import { ref, onMounted } from 'vue'; // vue 기본 기능
+import { useRouter } from 'vue-router'; // 라우터
+import { useI18n } from 'vue-i18n'; // 다국어
+
+import { useAuthStore } from '@/common/stores/auth'; // 권한
+import { usePopupStore } from '@/common/stores/popup'; // 팝업
+
+import { utils } from '@/common/utils'; // 유틸
 
 // ==================================================
 // Type 선언 영역
 // ==================================================
-import type { UserProps } from '@/types/auth';
+import type { UserProps } from '@/types/auth'; // 권한 타입
 
 // ==================================================
 // 변수 선언 영역
@@ -25,39 +30,35 @@ import type { UserProps } from '@/types/auth';
 const router = useRouter();
 const { t } = useI18n();
 
-// stores
 const auth = useAuthStore();
 const popup = usePopupStore();
 
 const userId = ref<string>('');
 const passwd = ref<string>('');
 const saveUserId = ref<boolean>(false);
-const isLoggingIn = ref<boolean>(false); // 중복 클릭 방지 상태
 
 // ==================================================
 // 사용자 정의 함수 영역
 // ==================================================
 
 /**
- * 로그인 이벤트
+ * 로그인 버튼 이벤트
  *
  */
-const doLogin = async () => {
-    if (isLoggingIn.value) return;
-
+const onLogin = async () => {
+    // localStorage에 아이디 저장
     if (saveUserId.value) {
         localStorage.setItem('savedId', userId.value);
     } else {
         localStorage.removeItem('savedId');
     }
 
+    // 입력 검증
     const checkItems: any[] = [
         { name: t('com.label.userId'), value: userId.value, required: true },
         { name: t('com.label.password'), value: passwd.value, required: true },
     ];
-
     const isValid = await utils.validator.validateBeforeSubmit(checkItems, t);
-
     if (!isValid) return;
 
     authLogin({
@@ -69,21 +70,15 @@ const doLogin = async () => {
 /**
  * 로그인 처리
  *
- * @param userId 사용자아이디
- * @param passwd 비밀번호
  */
 const authLogin = async (params: UserProps) => {
-    isLoggingIn.value = true;
-
-    // 1. 로그인 시작 시 로그아웃 상태를 false로 설정 (기존 소스 동일)
+    // 로그인 시작 시 로그아웃 상태를 false로 설정
     auth.setLoggedOut(false);
 
     try {
-        // 2. Pinia의 login 액션 호출
+        // 로그인 요청
         const res = await auth.login(params);
 
-        // 3. 로그인 성공 시 로그아웃 상태를 다시 false로 확정 (기존 소스 동일)
-        auth.setLoggedOut(false);
         // 비밀번호 초기화 대상인 경우
         if (res.resetTarget === '1') {
             popup.openPopup('biz', 'UI_USR_P02', {
@@ -91,9 +86,6 @@ const authLogin = async (params: UserProps) => {
                 passwd: passwd.value,
                 width: 600,
                 height: 400,
-                onOk: () => {
-                    console.log('비밀번호 변경 이후 로그인화면에서 해야할 것이 있는 경우...');
-                },
             });
             return;
         }
@@ -109,9 +101,7 @@ const authLogin = async (params: UserProps) => {
         const err = error as Error;
 
         // {0} \n 로그인 중 오류가 발생했습니다.
-        popup.alert(t('user.message.errorOccurredWhileLogin', [err?.message]));
-    } finally {
-        isLoggingIn.value = false;
+        popup.alert(t('user.message.loginErr001', [err?.message]));
     }
 };
 
@@ -119,6 +109,7 @@ const authLogin = async (params: UserProps) => {
 // Hook 영역
 // ==================================================
 onMounted(() => {
+    // localStorage에 있는 사용자 ID가 있으면 자동으로 셋팅해준다.
     const savedUserId = localStorage.getItem('savedId');
 
     if (savedUserId) {
@@ -165,7 +156,7 @@ onMounted(() => {
                                 type="text"
                                 :placeholder="t('com.label.id')"
                                 maxlength="30"
-                                @keyup.enter="doLogin"
+                                @keyup.enter="onLogin"
                             />
                         </span>
                     </div>
@@ -177,7 +168,7 @@ onMounted(() => {
                                 type="password"
                                 :placeholder="t('com.label.password')"
                                 maxlength="30"
-                                @keyup.enter="doLogin"
+                                @keyup.enter="onLogin"
                             />
                         </span>
                     </div>
@@ -192,7 +183,7 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-                <button type="button" class="LoginBtn" @click="doLogin">
+                <button type="button" class="LoginBtn" @click="onLogin">
                     <span>LOGIN</span>
                 </button>
             </div>

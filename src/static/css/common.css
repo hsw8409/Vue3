@@ -209,6 +209,8 @@ input[type='text'],
 input[type='number'],
 input[type='password'],
 input[type='email'] textarea {
+    /* 표준 속성 (최신 브라우저) */
+    appearance: none;
     -webkit-appearance: none;
 }
 input[type='text']:disabled,
@@ -950,9 +952,7 @@ textarea {
     width: 32px;
     height: 32px;
 }
-#main #MenuTab .tabBtn button + button {
-    /* margin-left: 3px; */
-}
+
 #main #MenuTab .tabBtn button span {
     display: inline-block;
     font: 600 11px/13px 'Jost';
@@ -2122,6 +2122,21 @@ button.brown span {
     overflow: hidden;
     border: 0;
 }
+
+.btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-download::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url('/src/static/img/ico_download.png') no-repeat center/20px 20px;
+}
+
 #customDate .v3dp__input_wrapper input {
     height: 28px;
     border: 1px solid #c7c7c7;
@@ -2166,7 +2181,7 @@ button.brown span {
     height: 28px;
     border: 1px solid #c7c7c7;
     text-align: center;
-    width: 32%;
+    width: 40%;
 }
 
 .datePickerClass {
@@ -2547,4 +2562,19 @@ table.tableLayout + h3 {
     width: 100%;
     display: flex;
     align-items: center;
+}
+
+/* 팝업 전용 */
+.popup-main {
+    width: 100%;
+}
+
+.popup-container {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+}
+
+.popup-grid {
+    height: calc(100% - 150px);
 }

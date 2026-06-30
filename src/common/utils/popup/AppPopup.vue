@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * @file     common/utils/popup/AppPopup.vue
+ * @file     AppPopup.vue
  * @menu     공통 팝업 컴포넌트
  * @author   astems
  * @since    2026-06-23
@@ -11,6 +11,7 @@
 // import 영역
 // ==================================================
 import { reactive, ref, onUnmounted } from 'vue';
+import { usePopupStore } from '@/common/stores/popup';
 import type { PopupProps } from '@/types/popup';
 
 // ==================================================
@@ -109,14 +110,11 @@ const getPopupStyle = (item: PopupProps) => {
     const pos = positions[item.id];
     const transform = pos ? `translate(${pos.x}px, ${pos.y}px)` : '';
 
-    // 🌟 biz 타입 기본값
-    const defaultWidth = '760px';
-    const defaultHeight = '400px';
-
     if (item.type === 'biz') {
-        const width = item.props?.width || defaultWidth;
-        const height = item.props?.height || defaultHeight;
+        const width = item.props?.width || 'auto';
+        const height = item.props?.height || 'auto';
 
+        console.info('width>>>', width);
         return {
             transform,
             width: typeof width === 'number' ? `${width}px` : width,

@@ -1,32 +1,39 @@
 /**
- * @file     /common/stores/auth.ts
- * @menu     인증 상태 관리
+ * @file     /stores/auth.ts
+ * @menu     인증 상태 관리 store
  * @author   astems
  * @since    2026-06-23
  * @version  1.0
  */
+
+// ==================================================
+// import 영역
+// ==================================================
 import { defineStore } from 'pinia';
 import AuthService from '@/common/service/auth';
 import TokenService from '@/common/service/token';
 import type { UserProps } from '@/types/auth';
 
+// ==================================================
+// Type 선언 영역
+// ==================================================
 interface AuthState {
     user: UserProps | null;
+    isAuthenticated: boolean;
     isLoggedOut: boolean;
-    loggedIn: boolean;
 }
 
 export const useAuthStore = defineStore('auth', {
     // 1. State
     state: (): AuthState => ({
         user: TokenService.getUser() || null,
-        loggedIn: !!(TokenService.getUser() && TokenService.getToken()),
+        isAuthenticated: !!(TokenService.getUser() && TokenService.getToken()),
         isLoggedOut: false,
     }),
 
     // 2. Getters
     getters: {
-        isLoggedIn: (state): boolean => !!state.user && state.loggedIn,
+        isLoggedIn: (state): boolean => !!state.user && state.isAuthenticated,
         getUser: (state): UserProps | null => state.user,
     },
 
@@ -37,7 +44,7 @@ export const useAuthStore = defineStore('auth', {
             try {
                 const res = await AuthService.login(user);
                 this.user = res;
-                this.loggedIn = true;
+                this.isAuthenticated = true;
                 this.isLoggedOut = false;
                 return res;
             } catch (error) {
@@ -55,10 +62,10 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
-        // 상태 초기화 (중복 로직 통합)
+        // 상태 초기화
         resetState() {
             this.user = null;
-            this.loggedIn = false;
+            this.isAuthenticated = false;
             this.isLoggedOut = true;
         },
 
@@ -67,15 +74,6 @@ export const useAuthStore = defineStore('auth', {
             if (this.user) {
                 this.user.accessToken = accessToken;
             }
-        },
-
-        // 회원가입 성공/실패 핸들러
-        registerSuccess() {
-            this.loggedIn = false;
-        },
-
-        registerFailure() {
-            this.loggedIn = false;
         },
 
         // 로그아웃 상태 플래그 설정

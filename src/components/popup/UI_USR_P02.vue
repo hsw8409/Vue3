@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * @file     /components/popup/UI_USR_P02.vue
+ * @file     UI_USR_P02.vue
  * @menu     비밀번호 변경 팝업
  * @author   astems
  * @since    2026-06-23
@@ -10,8 +10,12 @@
 // ==================================================
 // import 영역
 // ==================================================
-import { ref, onMounted, onActivated, reactive } from 'vue';
-import { updatePassword } from '@/api/auth';
+import { ref, onMounted, onActivated, reactive } from 'vue'; // vue 기본 기능
+import { useI18n } from 'vue-i18n'; // 다국어
+
+import { usePopupStore } from '@/common/stores/popup'; // 팝업
+
+import { updatePassword } from '@/api/auth'; // api
 
 // ==================================================
 // Type 선언 영역

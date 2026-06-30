@@ -10,66 +10,52 @@
 // ==================================================
 // import 영역
 // ==================================================
-import { ref, computed } from 'vue';
-
-interface CheckBoxParams {
-    label?: string;
-    labelFor?: string;
-    spanClass?: string;
-}
+import { ref, computed, useAttrs } from 'vue';
 
 interface Props {
-    modelValue?: boolean;
-    params?: CheckBoxParams;
+    modelValue?: string;
+    id?: string;
+    value?: any; // 체크박스 자체의 value 속성
+    label?: string;
 }
 
 // ==================================================
 // 변수 선언 영역
 // ==================================================
-// 기본값 정의와 함께 props 주입
+// 루트 엘리먼트 자동 속성 상속 방지
+defineOptions({ inheritAttrs: false });
+
 const props = withDefaults(defineProps<Props>(), {
-    modelValue: false,
-    params: () => ({}),
+    modelValue: '',
+    id: '',
+    value: undefined,
+    label: '',
 });
 
-// 이벤트 바인딩
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: boolean): void;
-    (e: 'change', event: Event): void; // HTML 원본 체인지 이벤트 전달 규격
+    (e: 'update:modelValue', value: any): void;
+    (e: 'change', event: Event): void;
 }>();
-
 // ref
 const checkboxRef = ref<HTMLInputElement | null>(null);
 
-// 부모 컴포넌트와 데이터 통신을 위해 처리
-const selectedValue = computed({
-    get(): boolean {
-        return props.modelValue;
-    },
-    set(value: boolean) {
-        emit('update:modelValue', value);
-    },
-});
-
-// 반응형 흐름을 놓치지 않도록 computed 처리
-const spanRefClass = computed(() => props.params?.spanClass || 'form_cell form_check');
+const attrs = useAttrs();
+// ID 자동 생성
+const attrId = computed(
+    () => (props.id as string) || `checkbox_${Math.random().toString(36).substring(2, 9)}`,
+);
 
 // ==================================================
 // 사용자 정의 함수 영역
 // ==================================================
-// 체크
-function onChange(event: Event): void {
+const handleChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    emit('update:modelValue', target.checked);
     emit('change', event);
-}
+};
 
-// focus 메서드 생성
-function setFocus(): void {
-    checkboxRef.value?.focus();
-}
-
-// 부모 컴포넌트가 ref를 통해 제어할 메서드 공개
 defineExpose({
-    setFocus,
+    setFocus: () => checkboxRef.value?.focus(),
 });
 
 // ==================================================
@@ -78,17 +64,15 @@ defineExpose({
 </script>
 
 <template>
-    <span :class="spanRefClass">
+    <span class="form_cell form_check'">
         <input
-            :id="params.labelFor"
+            :id="attrId"
             ref="checkboxRef"
-            v-model="selectedValue"
+            :value="modelValue"
             type="checkbox"
-            v-bind="$attrs"
-            @change="onChange"
+            v-bind="attrs"
+            @change="handleChange"
         />
-        <label v-if="params.label" :for="params.labelFor">
-            <span>{{ params.label }}</span>
-        </label>
+        <label v-if="label" :for="attrId">{{ label }}</label>
     </span>
 </template>

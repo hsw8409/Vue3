@@ -1,7 +1,20 @@
+/**
+ * @file     biz.ts
+ * @menu     biz utils
+ * @author   astems
+ * @since    2026-06-30
+ * @version  1.0
+ *
+ * @description
+
+ */
+// ==================================================
+// import 영역
+// ==================================================
 import dayjs from 'dayjs';
 
 /**
- * 업무 공통 날짜 유틸리티 모듈
+ * 날짜 유틸리티 모듈
  */
 export const dateUtil = {
     /**

@@ -1,9 +1,24 @@
-import { defineAsyncComponent, markRaw } from 'vue';
+/**
+ * @file     index.ts
+ * @menu     util index
+ * @author   astems
+ * @since    2026-06-30
+ * @version  1.0
+ *
+ * @description
+
+ */
+// ==================================================
+// import 영역
+// ==================================================
 import type { Component } from 'vue';
+import { defineAsyncComponent, markRaw } from 'vue';
+
 import { biz } from '@/common/utils/biz';
 import { dateUtil } from '@/common/utils/dateUtil.ts';
 import { validator } from '@/common/utils/validator.ts';
 import { stringUtil } from '@/common/utils/stringUtil.ts';
+import { fileService } from '@/common/utils/file.ts';
 
 /* =====================
     Utils Type
@@ -73,4 +88,5 @@ export const utils = {
     dateUtil,
     validator,
     stringUtil,
+    file: fileService,
 };

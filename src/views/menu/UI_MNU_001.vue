@@ -10,13 +10,16 @@
 // ==================================================
 // import 영역
 // ==================================================
-import { ref, onMounted, onUnmounted, watch } from 'vue'; // 💡 onUnmounted, watch 추가
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
 import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
 
 import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import MenuTop from '@/components/menu/MenuTop.vue'; // 메뉴&메뉴 공통 버튼 (데이터 기반으로 전체 )
+import MenuContent from '@/components/menu/MenuContent.vue'; // 메뉴 메인
+import ComButton from '@/components/form/ComButton.vue';
 import { utils } from '@/common/utils';
 import { usePopupStore } from '@/common/stores/popup';
 
@@ -48,8 +51,8 @@ const myGrid3 = ref<any>(null);
 const savelmenuCd = ref('');
 const savemmenuCd = ref('');
 
-const COM010 = JSON.parse(localStorage.getItem('COM010') ?? '{}');
-const COM900 = JSON.parse(localStorage.getItem('COM900') ?? '{}');
+const COM010 = JSON.parse(localStorage.getItem('COM010') ?? '[]');
+const COM900 = JSON.parse(localStorage.getItem('COM900') ?? '[]');
 const menuTopRef = ref(null); // 메뉴 공통 버튼
 
 const popup = usePopupStore();
@@ -72,18 +75,6 @@ const gridProps: GridProps = ref(
             height: gridResizeHeight.value,
         })
         .build(),
-);
-
-// 💡 layoutStore의 높이가 스토어 안에서 바뀔 때 그리드 높이 변수도 동기화
-watch(
-    () => layoutStore.layoutHeight,
-    (newHeight) => {
-        gridResizeHeight.value = newHeight - utils.biz.MENU_LAYOUT.ST;
-        if (gridProps.value.extraProps) {
-            gridProps.value.extraProps.height = gridResizeHeight.value;
-        }
-        resizeAllGrids();
-    },
 );
 
 // 대분류 그리드 레이아웃
@@ -247,13 +238,6 @@ const columnLayout3 = [
 // 사용자 정의 함수 영역
 // ==================================================
 
-// 💡 [추가] 윈도우/레이아웃 변경 시 호출할 모든 그리드 크기 재정렬 함수
-const resizeAllGrids = () => {
-    if (myGrid1.value?.resize) myGrid1.value.resize();
-    if (myGrid2.value?.resize) myGrid2.value.resize();
-    if (myGrid3.value?.resize) myGrid3.value.resize();
-};
-
 // 초기화 함수
 const reset = () => {
     const okCallback = () => {
@@ -293,9 +277,6 @@ const searchMainCategory = () => {
         .then((res) => {
             grid.setGridData(res?.data?.result);
             grid.removeAjaxLoader();
-
-            // 데이터 로드 후 레이아웃 깨짐 보정
-            setTimeout(resizeAllGrids, 50);
         })
         .catch((e) => {
             popup.alert(e.message);
@@ -321,7 +302,6 @@ const searchMiddleCategory = () => {
             // 그리드 데이터 삽입
             grid2.setGridData(res?.data?.result);
             grid2.removeAjaxLoader();
-            setTimeout(resizeAllGrids, 50);
         })
         .catch((e) => {
             popup.alert(e.message);
@@ -346,7 +326,6 @@ const searchProgram = () => {
             // 그리드 데이터 삽입
             grid3.setGridData(res?.data?.result);
             grid3.removeAjaxLoader();
-            setTimeout(resizeAllGrids, 50);
         })
         .catch((e) => {
             popup.alert(e.message);
@@ -405,9 +384,8 @@ const saveMainCategory = async () => {
     // 변경된 데이터 가져오기
     const mainCategoryData = utils.validator.getGridSaveData(grid);
 
-    popup.confirm(t('com.message.confirmSave'), undefined).then((isConfirmed) => {
-        // 팝업 모듈의 리턴값 설계에 따라 (isConfirmed === true) 또는 조건문 없이 바로 실행
-        if (isConfirmed) {
+    popup.confirm(t('com.message.confirmSave'), undefined, {
+        onOk: async () => {
             saveLmenu(mainCategoryData)
                 .then((res: any) => {
                     popup.alert(t('com.message.itemProcessed', [res?.result]));
@@ -418,7 +396,7 @@ const saveMainCategory = async () => {
                     popup.alert(e?.message || String(e));
                     grid.removeAjaxLoader();
                 });
-        }
+        },
     });
 };
 
@@ -646,16 +624,8 @@ onMounted(() => {
     myGrid2.value.clearGridData();
     myGrid3.value.clearGridData();
 
-    // 💡 브라우저 창 변경 시 AUIGrid 자동 크기 최적화 등록
-    window.addEventListener('resize', resizeAllGrids);
-
     // 화면이 로드된 이후 실행
     searchMainCategory();
-});
-
-// 💡 메모리 누수 및 이벤트 충돌 방지를 위한 해제 처리
-onUnmounted(() => {
-    window.removeEventListener('resize', resizeAllGrids);
 });
 </script>
 
@@ -678,7 +648,7 @@ onUnmounted(() => {
                         />
                     </div>
                 </div>
-                <div class="menu-grid-wrapper">
+                <div id="auiGrid">
                     <AUIGrid
                         ref="myGrid1"
                         :column-layout="columnLayout1"
@@ -705,7 +675,7 @@ onUnmounted(() => {
                         />
                     </div>
                 </div>
-                <div class="menu-grid-wrapper">
+                <div id="auiGrid">
                     <AUIGrid
                         ref="myGrid2"
                         :column-layout="columnLayout2"
@@ -725,7 +695,7 @@ onUnmounted(() => {
                         <ComButton :params="{ name: t('com.label.save') }" @click="saveProgram" />
                     </div>
                 </div>
-                <div class="menu-grid-wrapper">
+                <div id="auiGrid">
                     <AUIGrid
                         ref="myGrid3"
                         :column-layout="columnLayout3"
@@ -746,15 +716,5 @@ onUnmounted(() => {
 }
 .rightAlign {
     text-align: right !important;
-}
-
-/* 💡 HTML 표준 가이드 준수 및 그리드 가시성 확보를 위한 스타일 추가 */
-.menu-grid-wrapper {
-    width: 100%;
-    position: relative;
-}
-
-.menu-grid-wrapper :deep(.aui-grid) {
-    width: 100% !important;
 }
 </style>

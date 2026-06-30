@@ -1,9 +1,16 @@
-/*
- * @file     loading.ts
- * @menu     전역 API 요청 프로그레스 바 상태 관리 스토어
+/**
+ * @file     loadingState.ts
+ * @menu     로딩바 관련 store
  * @author   astems
  * @since    2026-06-17
+ * @version  1.0
+ *
+ * @description
  */
+
+// ==================================================
+// import 영역
+// ==================================================
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 

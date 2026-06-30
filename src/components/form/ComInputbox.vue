@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * @file    /components/form/ComInput.vue
+ * @file    /components/form/ComInputbox.vue
  * @menu    입력박스 공통 컴포넌트
  * @author  astems
  * @since   2026-06-23
@@ -10,7 +10,7 @@
 // ==================================================
 // import 영역
 // ==================================================
-import { ref, computed } from 'vue';
+import { ref, computed, useAttrs } from 'vue';
 
 // ==================================================
 // Type 선언 영역
@@ -18,7 +18,7 @@ import { ref, computed } from 'vue';
 
 // 컴포넌트 표준 Props 정의 (기능/표준 속성 위주)
 interface Props {
-    modelValue?: string;
+    modelValue?: string | number;
     placeholder?: string;
     type?: string;
     id?: string;
@@ -26,7 +26,10 @@ interface Props {
     autocomplete?: string;
     disabled?: boolean;
     readonly?: boolean;
+    label?: string;
+    maxlength?: string | number;
     // 기타 필요한 속성들만 추가...
+    [key: string]: any;
 }
 
 // ==================================================
@@ -44,6 +47,8 @@ const props = withDefaults(defineProps<Props>(), {
     autocomplete: 'off',
     disabled: false,
     readonly: false,
+    label: '',
+    maxlength: undefined,
 });
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
@@ -78,6 +83,7 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
 </script>
 
 <template>
+    <label v-if="label" :for="attrId">{{ label }}</label>
     <span class="form_cell form_input">
         <template v-if="isPassword">
             <div class="password-wrapper">
@@ -89,6 +95,7 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
                     :value="modelValue"
                     :readonly="readonly"
                     :disabled="disabled"
+                    :maxlength="maxlength"
                     v-bind="attrs"
                     @input="onInput"
                     @keyup.enter="onEnter"
@@ -106,6 +113,7 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
                 :value="modelValue"
                 :readonly="readonly"
                 :disabled="disabled"
+                :maxlength="maxlength"
                 v-bind="attrs"
                 @input="onInput"
                 @keyup.enter="onEnter"

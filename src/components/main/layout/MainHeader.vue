@@ -14,6 +14,13 @@ import { computed, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import TokenService from '@/common/service/token';
 
+import { useAuthStore } from '@/common/stores/auth';
+import { usePopupStore } from '@/common/stores/popup';
+
+// ==================================================
+// Type 선언 영역
+// ==================================================
+
 // ==================================================
 // 변수 선언 영역
 // ==================================================

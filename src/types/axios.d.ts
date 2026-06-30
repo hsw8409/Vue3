@@ -1,5 +1,3 @@
-// types/axios.ts
-
 export interface ApiResponse<T = any> {
     code?: number;
     status?: string;

@@ -1,5 +1,6 @@
 /**
- * @file     /common/utils/crypto.ts
+ * @file     crypto.ts
+ * @menu     암/복호화 모듈
  * @author   astems
  * @since    2026-06-17
  * @version  1.0
@@ -8,6 +9,9 @@
  * AES-CBC-PKCS7 양방향 암호화/복호화 유틸리티
  */
 
+// ==================================================
+// import 영역
+// ==================================================
 import CryptoJS from 'crypto-js';
 
 // ⚠️ 보안 팁: 실제 운영 환경에서는 이 키들을 환경 변수(process.env 또는 import.meta.env)로 관리하는 것이 좋습니다.

@@ -1549,7 +1549,7 @@
             "duplicateUserId": "중복되는 사용자 ID 입니다.",
             "useAbleUserId": "사용 가능한 사용자 ID 입니다.",
             "checkDuplicateUserId": "사용자 ID를 중복 확인을 해주세요.",
-            "errorOccurredWhileLogin": "{0} \n 로그인 중 오류가 발생했습니다.",
+            "loginErr001": "{0} \n 로그인 중 오류가 발생했습니다.",
             "passwordNotMatched": "비밀번호가 일치하지 않습니다.",
             "passwordSetup": "비밀번호는 5자리 이상 설정해 주세요.",
             "passwordChanged": "비밀번호가 변경되었습니다."

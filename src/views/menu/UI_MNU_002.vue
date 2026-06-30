@@ -10,13 +10,17 @@
 // ==================================================
 // import 영역
 // ==================================================
-import { ref, onMounted } from 'vue'; //App.js에 선언된 글로벌에서 가져다 씀.
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
 import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
 import { utils } from '@/common/utils';
 import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import MenuTop from '@/components/menu/MenuTop.vue'; // 메뉴&메뉴 공통 버튼 (데이터 기반으로 전체 )
+import MenuContent from '@/components/menu/MenuContent.vue'; // 메뉴 메인
+import ComButton from '@/components/form/ComButton.vue';
+
 import { usePopupStore } from '@/common/stores/popup';
 import { selectMenuGroup, selectMenuGroupUserProgram, saveMenuGroupProgram } from '@/api/menu'; //backend
 
@@ -37,10 +41,10 @@ const myGrid = ref<any>(null);
 const myGridUser = ref<any>(null);
 const myGridProgram = ref<any>(null);
 
-const EAT050 = JSON.parse(localStorage.getItem('EAT050') ?? '{}');
-const EAT150 = JSON.parse(localStorage.getItem('EAT150') ?? '{}');
-const COM010 = JSON.parse(localStorage.getItem('EAT150') ?? '{}');
-const COM900 = JSON.parse(localStorage.getItem('COM900') ?? '{}');
+const EAT050 = JSON.parse(localStorage.getItem('EAT050') ?? '[]');
+const EAT150 = JSON.parse(localStorage.getItem('EAT150') ?? '[]');
+const COM010 = JSON.parse(localStorage.getItem('COM010') ?? '[]');
+const COM900 = JSON.parse(localStorage.getItem('COM900') ?? '[]');
 
 let clickedRow_grid1 = {}; // 그리드 선택행
 
@@ -387,7 +391,6 @@ const searchMenuGroupInfo = (toSelectRowId?: string) => {
                           { menuGrpCd: 0 },
                       )
                     : toSelectRowId;
-            //(수정)메뉴그룹코드가 있는 경우 해당 코드 사용하고 , (신규)-인 경우 최대 메뉴그룹코드. (삭제)사라져서 없는 경우 -1 맨 첫 라인 선택하게 됨
 
             gridGroup.removeAjaxLoader();
             if (toSelectRowId) {
@@ -443,7 +446,7 @@ const searchMenuProgram = (obj: any) => {
 
             gridProgram.setGridData(
                 res.data.result.programDtos.map((v: any) => ({ ...v, menuGrpCd })),
-            ); //신규 페이지가 생긴 경우 추가하기 위한 것
+            );
             gridUser.removeAjaxLoader();
             gridProgram.removeAjaxLoader();
 
@@ -623,7 +626,7 @@ const changeUseYn = (event: any) => {
     const grid = myGridProgram.value;
     const selectedRow = event.selectedItems;
 
-    if (selectedRow.length > 1) {
+    if (selectedRow?.length > 1) {
         // 사용여부 변경 처리
         for (const sRow of selectedRow) {
             sRow.item.useYn = 'Y';

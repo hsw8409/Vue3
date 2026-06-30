@@ -12,6 +12,9 @@
 // ==================================================
 import { ref } from 'vue';
 import { biz } from '@/common/utils/biz';
+import { useI18n } from 'vue-i18n';
+
+import ComInputbox from '@/components/form/ComInputbox.vue';
 
 // ==================================================
 // Type 선언 영역
@@ -23,7 +26,7 @@ declare global {
 }
 
 interface AddressModel {
-    zipno: string;
+    zipNo: string;
     roadAddr: string;
     roadDtlAddr: string;
     [key: string]: any;
@@ -31,18 +34,12 @@ interface AddressModel {
 
 interface Props {
     modelValue: AddressModel;
-    params?: {
-        popupYn?: boolean;
-        [key: string]: any;
-    };
 }
 
 // ==================================================
 // 변수 선언 영역
 // ==================================================
-const props = withDefaults(defineProps<Props>(), {
-    params: () => ({ popupYn: false }),
-});
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: AddressModel): void;
@@ -72,7 +69,7 @@ const resetAddress = () => {
     // props를 직접 바꾸지 않고, 완전히 비워진 새 객체를 부모에게 전달합니다.
     emit('update:modelValue', {
         ...props.modelValue,
-        zipno: '',
+        zipNo: '',
         roadAddr: '',
         roadDtlAddr: '',
     });
@@ -115,7 +112,7 @@ const execDaumPostcode = () => {
 
             emit('update:modelValue', {
                 ...props.modelValue,
-                zipno: data.zonecode,
+                zipNo: data.zonecode,
                 roadAddr: roadAddr + extraRoadAddr,
                 roadDtlAddr: '',
             });
@@ -134,12 +131,12 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
 
 <template>
     <div class="address">
-        <div :class="['flex', params.popupYn ? 'smallPopup' : 'small']">
+        <div class="flex smallPopup">
             <div class="form_wrap">
                 <span class="form_cell form_input">
-                    <ComInput
+                    <ComInputbox
                         ref="textRef"
-                        :model-value="modelValue.zipno"
+                        :model-value="modelValue.zipNo"
                         class="zip_code"
                         type="text"
                         :placeholder="t('com.label.postalNo')"
@@ -155,7 +152,7 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
         <div class="addressDtl">
             <div class="form_wrap">
                 <span class="form_cell form_input">
-                    <ComInput
+                    <ComInputbox
                         :model-value="modelValue.roadAddr"
                         class="road_name"
                         type="text"
@@ -165,7 +162,7 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
             </div>
             <div class="form_wrap">
                 <span class="form_cell form_input ml10">
-                    <ComInput
+                    <ComInputbox
                         :model-value="modelValue.roadDtlAddr"
                         class="detailAdress"
                         type="text"
@@ -184,9 +181,7 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
 .flex.smallPopup {
     width: 40% !important;
 }
-.flex.small {
-    width: 15% !important;
-}
+
 .zip_code {
     width: 100% !important;
 }

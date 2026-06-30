@@ -8,9 +8,9 @@
 /* eslint-disable */
 
 // 프로젝트 경로에 맞게 바꾸세요
-import '../AUIGrid/AUIGrid';
-import '../AUIGrid/AUIGridLicense';
-import '../AUIGrid/AUIGrid_style.css';
+import '@/static/AUIGrid/AUIGrid.js';
+import '@/static/AUIGrid/AUIGridLicense.js';
+import '@/static/AUIGrid/AUIGrid_style.css';
 
 // AUIGrid.defaultProps 에 공통적인 속성을 설정합니다.
 // AUIGrid.defaultProps 설정은 AUIGrid.js 정의 이후 선언해야 합니다.
@@ -821,6 +821,8 @@ export default {
             $ag.resetUpdatedItems.call($ag, this.pid, arguments[0]);
         },
         resize(width, height) {
+            console.log('AUIGrid resize pid =', this.pid);
+            console.log('DOM =', document.getElementById(this.pid));
             $ag.resize.call($ag, this.pid, arguments[0], arguments[1]);
         },
         restoreEditedCells(cells) {

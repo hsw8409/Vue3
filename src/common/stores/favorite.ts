@@ -1,10 +1,21 @@
-// stores/favorite.ts
+/**
+ * @file     favorite.ts
+ * @menu     즐겨찾기 관리 store
+ * @author   astems
+ * @since    2026-06-23
+ * @version  1.0
+ */
+
+// ==================================================
+// import 영역
+// ==================================================
 import { defineStore } from 'pinia';
 import { selectFavoriteMenu, addFavorite, deleteFavorite } from '@/api/favorite';
+import type { FavoriteProps } from '@/types/favorite';
 
 export const useFavoriteStore = defineStore('favorite', {
     state: () => ({
-        items: [] as any[],
+        items: [] as FavoriteProps[],
     }),
     actions: {
         async toggleFavorite(userId: string, menuCd: string, isCurrentlyOn: boolean) {

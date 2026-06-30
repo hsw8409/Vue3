@@ -11,6 +11,9 @@
 // import 영역
 // ==================================================
 import { ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+import ComInputbox from '@/components/form/ComInputbox.vue';
 
 // ==================================================
 // Type 선언 영역
@@ -114,7 +117,7 @@ watch([emailId, emailDomain], () => {
     <div class="email" style="width: auto">
         <div class="form_wrap">
             <span class="form_cell form_input">
-                <ComInput
+                <ComInputbox
                     ref="textRef"
                     v-model="emailId"
                     type="text"
@@ -140,7 +143,7 @@ watch([emailId, emailDomain], () => {
         </div>
         <div class="form_wrap ml10">
             <span class="form_cell form_input">
-                <ComInput
+                <ComInputbox
                     v-model="emailDomain"
                     type="text"
                     :placeholder="t('com.label.selfInput')"

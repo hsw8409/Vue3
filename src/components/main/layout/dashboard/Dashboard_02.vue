@@ -40,30 +40,6 @@ interface AUIGridInstance {
 const { t } = useI18n();
 const dateBeforeCnt = 30;
 
-const formatDate = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
-
-const getCalculatedDate = (daysToAdd: number): string => {
-    const baseDate = new Date();
-    baseDate.setDate(baseDate.getDate() + daysToAdd);
-    return formatDate(baseDate);
-};
-
-const dayInfo = ref({
-    thiryDaysBefore: getCalculatedDate(-dateBeforeCnt),
-    today: formatDate(new Date()),
-    tomorrow: getCalculatedDate(1),
-    week: getCalculatedDate(6),
-});
-
-// 💡 [핵심] 비동기 데이터 보관함 및 그리드 빌드 상태 보관함
-const rawResultData = ref<any>(null);
-const gridInitialized = ref({ grid0: false, grid1: false, grid2: false });
-
 // ==================================================
 // 차트 설정 영역
 // ==================================================
@@ -365,12 +341,37 @@ const columnLayout2 = [
     },
 ];
 
+// 💡 [핵심] 비동기 데이터 보관함 및 그리드 빌드 상태 보관함
+const rawResultData = ref<any>(null);
+const gridInitialized = ref({ grid0: false, grid1: false, grid2: false });
+
 // ==================================================
-// 사용자 정의 데이터 변환 함수 영역
+// 사용자 정의 함수 영역
 // ==================================================
-function chartNumChange(num: number): number {
+
+const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+const getCalculatedDate = (daysToAdd: number): string => {
+    const baseDate = new Date();
+    baseDate.setDate(baseDate.getDate() + daysToAdd);
+    return formatDate(baseDate);
+};
+
+const dayInfo = ref({
+    thiryDaysBefore: getCalculatedDate(-dateBeforeCnt),
+    today: formatDate(new Date()),
+    tomorrow: getCalculatedDate(1),
+    week: getCalculatedDate(6),
+});
+
+const chartNumChange = (num: number): number => {
     return isNaN(num) || num === Infinity || num === -Infinity ? 0 : num;
-}
+};
 
 function buildMonthlySeries(data: MonthlyDataRow[]) {
     const preYearPurch = new Array(12).fill(0);
@@ -403,7 +404,7 @@ function buildMonthlySeries(data: MonthlyDataRow[]) {
 }
 
 // 💡 [핵심 비즈니스 로직] 데이터 안전 바인딩 함수
-function tryBindGridData() {
+const tryBindGridData = () => {
     // API 데이터가 아직 안 왔거나, 그리드 3개 중 하나라도 라이브러리 로드가 안 끝났으면 실행 거부(Return)
     if (!rawResultData.value) return;
     if (
@@ -420,7 +421,7 @@ function tryBindGridData() {
         myGrid1.value.setGridData(rawResultData.value.incomingDto || []);
     if (myGrid2.value?.setGridData)
         myGrid2.value.setGridData(rawResultData.value.producingDto || []);
-}
+};
 
 // ==================================================
 // Hook 영역

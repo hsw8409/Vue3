@@ -13,12 +13,15 @@ import App from '@/App.vue';
 import router from '@/routers';
 import i18n from '@/i18n';
 import apiInterceptors from '@/common/axios/interceptors';
+import { saveAs } from 'file-saver';
 
-import '@/assets/main.css';
-
+import './assets/main.css';
 /* =====================
    1. App 인스턴스 생성
 ===================== */
+
+(window as any).saveAs = saveAs;
+
 const app = createApp(App);
 
 /* =====================

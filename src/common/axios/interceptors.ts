@@ -220,7 +220,6 @@ const logout = (mitt: Mitt, showPopup = true, msg = '세션 만료'): void => {
         } catch (e) {
             console.error('logout 에러:', e);
         } finally {
-            console.info('로그아웃 및 대피 절차 진입');
             isLoggingOut = false;
             logoutTriggered = false; // 플래그 초기화
 

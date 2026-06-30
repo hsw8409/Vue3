@@ -1,10 +1,16 @@
-/*
+/**
  * @file     validator.ts
- * @menu     공통 데이터 검증 및 그리드 유틸리티
+ * @menu     유효성 검증 util
  * @author   astems
- * @since     2026-06-17
- * @version   1.2 (런타임 주입 바인딩 에러 수정 및 타입 명시화)
+ * @since    2026-06-30
+ * @version  1.0
+ *
+ * @description
+
  */
+// ==================================================
+// import 영역
+// ==================================================
 import { ref } from 'vue';
 import useVuelidate from '@vuelidate/core';
 import {
@@ -19,6 +25,9 @@ import {
 } from '@vuelidate/validators';
 import { usePopupStore } from '@/common/stores/popup';
 
+// ==================================================
+// interface 영역
+// ==================================================
 export interface ValidateProps {
     name: string;
     value: string;

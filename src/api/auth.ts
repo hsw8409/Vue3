@@ -1,21 +1,25 @@
 /**
  * @file     /api/auth.ts
+ * @menu     권한 관련 api
  * @author   astems
  * @since    2026-06-17
  * @version  1.0
  *
  * @description
- * 권한관리 관련 API
+ * 최초 생성
  */
 
-import api from '@/common/axios/api';
-import type { UserProps } from '@/types/auth';
+// ==================================================
+// import 영역
+// ==================================================
+import api from '@/common/axios/api'; // axios api
+import type { ApiResponse } from '@/types/axios';
+import type { UserProps, UserLogProps } from '@/types/auth';
 import type { TokenProps } from '@/types/token';
 
 // =========================
 // Type 선언
 // =========================
-
 export interface LoginResProps {
     user: UserProps;
     token: TokenProps;
@@ -31,70 +35,60 @@ const BASE = '/api/v1/biz/user';
 // =========================
 // 로그인
 export const login = (params: UserProps) => {
-    return api.post('/api/v1/login', params);
+    return api.post<ApiResponse<LoginResProps>>('/api/v1/login', params);
 };
 
 // 로그아웃
 export const logout = (params: UserProps) => {
-    return api.post('/api/v1/logout', params);
+    return api.post<ApiResponse>('/api/v1/logout', params);
 };
 
 // 사용자 목록 조회
 export const selectUserList = (params: UserProps) => {
-    return api.get(`${BASE}/userDetail/selectUserList`, { params });
+    return api.get<ApiResponse<UserProps>>(`${BASE}/userDetail/selectUserList`, { params });
 };
 
 // 아이디 중복 체크
 export const checkUserIdDuplication = (params: UserProps) => {
-    return api.get(`${BASE}/UserRegistration/checkIdDuplication`, { params });
-};
-
-// SCM 사용 여부 확인
-export const checkChainScmUseYn = (params: UserProps) => {
-    return api.get(`${BASE}/UserRegistration/checkChainScmUseYn`, { params });
+    return api.get<ApiResponse>(`${BASE}/UserRegistration/checkIdDuplication`, { params });
 };
 
 // 사용자 등록
 export const insertUser = (params: UserProps) => {
-    return api.post(`${BASE}/UserRegistration/insertUser`, params);
+    return api.post<ApiResponse>(`${BASE}/UserRegistration/insertUser`, params);
 };
 
 // 사용자 수정
 export const updateUser = (params: UserProps) => {
-    return api.post(`${BASE}/UserRegistration/updateUser`, params);
-};
-
-// 물류센터 조회
-export const selectWHCenterGroup = (params: UserProps) => {
-    return api.get(`${BASE}/UserRegistration/selectWHCenterGroup`, { params });
+    return api.post<ApiResponse>(`${BASE}/UserRegistration/updateUser`, params);
 };
 
 // 사용자 조회
 export const selectUser = (params: UserProps) => {
-    return api.get(`${BASE}/UserRegistration/selectUser`, { params });
+    return api.get<ApiResponse<UserProps>>(`${BASE}/UserRegistration/selectUser`, { params });
 };
 
 // 사용자 로그인 로그
 export const selectUserLoginLog = (params: UserProps) => {
-    return api.get(`${BASE}/selectLog`, { params });
+    return api.get<ApiResponse<UserLogProps>>(`${BASE}/selectLog`, { params });
 };
 
 // 날짜별 로그
 export const selectLogByDate = (params: UserProps) => {
-    return api.get(`${BASE}/logByDate`, { params });
+    return api.get<ApiResponse<UserLogProps>>(`${BASE}/logByDate`, { params });
 };
 
 // 비밀번호 초기화
 export const randomPassword = (params: UserProps) => {
-    return api.post(`${BASE}/UserRegistration/randomPassword`, params);
+    return api.post<ApiResponse>(`${BASE}/UserRegistration/randomPassword`, params);
 };
 
 // 비밀번호 변경
 export const updatePassword = (params: UserProps) => {
-    return api.post(`${BASE}/UserRegistration/resetPassword`, params);
+    return api.post<ApiResponse>(`${BASE}/UserRegistration/resetPassword`, params);
 };
 
 // 마이페이지 수정
 export const updateMypage = (params: UserProps) => {
-    return api.post(`${BASE}/UserRegistration/updateMyPage`, params);
+    return api.post<ApiResponse>(`${BASE}/UserRegistration/updateMyPage`, params);
 };

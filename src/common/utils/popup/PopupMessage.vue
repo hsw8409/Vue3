@@ -11,6 +11,7 @@
 // import 영역
 // ==================================================
 import { computed } from 'vue';
+import { usePopupStore } from '@/common/stores/popup';
 
 // ==================================================
 // Type 선언 영역

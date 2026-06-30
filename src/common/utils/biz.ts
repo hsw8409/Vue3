@@ -1,18 +1,20 @@
 /**
- * @file     /common/utils/biz.js
+ * @file     biz.ts
+ * @menu     biz utils
  * @author   astems
- * @since    2025-10-10
+ * @since    2026-06-30
  * @version  1.0
  *
  * @description
- * 최초 생성
- * 공통 utils
+
  */
 // ==================================================
 // import 영역
 // ==================================================
 
-// 업무 공통 유틸
+/**
+ * biz 유틸리티 모듈
+ */
 const biz = {
     // 패스워드 랜덤 KEY
     PASSWORD_RANDOM_KEY: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$^&_',
@@ -126,8 +128,8 @@ const biz = {
 
     // 팝업 컴포넌트 정의
     POPUP_COMPONENT: {
-        CUST_POP: 'UICSTP01', // 거래처 팝업
-        ITEM_POP: 'UIITMP01', // 상품 팝업
+        CUST_POP: 'UI_CST_P01', // 거래처 팝업
+        ITEM_POP: 'UI_ITM_P01', // 상품 팝업
     },
 
     // 메뉴별 버튼 권한 관리

@@ -10,10 +10,14 @@
 // ==================================================
 // import 영역
 // ==================================================
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { useRouter, RouterView } from 'vue-router';
 import MainLoading from '@/components/main/MainLoading.vue';
 import AppPopup from '@/common/utils/popup/AppPopup.vue';
+
+import { useLayoutStore } from '@/common/stores/layout';
+import { useAuthStore } from '@/common/stores/auth';
+import { useLoadingStore } from '@/common/stores/loadingState';
 
 // ==================================================
 // Type 선언 영역
@@ -31,8 +35,6 @@ const appContainer = ref<HTMLElement | null>(null);
 const isMobile = ref(false);
 
 let resizeObserver: ResizeObserver | null = null;
-
-const isLoggedIn = computed(() => auth.loggedIn);
 
 // ==================================================
 // 사용자 정의 함수 영역
@@ -52,7 +54,7 @@ const setupResizeObserver = () => {
 
         const { width, height } = entry.contentRect;
 
-        layout.setlayoutHeight(height);
+        layout.setLayoutHeight(height);
         isMobile.value = width <= 768;
     });
 
@@ -63,18 +65,16 @@ const setupResizeObserver = () => {
 // Hook 영역
 // ==================================================
 watch(
-    isLoggedIn,
+    () => auth.isLoggedIn,
     (isLoggedIn) => {
-        // 인증 상태가 명확할 때만 리다이렉트 처리
         if (!isLoggedIn) {
-            const targetPath = isMobile.value ? '/mlogin' : '/login';
-            // 이미 로그인 페이지에 있다면 push를 막아 중복 라우팅 방지
-            if (router.currentRoute.value.path !== targetPath) {
-                router.push(targetPath);
+            // 불필요한 라우터 push 방지
+            const target = isMobile.value ? '/mlogin' : '/login';
+            if (router.currentRoute.value.path !== target) {
+                router.push(target);
             }
         }
     },
-    { immediate: true },
 );
 
 onMounted(() => {
@@ -87,7 +87,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div ref="appContainer" style="min-height: 100vh; background: #f0f0f0">
+    <div ref="appContainer" style="min-height: 100vh">
         <AppPopup />
 
         <MainLoading v-if="loading.isLoading" />

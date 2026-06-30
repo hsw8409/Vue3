@@ -1,10 +1,16 @@
 /**
- * @file     /common/stores/popup.ts
- * @menu     팝업 상태 관리
+ * @file     popup.ts
+ * @menu     팝업 관련 store
  * @author   astems
- * @since    2026-06-23
+ * @since    2026-06-17
  * @version  1.0
+ *
+ * @description
  */
+
+// ==================================================
+// import 영역
+// ==================================================
 import { defineStore } from 'pinia';
 import { ref, markRaw, Component } from 'vue';
 import PopupMessage from '@/common/utils/popup/PopupMessage.vue';

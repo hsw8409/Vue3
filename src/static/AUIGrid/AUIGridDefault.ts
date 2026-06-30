@@ -6,7 +6,7 @@ export interface GridProps {
     noDataMessage?: string;
     headerHeight?: number;
     rowHeight?: number;
-    height?: number;
+    height?: number | string;
     useContextMenu?: boolean;
     enableRowCheckShiftKey?: boolean;
     contextMenuItems?: Array<{
@@ -42,7 +42,9 @@ const AUIGridDefault = {
                 {
                     label: '엑셀로 저장하기',
                     callback: (event: any) => {
-                        (window as any).AUIGrid?.exportToXlsx(event.pid);
+                        const AUIGrid = (window as any).AUIGrid;
+
+                        AUIGrid.exportToXlsx(event.pid);
                     },
                 },
             ],

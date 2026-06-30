@@ -6,22 +6,11 @@ import tsPlugin from '@typescript-eslint/eslint-plugin';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import importPlugin from 'eslint-plugin-import';
 import globals from 'globals';
-import fs from 'fs';
-
-// unplugin-auto-import가 만든 글로벌 변수 JSON 동적 로드
-const autoImportPath = './.eslintrc-auto-import.json';
-const autoImportGlobals = fs.existsSync(autoImportPath)
-    ? JSON.parse(fs.readFileSync(autoImportPath, 'utf8')).globals
-    : {};
-
-const commonGlobals = {
-    ...globals.browser,
-    ...autoImportGlobals,
-};
 
 export default [
     {
-        ignores: ['src/static/AUIGrid/**/*', 'components.d.ts', 'src/auto-imports.d.ts'],
+        // 1. 자동 생성 파일 무시 규칙 정리 (필요 없는 것 삭제)
+        ignores: ['src/static/AUIGrid/**/*', 'dist/**/*', 'node_modules/**/*'],
     },
     {
         files: ['eslint.config.js', 'vite.config.ts'],
@@ -31,7 +20,6 @@ export default [
     },
 
     js.configs.recommended,
-
     ...pluginVue.configs['flat/recommended'],
 
     {
@@ -45,8 +33,9 @@ export default [
                 project: './tsconfig.json',
                 extraFileExtensions: ['.vue'],
             },
+            // 2. autoImportGlobals 제거: 이제 명시적 import를 사용하므로 필요 없습니다.
             globals: {
-                ...commonGlobals,
+                ...globals.browser,
             },
         },
 
@@ -69,11 +58,9 @@ export default [
         },
 
         rules: {
-            // 🌟 [핵심] 자동 임포트를 사용하므로 undef-components 규칙 비활성화
-            'vue/no-undef-components': 'off',
-
-            // 자동 임포트 함수들은 import 문이 없어도 되도록 설정
-            'no-undef': 'off',
+            // 3. 자동 임포트 비활성화 규칙 제거 및 표준 규칙으로 복구
+            'vue/no-undef-components': 'error', // 컴포넌트 임포트 누락 시 에러 발생시킴
+            'no-undef': 'error', // 정의되지 않은 변수 사용 시 에러
 
             'import/no-unresolved': 'error',
             'import/named': 'error',

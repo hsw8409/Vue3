@@ -15,6 +15,12 @@ import AddressFind from '@/components/etc/AddressFind.vue';
 import EmailAddress from '@/components/etc/EmailAddress.vue';
 import { updateMypage, selectUser } from '@/api/auth';
 import { utils } from '@/common/utils';
+import { useI18n } from 'vue-i18n';
+
+import { usePopupStore } from '@/common/stores/popup';
+
+import ComInputbox from '@/components/form/ComInputbox.vue';
+import ComButton from '@/components/form/ComButton.vue';
 
 // ==================================================
 // Type 선언 영역
@@ -30,7 +36,7 @@ interface UserForm {
     formatTelNo: string;
     roadDtlAddr: string;
     roadAddr: string;
-    zipno: string;
+    zipNo: string;
     emailId: string;
     emailAddr: string;
 }
@@ -59,7 +65,7 @@ const createDefaultUserForm = (): UserForm => ({
     formatTelNo: '',
     roadDtlAddr: '',
     roadAddr: '',
-    zipno: '',
+    zipNo: '',
     emailId: '',
     emailAddr: '',
 });
@@ -68,13 +74,13 @@ const userForm = ref<UserForm>(createDefaultUserForm());
 const resetUserForm = ref<UserForm>(createDefaultUserForm());
 const addressInfo = computed({
     get: () => ({
-        zipno: userForm.value.zipno,
+        zipNo: userForm.value.zipNo,
         roadAddr: userForm.value.roadAddr,
         roadDtlAddr: userForm.value.roadDtlAddr,
     }),
 
     set: (value) => {
-        userForm.value.zipno = value.zipno ?? '';
+        userForm.value.zipNo = value.zipNo ?? '';
         userForm.value.roadAddr = value.roadAddr ?? '';
         userForm.value.roadDtlAddr = value.roadDtlAddr ?? '';
     },
@@ -87,7 +93,7 @@ const editableFields: (keyof UserForm)[] = [
     'email',
     'hpNo',
     'telNo',
-    'zipno',
+    'zipNo',
     'roadAddr',
     'roadDtlAddr',
 ];
@@ -158,7 +164,7 @@ const mappingUserData = (data: any): UserForm => ({
     hpNo: data.hpNo ?? '',
     formatHpNo: data.hpNo ?? '',
     formatTelNo: data.telNo ?? '',
-    zipno: data.zipno ?? '',
+    zipNo: data.zipNo ?? '',
     roadAddr: data.roadAddr ?? '',
     roadDtlAddr: data.roadDtlAddr ?? '',
     email: data.email ?? '',
@@ -249,7 +255,7 @@ onMounted(() => {
                         <td colspan="3">
                             <div class="flex">
                                 <div class="form_wrap from_wrap_mypage">
-                                    <ComInput v-model="userForm.userId" type="text" readonly />
+                                    <ComInputbox v-model="userForm.userId" type="text" readonly />
                                 </div>
                             </div>
                         </td>
@@ -260,7 +266,7 @@ onMounted(() => {
                         <td colspan="3">
                             <div class="flex password">
                                 <div class="form_wrap">
-                                    <ComInput
+                                    <ComInputbox
                                         ref="passwd"
                                         v-model="userForm.passwd"
                                         type="password"
@@ -279,7 +285,7 @@ onMounted(() => {
                         <th>* {{ t('com.label.initials') }}</th>
                         <td colspan="3">
                             <div class="form_wrap from_wrap_mypage">
-                                <ComInput v-model="userForm.userNm" type="text" />
+                                <ComInputbox v-model="userForm.userNm" type="text" />
                             </div>
                         </td>
                     </tr>
@@ -288,14 +294,14 @@ onMounted(() => {
                         <th>{{ t('user.label.homeTelNo') }}</th>
                         <td class="small">
                             <div class="form_wrap from_wrap_mypage">
-                                <ComInput v-model="userForm.formatTelNo" type="text" />
+                                <ComInputbox v-model="userForm.formatTelNo" type="text" />
                             </div>
                         </td>
                         <!--핸드폰번호-->
                         <th>{{ t('com.label.hpNo') }}</th>
                         <td class="small">
                             <div class="form_wrap from_wrap_mypage">
-                                <ComInput v-model="userForm.formatHpNo" type="text" />
+                                <ComInputbox v-model="userForm.formatHpNo" type="text" />
                             </div>
                         </td>
                     </tr>
@@ -303,7 +309,7 @@ onMounted(() => {
                         <!--주소-->
                         <th>{{ t('com.label.address') }}</th>
                         <td colspan="3">
-                            <AddressFind v-model="addressInfo" :params="{ popupYn: true }" />
+                            <AddressFind v-model="addressInfo" />
                         </td>
                     </tr>
                     <tr>

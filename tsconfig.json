@@ -17,7 +17,7 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
 
-        "types": ["vite/client", "node"],
+        "types": ["vite/client", "node", "vue"],
 
         "paths": {
             "@/*": ["./src/*"] // 경로를 명시적으로 루트(.)로부터 시작하게 수정
@@ -32,15 +32,7 @@
     "vueCompilerOptions": {
         "strictTemplates": true
     },
-    "include": [
-        "components.d.ts",
-        "./src/auto-imports.d.ts",
-        "./src/**/*.ts",
-        "./src/**/*.d.ts",
-        "./src/**/*.tsx",
-        "./src/**/*.vue",
-        "./eslint.config.js"
-    ],
+    "include": ["./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.tsx", "./src/**/*.vue"],
 
     "exclude": ["node_modules", "dist"]
 }

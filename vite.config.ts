@@ -3,8 +3,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
-import AutoImport from 'unplugin-auto-import/vite';
-import Components from 'unplugin-vue-components/vite';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd());
@@ -18,27 +16,6 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             vue(),
-            // 🌟 API 자동 임포트 설정
-            AutoImport({
-                imports: [
-                    'vue',
-                    'vue-router',
-                    {
-                        'vue-i18n': ['useI18n'],
-                    },
-                ],
-                dirs: ['src/common/stores'],
-                dts: 'src/auto-imports.d.ts',
-                eslintrc: {
-                    enabled: true,
-                    filepath: './.eslintrc-auto-import.json',
-                },
-            }),
-            // 🌟 컴포넌트 자동 임포트 설정 (Ctrl+클릭 지원)
-            Components({
-                dirs: ['src/components'], // 자동 등록할 컴포넌트 폴더
-                dts: 'components.d.ts', // 타입 정의 파일 생성
-            }),
             {
                 name: 'project-name-banner',
                 configureServer(server) {

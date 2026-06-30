@@ -1,3 +1,5 @@
+import { Component } from 'vue';
+
 export interface PopupMessageProps {
     title?: string;
     message: string;

@@ -1,26 +1,32 @@
-<!--
- * @file     /components/main/layout/dashboard/Dashboard_01.vue
- * @menu     대시보드01
- * @author   hsw
- * @since    2025-10-14
+<script setup lang="ts">
+/*
+ * @file     Dashboard_01.vue
+ * @menu     대시보드02
+ * @author   astems
+ * @since    2026-06-17
  * @version  1.0
- * 
- * @description 
- * 최초 생성
- * 
--->
-<script setup>
+ */
 // ==================================================
 // import 영역
 // ==================================================
-import AUIGrid from '@/static/AUIGrid-Vue.js/AUIGrid.vue';
-import { AUIGridDefault } from '@/common/utils/AUIGridDefault';
+import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
+import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
 import { onMounted, ref } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 import { useI18n } from 'vue-i18n'; // 다국어
 
 import { selectDashboard01Data } from '@/api/dashboard'; //backend
-import TokenService from '@/common/service/token';
+
+// ==================================================
+// 타입 정의 영역 (Interfaces)
+// ==================================================
+
+interface AUIGridInstance {
+    setGridData: (data: any[]) => void;
+    getGridData: () => any[];
+    clearGridData: () => void;
+    resize: (width?: number, height?: number) => void;
+}
 
 // ==================================================
 // 변수 선언 영역
@@ -44,7 +50,7 @@ const dashboardData = ref({
 // 차트 영역
 // ==================================================
 const chartProps = ref({
-    type: 'radialBar',
+    type: 'radialBar' as const,
     series: [0],
     options: {
         labels: [t('dashboard.label.goalRate')], // 달성률
@@ -72,8 +78,7 @@ const chartProps = ref({
 // 그리드 영역
 // ==================================================
 
-// 그리드 객체
-const myGrid = ref(null);
+const myGrid = ref<AUIGridInstance | null>(null);
 const columnLayout = [
     {
         dataField: 'month',
@@ -86,7 +91,15 @@ const columnLayout = [
         headerText: t('dashboard.label.prevYearOutboundQty'),
 
         style: 'gridTextAlignRight',
-        labelFunction: (rowIndex, columnIndex, value, headerText, item, dataField, cItem) => {
+        labelFunction: (
+            rowIndex: number,
+            columnIndex: number,
+            value: string,
+            _headerText: string,
+            _item: any,
+            _dataField: any,
+            _cItem: any,
+        ) => {
             return addComma(value);
         },
     }, // 전년출고수량
@@ -94,7 +107,15 @@ const columnLayout = [
         dataField: 'preYearSaleWtQty',
         headerText: t('dashboard.label.prevYearOutboundWeight'),
         style: 'gridTextAlignRight',
-        labelFunction: (rowIndex, columnIndex, value, headerText, item, dataField, cItem) => {
+        labelFunction: (
+            rowIndex: number,
+            columnIndex: number,
+            value: string,
+            _headerText: string,
+            _item: any,
+            _dataField: any,
+            _cItem: any,
+        ) => {
             return addComma(value);
         },
     }, // 전년출고중량
@@ -102,7 +123,15 @@ const columnLayout = [
         dataField: 'curYearSaleQty',
         headerText: t('dashboard.label.nowYearOutboundQty'),
         style: 'gridTextAlignRight',
-        labelFunction: (rowIndex, columnIndex, value, headerText, item, dataField, cItem) => {
+        labelFunction: (
+            rowIndex: number,
+            columnIndex: number,
+            value: string,
+            _headerText: string,
+            _item: any,
+            _dataField: any,
+            _cItem: any,
+        ) => {
             return addComma(value);
         },
     }, // 당해출고수량
@@ -110,32 +139,52 @@ const columnLayout = [
         dataField: 'curYearSaleWtQty',
         headerText: t('dashboard.label.nowYearOutboundWeight'),
         style: 'gridTextAlignRight',
-        labelFunction: (rowIndex, columnIndex, value, headerText, item, dataField, cItem) => {
+        labelFunction: (
+            rowIndex: number,
+            columnIndex: number,
+            value: string,
+            _headerText: string,
+            _item: any,
+            _dataField: any,
+            _cItem: any,
+        ) => {
             return addComma(value);
         },
     }, // 당해출고중량
     {
         dataField: 'qtyVariation',
         headerText: t('dashboard.label.outboundIncrease'),
-        labelFunction: (rowIndex, columnIndex, value, headerText, item, dataField, cItem) => {
-            let columnData;
-            columnData = Math.round(
-                ((item.curYearSaleQty - item.preYearSaleQty) / item.preYearSaleQty) * 100,
+        labelFunction: (
+            rowIndex: number,
+            columnIndex: number,
+            value: string,
+            headerText: string,
+            item: any,
+            _dataField: any,
+            _cItem: any,
+        ) => {
+            const rate = Math.round(
+                ((Number(item.curYearSaleQty) - Number(item.preYearSaleQty)) /
+                    Number(item.preYearSaleQty)) *
+                    100,
             );
-            if (isNaN(columnData)) {
-                columnData = 0;
-            } else if (columnData == Infinity) {
-                columnData = 100;
-            }
-            columnData += '%';
-            return columnData;
+
+            return `${!Number.isFinite(rate) ? 100 : rate}%`;
         },
     }, // 출고량증감
     {
         dataField: 'preYearSaleAmt',
         headerText: t('dashboard.label.prevYearSaleAmt'),
         style: 'gridTextAlignRight',
-        labelFunction: (rowIndex, columnIndex, value, headerText, item, dataField, cItem) => {
+        labelFunction: (
+            rowIndex: number,
+            columnIndex: number,
+            value: string,
+            _headerText: string,
+            _item: any,
+            _dataField: any,
+            _cItem: any,
+        ) => {
             return addComma(value);
         },
     }, // 전년매출액
@@ -143,35 +192,47 @@ const columnLayout = [
         dataField: 'curYearSaleAmt',
         headerText: t('dashboard.label.nowYearSaleAmt'),
         style: 'gridTextAlignRight',
-        labelFunction: (rowIndex, columnIndex, value, headerText, item, dataField, cItem) => {
+        labelFunction: (
+            rowIndex: number,
+            columnIndex: number,
+            value: string,
+            _headerText: string,
+            _item: any,
+            _dataField: any,
+            _cItem: any,
+        ) => {
             return addComma(value);
         },
     }, // 당해매출액
     {
         dataField: 'atmVariation',
         headerText: t('dashboard.label.saleAmtIncrease'),
-        labelFunction: (rowIndex, columnIndex, value, headerText, item, dataField, cItem) => {
-            let columnData;
-            columnData = Math.round(
-                ((item.curYearSaleAmt - item.preYearSaleAmt) / item.preYearSaleAmt) * 100,
+        labelFunction: (
+            rowIndex: number,
+            columnIndex: number,
+            value: string,
+            headerText: string,
+            item: any,
+            _dataField: any,
+            _cItem: any,
+        ) => {
+            const rate = Math.round(
+                ((Number(item.curYearSaleAmt) - Number(item.preYearSaleAmt)) /
+                    Number(item.preYearSaleAmt)) *
+                    100,
             );
-            if (isNaN(columnData)) {
-                columnData = 0;
-            } else if (columnData == Infinity) {
-                columnData = 100;
-            }
-            columnData += '%';
-            return columnData;
+
+            return `${!Number.isFinite(rate) ? 100 : rate}%`;
         },
     }, // 매출액증감
 ];
 
 // 그리드 속성 정의
-const gridProps = AUIGridDefault.gridPropsBuilder()
+const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
     .withExtraProps({
         showFooter: true,
         height: 420,
-        rowStyleFunction: function (rowIndex, item) {
+        rowStyleFunction: function (_rowIndex: any, item: any) {
             if (
                 item.month == '1 분기' ||
                 item.month == '2 분기' ||
@@ -196,8 +257,9 @@ const footerLayout = [
         operation: 'SUM',
         style: 'textRight',
         formatString: '#,##0',
-        expFunction: (columnValues) => {
-            const gridData = myGrid.value.getGridData();
+        expFunction: () => {
+            const gridData = myGrid.value?.getGridData() ?? [];
+
             return gridData
                 .filter((v) => v.month.includes('분기'))
                 .reduce((sum, curr) => {
@@ -212,8 +274,9 @@ const footerLayout = [
         operation: 'SUM',
         style: 'textRight',
         formatString: '#,##0.00',
-        expFunction: (columnValues) => {
-            const gridData = myGrid.value.getGridData();
+        expFunction: () => {
+            const gridData = myGrid.value?.getGridData() ?? [];
+
             return gridData
                 .filter((v) => v.month.includes('분기'))
                 .reduce((sum, curr) => {
@@ -228,8 +291,9 @@ const footerLayout = [
         operation: 'SUM',
         style: 'textRight',
         formatString: '#,##0',
-        expFunction: (columnValues) => {
-            const gridData = myGrid.value.getGridData();
+        expFunction: () => {
+            const gridData = myGrid.value?.getGridData() ?? [];
+
             return gridData
                 .filter((v) => v.month.includes('분기'))
                 .reduce((sum, curr) => {
@@ -244,8 +308,9 @@ const footerLayout = [
         operation: 'SUM',
         style: 'textRight',
         formatString: '#,##0',
-        expFunction: (columnValues) => {
-            const gridData = myGrid.value.getGridData();
+        expFunction: () => {
+            const gridData = myGrid.value?.getGridData() ?? [];
+
             return gridData
                 .filter((v) => v.month.includes('분기'))
                 .reduce((sum, curr) => {
@@ -256,58 +321,61 @@ const footerLayout = [
     }, //당해매출액
 ];
 
-const toNum = (v) => (typeof v === 'number' ? v : Number(String(v ?? 0).replace(/,/g, '')));
+const toNum = (v: any) => (typeof v === 'number' ? v : Number(String(v ?? 0).replace(/,/g, '')));
 
 // ==================================================
 // 사용자 정의 함수 영역
 // ==================================================
 
 //숫자 콤마 적용
-function addComma(num) {
-    return Number(num).toLocaleString();
-}
+const addComma = (num: string | number | null | undefined): string =>
+    Number(num ?? 0).toLocaleString();
+
 //NaN, Infinity 처리
-function numChange(num) {
+const numChange = (num: number): number => {
+    if (Number.isNaN(num)) {
+        return 0;
+    }
+
+    if (!Number.isFinite(num)) {
+        return 100;
+    }
+
+    return num;
+};
+const chartNumChange = (num: number): number => {
     if (isNaN(num)) {
         num = 0;
-    } else if (num == Infinity) {
-        num = 100;
-    }
-    return num;
-}
-function chartNumChange(num) {
-    if (isNaN(num)) {
-        num = 0;
-    } else if (num == Infinity) {
+    } else if (num === Infinity) {
         num = 0;
     }
+
     return num;
-}
+};
 // ==================================================
 // HOOK 영역
 // ==================================================
 
-onMounted(() => {
-    selectDashboard01Data()
-        .then((res) => {
-            dashboardData.value = res?.result;
-            myGrid.value.setGridData(dashboardData.value.dashboardGridDto);
-            return res;
-        })
-        .then((res) => {
-            stockInAmt.value = res.result.stockInAmt;
+onMounted(async () => {
+    try {
+        const res: any = await selectDashboard01Data();
 
-            const sale = toNum(dashboardData.value.curYearSaleAmt);
-            const purch = toNum(dashboardData.value.curYearPurchAmt);
-            const stock = toNum(stockInAmt.value);
+        dashboardData.value = res.result;
 
-            const grossPct = sale ? ((sale - purch + stock) * 100) / sale : 0;
+        myGrid.value?.setGridData(dashboardData.value.dashboardGridDto as any[]);
 
-            chartProps.value.series[0] = chartNumChange(Number(grossPct.toFixed(2))); // 소수 2자리표시
-        })
-        .catch((e) => {
-            console.log(e.message);
-        });
+        stockInAmt.value = Number(res.result.stockInAmt) || 0;
+
+        const sale = toNum(dashboardData.value.curYearSaleAmt);
+        const purch = toNum(dashboardData.value.curYearPurchAmt);
+        const stock = toNum(stockInAmt.value);
+
+        const grossPct = sale > 0 ? ((sale - purch + stock) * 100) / sale : 0;
+
+        chartProps.value.series[0] = chartNumChange(Number(grossPct.toFixed(2)));
+    } catch (e) {
+        console.error(e);
+    }
 });
 </script>
 

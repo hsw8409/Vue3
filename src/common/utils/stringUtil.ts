@@ -1,4 +1,18 @@
 /**
+ * @file     stringUtil.ts
+ * @menu     문자 util
+ * @author   astems
+ * @since    2026-06-30
+ * @version  1.0
+ *
+ * @description
+
+ */
+// ==================================================
+// import 영역
+// ==================================================
+
+/**
  * 업무 공통 String 유틸리티 모듈
  */
 export const stringUtil = {
