@@ -1,4 +1,12 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+/*
+ * @file     MenuContent.vue
+ * @menu     메뉴 컨텐츠 영역
+ * @author   astems
+ * @since    2026-06-25
+ * @version  1.0
+ */
+</script>
 <template>
     <div class="scroll_wrap">
         <div class="cont_wrap">

@@ -229,25 +229,13 @@ onMounted(() => {
             <li>
                 <div class="search_container">
                     <!-- 1개월 -->
-                    <ComButton
-                        :params="{ name: t('com.label.months', [1]) }"
-                        @click="searchPeriod(1)"
-                    />
+                    <ComButton :text="t('com.label.months', [1])" @click="searchPeriod(1)" />
                     <!-- 3개월 -->
-                    <ComButton
-                        :params="{ name: t('com.label.months', [3]) }"
-                        @click="searchPeriod(3)"
-                    />
+                    <ComButton :text="t('com.label.months', [3])" @click="searchPeriod(3)" />
                     <!-- 6개월 -->
-                    <ComButton
-                        :params="{ name: t('com.label.months', [6]) }"
-                        @click="searchPeriod(6)"
-                    />
+                    <ComButton :text="t('com.label.months', [6])" @click="searchPeriod(6)" />
                     <!-- 12개월 -->
-                    <ComButton
-                        :params="{ name: t('com.label.months', [12]) }"
-                        @click="searchPeriod(12)"
-                    />
+                    <ComButton :text="t('com.label.months', [12])" @click="searchPeriod(12)" />
                 </div>
             </li>
             <li>

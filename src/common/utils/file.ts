@@ -18,8 +18,6 @@ import { utils } from '@/common/utils/';
 import mitt from 'mitt';
 import { saveAs } from 'file-saver';
 import { AxiosResponse } from 'axios';
-import instance from '@/common/axios/api';
-import TokenService from '@/common/service/token';
 
 // ==================================================
 // 변수 선언 영역
@@ -93,12 +91,9 @@ export const fileService = {
     // 단순 다운로드
     async download(fileId: string, orgFileName?: string) {
         try {
-            const response = await instance.get(downloadUrl, {
+            const response = await api.get(downloadUrl, {
                 params: { fileId },
                 responseType: 'blob',
-                headers: {
-                    Authorization: `Bearer ${TokenService.getLocalAccessToken()}`,
-                },
             });
 
             let fileName = orgFileName ?? 'download_file';

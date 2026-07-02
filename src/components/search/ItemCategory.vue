@@ -15,70 +15,96 @@ import TokenService from '@/common/service/token';
 import { useI18n } from 'vue-i18n';
 
 import { selectCategories } from '@/api/item';
+import { CategoryGroupsProps } from '@/types/item';
 
-interface CategoryItem {
-    categoryCd: string;
-    categoryNm: string;
-    parentCd: string;
+// ==================================================
+// Type 선언 영역
+// ==================================================
+
+interface ItemCategory {
+    lclsItemCd?: string;
+    mclsItemCd?: string;
+    sclsItemCd?: string;
 }
 
-interface Categories {
-    lclsCategory: CategoryItem[];
-    mclsCategory: CategoryItem[];
-    sclsCategory: CategoryItem[];
-}
+// ==================================================
+// 변수 선언 영역
+// ==================================================
+// 루트 엘리먼트 자동 속성 상속 방지
+defineOptions({ inheritAttrs: false });
 
-const categories = ref<Categories>({
-    lclsCategory: [],
-    mclsCategory: [],
-    sclsCategory: [],
-});
+const props = defineProps<{
+    modelValue: ItemCategory;
+}>();
 
 // 공통 메세지 변수
 const { t } = useI18n();
 
-const props = defineProps(['modelValue']);
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+    (e: 'update:modelValue', value: ItemCategory): void;
+}>();
+
+const categories = ref<CategoryGroupsProps>({
+    lclsCategory: [],
+    mclsCategory: [],
+    sclsCategory: [],
+});
 
 const form = computed({
     get: () => props.modelValue,
     set: (val) => emit('update:modelValue', val),
 });
 
-// 수정: 인터페이스의 이름인 lclsCategory, mclsCategory 등을 사용해야 함
+// =================================================================
+// 사용자 정의 함수 영역
+// =================================================================
+
 const filteredMcls = computed(() =>
-    categories.value.mclsCategory.filter((i) => i.parentCd === form.value.lclsItemCd),
-);
-const filteredScls = computed(() =>
-    categories.value.sclsCategory.filter((i) => i.parentCd === form.value.mclsItemCd),
+    categories.value.mclsCategory.filter((item) => item.parentCd === form.value.lclsItemCd),
 );
 
-// (watch 로직은 이전과 동일)
-watch(
-    () => form.value.lclsItemCd,
-    () => {
-        form.value.mclsItemCd = '';
-        form.value.sclsItemCd = '';
-    },
-);
-watch(
-    () => form.value.mclsItemCd,
-    () => {
-        form.value.sclsItemCd = '';
-    },
+const filteredScls = computed(() =>
+    categories.value.sclsCategory.filter((item) => item.parentCd === form.value.mclsItemCd),
 );
 
 const selectCategory = async () => {
     try {
-        const res = await selectCategories({ chainCd: TokenService.getUser().chainCd });
-        // 응답 구조가 res.result라면 그대로 대입
+        const res = await selectCategories({
+            chainCd: TokenService.getUser().chainCd,
+        });
+
         if (res?.data?.result) {
-            categories.value = res.data?.result;
+            categories.value = res.data.result;
         }
-    } catch (e: any) {
-        console.error(e.message);
+    } catch (error) {
+        console.error(error);
     }
 };
+
+// ==================================================
+// Hook 영역
+// ==================================================
+
+watch(
+    () => form.value.lclsItemCd,
+    () => {
+        emit('update:modelValue', {
+            ...form.value,
+            mclsItemCd: '',
+            sclsItemCd: '',
+        });
+    },
+);
+
+watch(
+    () => form.value.mclsItemCd,
+    () => {
+        emit('update:modelValue', {
+            ...form.value,
+            sclsItemCd: '',
+        });
+    },
+);
 
 onMounted(selectCategory);
 </script>
@@ -87,41 +113,57 @@ onMounted(selectCategory);
     <li>
         <div class="search_container">
             <label>{{ t('item.label.lcls') }}</label>
+
             <div class="search_cell search_cell_long">
                 <select v-model="form.lclsItemCd" class="search_input search_select">
                     <option value="">전체</option>
+
                     <option
-                        v-for="i in categories.lclsCategory"
-                        :key="i.categoryCd"
-                        :value="i.categoryCd"
+                        v-for="item in categories.lclsCategory"
+                        :key="item.categoryCd"
+                        :value="item.categoryCd"
                     >
-                        {{ i.categoryNm }}
+                        {{ item.categoryNm }}
                     </option>
                 </select>
             </div>
         </div>
     </li>
+
     <li>
         <div class="search_container">
             <label>{{ t('item.label.mcls') }}</label>
+
             <div class="search_cell search_cell_long">
                 <select v-model="form.mclsItemCd" class="search_input search_select">
                     <option value="">전체</option>
-                    <option v-for="i in filteredMcls" :key="i.categoryCd" :value="i.categoryCd">
-                        {{ i.categoryNm }}
+
+                    <option
+                        v-for="item in filteredMcls"
+                        :key="item.categoryCd"
+                        :value="item.categoryCd"
+                    >
+                        {{ item.categoryNm }}
                     </option>
                 </select>
             </div>
         </div>
     </li>
+
     <li>
         <div class="search_container">
             <label>{{ t('item.label.scls') }}</label>
+
             <div class="search_cell search_cell_long">
                 <select v-model="form.sclsItemCd" class="search_input search_select">
                     <option value="">전체</option>
-                    <option v-for="i in filteredScls" :key="i.categoryCd" :value="i.categoryCd">
-                        {{ i.categoryNm }}
+
+                    <option
+                        v-for="item in filteredScls"
+                        :key="item.categoryCd"
+                        :value="item.categoryCd"
+                    >
+                        {{ item.categoryNm }}
                     </option>
                 </select>
             </div>

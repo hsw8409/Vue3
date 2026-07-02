@@ -16,6 +16,7 @@ import type {
     PMenuProps,
     MenuGroupProps,
     MenuGroupUserProps,
+    MenuGroupResProps,
 } from '@/types/menu';
 
 // =========================
@@ -59,12 +60,12 @@ export function savePmenu(params: any) {
 
 // 메뉴그룹정보 조회
 export function selectMenuGroup() {
-    return api.get<ApiResponse<MenuGroupProps>>(`${BASE}/selectMenuGroup`);
+    return api.get<ApiResponse<MenuGroupProps[]>>(`${BASE}/selectMenuGroup`);
 }
 
 // 메뉴그룹별 프로그램정보 조회
 export function selectMenuGroupUserProgram(params: MenuGroupUserProps) {
-    return api.get<ApiResponse<MenuGroupUserProps>>(`${BASE}/selectMenuGroupUserProgram`, {
+    return api.get<ApiResponse<MenuGroupResProps>>(`${BASE}/selectMenuGroupUserProgram`, {
         params,
     });
 }

@@ -1,3 +1,11 @@
+/*
+ * @file     AUIGridDefault.ts
+ * @menu     AUI 그리드 default tㅓㄹ정
+ * @author   astems
+ * @since    2026-07-02
+ * @version  1.0
+ */
+
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
 import i18n from '@/i18n';
 
@@ -25,12 +33,15 @@ export interface GridProps {
     wrapSelectionMove?: boolean;
     softRemovePolicy?: string;
     editingOnKeyDown?: boolean;
+    enableClipboard?: boolean;
     [key: string]: any; // 그 외 동적 속성 허용
 }
 
 const AUIGridDefault = {
     // 기본 값 생성 함수
     getDefaultGridProps(): GridProps {
+        const AUIGrid = (window as any).AUIGrid;
+
         return {
             noDataMessage: i18n.global.t('com.message.noDataFound'),
             headerHeight: 33,
@@ -40,17 +51,33 @@ const AUIGridDefault = {
             enableRowCheckShiftKey: true,
             contextMenuItems: [
                 {
+                    label: '현재 값으로 필터링',
+                    callback: function (event) {
+                        var dataField = event.dataField;
+                        var value = event.value;
+
+                        AUIGrid.setFilterByValues(event.pid, dataField, value);
+                    },
+                },
+                {
+                    label: '모든 필터 해제',
+                    callback: function (event) {
+                        // 위에서 선언한 AUIGrid를 그대로 사용합니다.
+                        AUIGrid.clearFilterAll(event.pid);
+                    },
+                },
+                {
                     label: '엑셀로 저장하기',
                     callback: (event: any) => {
-                        const AUIGrid = (window as any).AUIGrid;
-
                         AUIGrid.exportToXlsx(event.pid);
                     },
                 },
             ],
             enableUndoRedo: false,
-            enableMovingColumn: true,
-            enableFilter: true,
+            enableMovingColumn: true, // 컬럼 이동 기능
+            enableFilter: true, // 필터 기능
+            enableClipboard: true, // 복사 기능
+            showFilterIconOnHeader: true, // 헤더 필터 적용
         };
     },
 

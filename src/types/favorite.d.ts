@@ -3,7 +3,7 @@ export interface FavoriteProps {
     userId?: string;
     pmenuCd?: string;
 
-    mCd?: string;
-    mNm?: string;
-    mPath?: string;
+    mcd?: string;
+    mnm?: string;
+    mpath?: string;
 }

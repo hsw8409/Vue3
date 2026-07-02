@@ -13,20 +13,16 @@
 import { computed } from 'vue';
 import { usePopupStore } from '@/common/stores/popup';
 
+import type { PopupMessageProps } from '@/types/popup';
+
 // ==================================================
 // Type 선언 영역
 // ==================================================
-import type { PopupMessageProps } from '@/types/popup';
-
-// 🌟 현재 팝업의 고유 ID를 부모로부터 안전하게 전달받을 수 있도록 props 구조 확장
-interface ExtendedProps extends PopupMessageProps {
-    id?: string;
-}
 
 // ==================================================
 // 변수 선언 영역
 // ==================================================
-const props = withDefaults(defineProps<ExtendedProps>(), {
+const props = withDefaults(defineProps<PopupMessageProps>(), {
     id: '',
     title: '',
     buttonType: 'alert',
@@ -42,7 +38,7 @@ const emit = defineEmits<{
 
 const popup = usePopupStore();
 
-const hasTitle = computed(() => props.title.trim().length > 0);
+const hasTitle = computed(() => !!props.title?.trim());
 
 // ==================================================
 // 사용자 정의 함수 영역
@@ -51,7 +47,7 @@ const hasTitle = computed(() => props.title.trim().length > 0);
  * ok 버튼 클릭
  *
  */
-const handleOkClick = (): void => {
+const onOkClick = (): void => {
     props.onOk?.();
 
     if (props.id) {
@@ -65,7 +61,7 @@ const handleOkClick = (): void => {
  * cancel 버튼 클릭
  *
  */
-const handleCancelClick = (): void => {
+const onCancelClick = (): void => {
     props.onCancel?.();
 
     if (props.id) {
@@ -92,18 +88,18 @@ const handleCancelClick = (): void => {
         <div class="msg_btn_wrap">
             <!-- Alert -->
             <template v-if="buttonType === 'alert'">
-                <button type="button" class="btn_primary" @click="handleOkClick">
+                <button type="button" class="btn_primary" @click="onOkClick">
                     {{ okText }}
                 </button>
             </template>
 
             <!-- Confirm -->
             <template v-if="buttonType === 'confirm'">
-                <button type="button" class="btn_secondary" @click="handleCancelClick">
+                <button type="button" class="btn_secondary" @click="onCancelClick">
                     {{ cancelText }}
                 </button>
 
-                <button type="button" class="btn_primary" @click="handleOkClick">
+                <button type="button" class="btn_primary" @click="onOkClick">
                     {{ okText }}
                 </button>
             </template>

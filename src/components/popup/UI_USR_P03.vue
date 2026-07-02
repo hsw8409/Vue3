@@ -10,7 +10,7 @@
 // =================================================================
 // import 영역
 // =================================================================
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, reactive } from 'vue';
 import AddressFind from '@/components/etc/AddressFind.vue';
 import EmailAddress from '@/components/etc/EmailAddress.vue';
 import { updateMypage, selectUser } from '@/api/auth';
@@ -36,7 +36,7 @@ interface UserForm {
     formatTelNo: string;
     roadDtlAddr: string;
     roadAddr: string;
-    zipNo: string;
+    zipno: string;
     emailId: string;
     emailAddr: string;
 }
@@ -50,7 +50,6 @@ const popup = usePopupStore();
 const props = defineProps<{
     id: string;
     userId?: string;
-    userNm?: string;
     onOk?: () => void | Promise<void>;
 }>();
 
@@ -65,22 +64,22 @@ const createDefaultUserForm = (): UserForm => ({
     formatTelNo: '',
     roadDtlAddr: '',
     roadAddr: '',
-    zipNo: '',
+    zipno: '',
     emailId: '',
     emailAddr: '',
 });
 
 const userForm = ref<UserForm>(createDefaultUserForm());
-const resetUserForm = ref<UserForm>(createDefaultUserForm());
+const resetUserForm = reactive<UserForm>(createDefaultUserForm());
 const addressInfo = computed({
     get: () => ({
-        zipNo: userForm.value.zipNo,
+        zipno: userForm.value.zipno,
         roadAddr: userForm.value.roadAddr,
         roadDtlAddr: userForm.value.roadDtlAddr,
     }),
 
     set: (value) => {
-        userForm.value.zipNo = value.zipNo ?? '';
+        userForm.value.zipno = value.zipno ?? '';
         userForm.value.roadAddr = value.roadAddr ?? '';
         userForm.value.roadDtlAddr = value.roadDtlAddr ?? '';
     },
@@ -93,7 +92,7 @@ const editableFields: (keyof UserForm)[] = [
     'email',
     'hpNo',
     'telNo',
-    'zipNo',
+    'zipno',
     'roadAddr',
     'roadDtlAddr',
 ];
@@ -125,8 +124,7 @@ const validateBeforeSubmit = async () => {
  */
 const isEdited = () => {
     const changed = editableFields.some(
-        (field) =>
-            normalizeEmpty(resetUserForm.value[field]) !== normalizeEmpty(userForm.value[field]),
+        (field) => normalizeEmpty(resetUserForm[field]) !== normalizeEmpty(userForm.value[field]),
     );
     if (!changed) {
         popup.alert(t('com.message.noDataToSave'));
@@ -146,7 +144,12 @@ const save = async () => {
     try {
         const res = await updateMypage(userForm.value);
         popup.alert(res?.data?.result);
-        userForm.value.passwd = '';
+
+        // 부모에서 후처리가 필요하면 호출
+        await props.onOk?.();
+
+        // 현재 팝업 닫기
+        popup.closePopup(props.id);
     } catch (e: any) {
         popup.alert(e.message);
     }
@@ -164,7 +167,7 @@ const mappingUserData = (data: any): UserForm => ({
     hpNo: data.hpNo ?? '',
     formatHpNo: data.hpNo ?? '',
     formatTelNo: data.telNo ?? '',
-    zipNo: data.zipNo ?? '',
+    zipno: data.zipno ?? '',
     roadAddr: data.roadAddr ?? '',
     roadDtlAddr: data.roadDtlAddr ?? '',
     email: data.email ?? '',
@@ -176,17 +179,17 @@ const mappingUserData = (data: any): UserForm => ({
  */
 const search = async () => {
     if (!props.userId) return;
+
     try {
         const res = await selectUser({ userId: props.userId });
         if (!res?.data?.result) return;
-        const formData = mappingUserData(res.data?.result);
+        const formData = mappingUserData(res.data.result);
         userForm.value = structuredClone(formData);
-        resetUserForm.value = structuredClone(formData);
-    } catch (e) {
-        console.error(e);
+        Object.assign(resetUserForm, structuredClone(formData));
+    } catch (e: any) {
+        popup.alert(e.message);
     }
 };
-
 const bindPhoneFormatter = (source: 'formatTelNo' | 'formatHpNo', target: 'telNo' | 'hpNo') => {
     watch(
         () => userForm.value[source],
@@ -215,7 +218,7 @@ const openPasswordPopup = () => {
         width: 600,
         height: 400,
         onOk: () => {
-            console.log('비밀번호 변경 이후 로그인화면에서 해야할 것이 있는 경우...');
+            userForm.value.passwd = '';
         },
     });
     return;
@@ -238,7 +241,7 @@ onMounted(() => {
                     <h2>회원정보 수정</h2>
                 </div>
                 <div class="btn_area">
-                    <ComButton :params="{ name: t('com.label.save') }" @click="save" />
+                    <ComButton :text="t('com.label.save')" @click="save" />
                 </div>
             </div>
             <table class="tableLayout">
@@ -273,7 +276,7 @@ onMounted(() => {
                                         autocomplete="new-password"
                                     />
                                     <ComButton
-                                        :params="{ name: t('user.label.passwordChange') }"
+                                        :text="t('user.label.passwordChange')"
                                         @click="openPasswordPopup"
                                     />
                                 </div>

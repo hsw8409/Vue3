@@ -21,7 +21,6 @@ export const useFavoriteStore = defineStore('favorite', {
         async toggleFavorite(userId: string, menuCd: string, isCurrentlyOn: boolean) {
             const apiParams = {
                 loginId: userId,
-                menuSclsCd: menuCd,
                 pmenuCd: menuCd,
             };
 

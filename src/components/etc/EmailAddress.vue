@@ -20,24 +20,26 @@ import ComInputbox from '@/components/form/ComInputbox.vue';
 // ==================================================
 interface Props {
     modelValue?: string;
-    params?: Record<string, any>;
 }
 
+// ==================================================
+// 변수 선언 영역
+// ==================================================
 const props = withDefaults(defineProps<Props>(), {
     modelValue: '',
-    params: () => ({}),
 });
+
+const { t } = useI18n();
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
 }>();
 
-const { t } = useI18n();
+const textRef = ref<HTMLInputElement | null>(null);
 
 const emailId = ref('');
 const emailDomain = ref('');
 const readOnlyFg = ref(false);
-const textRef = ref<HTMLInputElement | null>(null); // 명확한 DOM 타입 지정
 
 const emailOptions = [
     'gmail.com',
@@ -50,67 +52,67 @@ const emailOptions = [
     'dreamwiz.com',
     'empal.com',
     'hotmail.co.kr',
-];
+] as const;
 
 // ==================================================
 // 사용자 정의 함수 영역
 // ==================================================
 
 /**
- * 도메인 선택
- *
+ * 이메일 조합하여 부모로 전달
  */
-const selectEmail = (event: Event) => {
-    // TypeScript 환경에서는 EventTarget을 HTMLSelectElement로 형변환해주어야 value를 인식합니다.
-    const target = event.target as HTMLSelectElement;
-    const value = target.value;
+const updateEmail = () => {
+    const value = emailId.value && emailDomain.value ? `${emailId.value}@${emailDomain.value}` : '';
 
-    if (value === '') {
-        emailDomain.value = '';
-        readOnlyFg.value = false;
-    } else {
-        emailDomain.value = value;
-        readOnlyFg.value = true;
-    }
+    emit('update:modelValue', value);
 };
 
-defineExpose({ setFocus: () => textRef.value?.focus() });
+/**
+ * 이메일 분리
+ */
+const parseEmail = (value: string) => {
+    const atIndex = value.indexOf('@');
+
+    if (atIndex < 0) {
+        emailId.value = value;
+        emailDomain.value = '';
+        readOnlyFg.value = false;
+        return;
+    }
+
+    emailId.value = value.substring(0, atIndex);
+    emailDomain.value = value.substring(atIndex + 1);
+    readOnlyFg.value = emailOptions.includes(emailDomain.value as (typeof emailOptions)[number]);
+};
+
+/**
+ * 도메인 선택
+ */
+const selectEmail = (event: Event) => {
+    const value = (event.target as HTMLSelectElement).value;
+
+    readOnlyFg.value = value !== '';
+    emailDomain.value = value;
+
+    updateEmail();
+};
+
+defineExpose({
+    setFocus: () => textRef.value?.focus(),
+});
 
 // ==================================================
 // Hook / Watch 영역
 // ==================================================
-
-// 1. 부모에서 들어오는 값을 분리하여 내부 상태에 반영
 watch(
     () => props.modelValue,
-    (newVal) => {
-        if (!newVal) {
-            emailId.value = '';
-            emailDomain.value = '';
-            readOnlyFg.value = false;
-            return;
-        }
-
-        const [id, domain] = newVal.split('@');
-        const nextId = id ?? '';
-        const nextDomain = domain ?? '';
-
-        // 무한 루프 가드 처리 (기존 값과 다를 때만 업데이트)
-        if (emailId.value !== nextId) emailId.value = nextId;
-        if (emailDomain.value !== nextDomain) emailDomain.value = nextDomain;
-
-        readOnlyFg.value = emailOptions.includes(nextDomain);
+    (value) => {
+        parseEmail(value ?? '');
     },
-    { immediate: true },
+    {
+        immediate: true,
+    },
 );
-
-// 2. 내부 값이 변경될 때만 조합하여 부모로 전달 (무한 루프 방지 처리)
-watch([emailId, emailDomain], () => {
-    const combined = `${emailId.value}@${emailDomain.value}`;
-    if (props.modelValue !== combined) {
-        emit('update:modelValue', combined);
-    }
-});
 </script>
 
 <template>
@@ -120,13 +122,16 @@ watch([emailId, emailDomain], () => {
                 <ComInputbox
                     ref="textRef"
                     v-model="emailId"
-                    type="text"
                     class="emailId"
+                    type="text"
                     :placeholder="t('user.label.emailId')"
+                    @update:model-value="updateEmail"
                 />
             </span>
         </div>
+
         <div class="emailMark">@</div>
+
         <div class="form_wrap">
             <div class="form_cell form_input">
                 <select
@@ -134,13 +139,17 @@ watch([emailId, emailDomain], () => {
                     :value="readOnlyFg ? emailDomain : ''"
                     @change="selectEmail"
                 >
-                    <option value="">{{ t('com.label.selfInput') }}</option>
+                    <option value="">
+                        {{ t('com.label.selfInput') }}
+                    </option>
+
                     <option v-for="email in emailOptions" :key="email" :value="email">
                         {{ email }}
                     </option>
                 </select>
             </div>
         </div>
+
         <div class="form_wrap ml10">
             <span class="form_cell form_input">
                 <ComInputbox
@@ -148,6 +157,7 @@ watch([emailId, emailDomain], () => {
                     type="text"
                     :placeholder="t('com.label.selfInput')"
                     :readonly="readOnlyFg"
+                    @update:model-value="updateEmail"
                 />
             </span>
         </div>

@@ -16,22 +16,15 @@ import TokenService from '@/common/service/token';
 import { biz } from '@/common/utils/biz';
 import { selectFavoriteMenu } from '@/api/favorite';
 import { useFavoriteStore } from '@/common/stores/favorite';
+import type { SelectedMenuProps } from '@/types/menu';
 
 // ==================================================
 // 타입 정의 영역 (TypeScript Type Interfaces)
 // ==================================================
-interface MenuInfo {
-    menuSclsCd?: string;
-    fileNm?: string;
-    sname?: string;
-    lname?: string;
-    mname?: string;
-}
 
 interface ButtonItem {
     btnNm: string;
     btnFnc: string;
-    btnClass?: string;
     btnIcon?: string;
     disabled: boolean;
 }
@@ -40,7 +33,7 @@ interface ButtonItem {
 // 컴포넌트 Props 정의
 // ==================================================
 const props = defineProps<{
-    menuInfo?: MenuInfo;
+    menuInfo?: SelectedMenuProps;
     methods?: Record<string, () => void>;
     params?: Record<string, any>;
 }>();
@@ -76,7 +69,7 @@ const ButtonEvent = (fncName: string) => {
 
 // 즐겨찾기 토글 (추가/삭제)
 const favoriteToggle = async () => {
-    const menuCd = props.menuInfo?.menuSclsCd;
+    const menuCd = props.menuInfo?.mcd;
     if (!menuCd || !loginUser?.userId) return;
 
     try {
@@ -93,7 +86,7 @@ const favoriteToggle = async () => {
 
 // 즐겨찾기 상태 실시간 동기화 업데이트
 const updateFavoriteState = async () => {
-    const menuCd = props.menuInfo?.menuSclsCd;
+    const menuCd = props.menuInfo?.mcd;
     if (!menuCd) return;
 
     try {
@@ -134,13 +127,13 @@ defineExpose({
 // ==================================================
 watch(
     // 💡 안전하게 옵셔널 체이닝(?.) 추가하여 빈 데이터 진입 시 발생하는 런타임 터짐 방지
-    () => props.menuInfo?.menuSclsCd,
+    () => props.menuInfo?.mcd,
     (newCd) => {
         if (!newCd) {
             btnList.value = [];
             return;
         }
-        const menuBtnList = biz.MENU_COM_BTN?.find((item: any) => item.menuSclsCd === newCd);
+        const menuBtnList = biz.MENU_COM_BTN?.find((item: any) => item.mcd === newCd);
         btnList.value =
             menuBtnList?.btnList?.map((btn: any) => ({
                 ...btn,
@@ -181,7 +174,7 @@ onMounted(() => {
                 v-for="(btn, index) in btnList"
                 :key="index"
                 type="button"
-                :class="btn.btnClass ? btn.btnClass : 'default'"
+                class="default"
                 :disabled="btn.disabled"
                 @click="ButtonEvent(btn.btnFnc)"
             >

@@ -10,25 +10,39 @@
 // ==================================================
 // import 영역
 // ==================================================
-import { ref, computed, useAttrs } from 'vue';
+import { ref, computed } from 'vue';
 import Datepicker from 'vue3-datepicker';
 import { ko } from 'date-fns/locale';
 
 // ==================================================
-// 변수 선언 영역
+// Type 선언 영역
 // ==================================================
 interface Props {
     modelValue?: Date | null;
     mode?: 'search' | 'input';
     label?: string;
     required?: boolean;
-    [key: string]: any;
+    weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    inputFormat?: string;
+    clearable?: boolean;
 }
+
+// ==================================================
+// 변수 선언 영역
+// ==================================================
+// 루트 엘리먼트 자동 속성 상속 방지
+defineOptions({
+    inheritAttrs: false,
+});
+
 const props = withDefaults(defineProps<Props>(), {
     modelValue: null,
     mode: 'search',
     label: '',
     required: false,
+    weekStartsOn: 0,
+    inputFormat: 'yyyy-MM-dd',
+    clearable: false,
 });
 
 const emit = defineEmits<{
@@ -36,7 +50,6 @@ const emit = defineEmits<{
     (e: 'closed'): void;
 }>();
 const dateRef = ref<any>(null);
-const attrs = useAttrs();
 
 // ==================================================
 // 사용자 정의 함수 영역
@@ -47,13 +60,11 @@ const selectedDate = computed<any>({
         return props.modelValue;
     },
     set(val: any) {
-        console.log('자식 컴포넌트에서 감지된 값:', val);
         emit('update:modelValue', val);
     },
 });
 
 const onClosed = () => {
-    // dateRef가 올바르게 참조되는지 확인 후 blur 처리
     const inputEl = (dateRef.value as any)?.$el?.querySelector('input');
     inputEl?.blur();
     emit('closed');
@@ -79,7 +90,9 @@ defineExpose({
                     ref="dateRef"
                     v-model="selectedDate"
                     :locale="ko"
-                    v-bind="attrs"
+                    :week-starts-on="props.weekStartsOn"
+                    :input-format="props.inputFormat"
+                    :clearable="props.clearable"
                     @closed="onClosed"
                 />
             </div>
@@ -93,7 +106,9 @@ defineExpose({
                 ref="dateRef"
                 v-model="selectedDate"
                 :locale="ko"
-                v-bind="attrs"
+                :week-starts-on="props.weekStartsOn"
+                :input-format="props.inputFormat"
+                :clearable="props.clearable"
                 @closed="onClosed"
             />
         </div>

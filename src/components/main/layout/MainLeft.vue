@@ -15,35 +15,15 @@ import { selectMenu } from '@/api/main';
 import { selectFavoriteMenu, addFavorite, deleteFavorite } from '@/api/favorite';
 import { useFavoriteStore } from '@/common/stores/favorite';
 import { storeToRefs } from 'pinia';
-// ----------------------------------------------------------------------
-// 1. 타입 정의 (Interfaces)
-// ----------------------------------------------------------------------
-interface MenuItem {
-    mcd: string;
-    pcd?: string | null;
-    mnm: string;
-    lv: number | string;
-    mpath?: string;
-    fileNm?: string;
-    useYn?: string;
-    visiable?: boolean;
-    show?: boolean;
-    children?: MenuItem[];
-}
 
-interface SelectedMenu {
-    lname: string;
-    mname: string;
-    sname: string;
-    path?: string;
-    menuSclsCd: string;
-    fileNm?: string;
-}
+import type { MenuProps, MenuItemProps, SelectedMenuProps } from '@/types/menu';
+// ==================================================
+// Type 선언 영역
+// ==================================================
 
 interface LoginUser {
     userId?: string;
     chainCd?: string;
-    [key: string]: any;
 }
 
 // ==================================================
@@ -53,17 +33,17 @@ const loginUser = inject<LoginUser | null>('loginUser', null);
 
 const emit = defineEmits<{
     (e: 'hideMenuToggled', isLnbOn: boolean): void;
-    (e: 'pageClick', selectedMenu: SelectedMenu): void;
-    (e: 'menuListEmit', menuList: MenuItem[]): void;
+    (e: 'pageClick', selectedMenu: SelectedMenuProps): void;
+    (e: 'menuListEmit', menuList: MenuItemProps[]): void;
 }>();
 
-const menuList = ref<MenuItem[]>([]);
-const menuDepthList = ref<MenuItem[]>([]);
+const menuList = ref<MenuItemProps[]>([]);
+const menuDepthList = ref<MenuItemProps[]>([]);
 const isLnbOn = ref<boolean>(true);
 const isFavOn = ref<boolean>(false);
-const selectedMenu = ref<SelectedMenu | null>(null);
+const selectedMenu = ref<SelectedMenuProps | null>(null);
 const searchQuery = ref<string>('');
-const filteredMenu = ref<MenuItem[]>([]);
+const filteredMenu = ref<MenuItemProps[]>([]);
 const filterFlag = ref<boolean>(false); // true: 검색 중 상태 / false: 기본 트리 상태
 const favStore = useFavoriteStore();
 const { items: favoriteList } = storeToRefs(favStore);
@@ -81,11 +61,11 @@ const closeAllMenus = () => {
 };
 
 const buildTree = (
-    queryResult: MenuItem[],
-    outputList: MenuItem[],
+    queryResult: MenuItemProps[],
+    outputList: MenuItemProps[],
     lv: number,
     parentId: string | null = null,
-): MenuItem[] => {
+): MenuItemProps[] => {
     if (!queryResult || queryResult.length === 0) return outputList;
 
     const tempList = queryResult.filter((row) =>
@@ -114,7 +94,7 @@ const buildTree = (
 };
 
 // 원본 메뉴 API 호출 및 트리 빌드
-const optimizeFunction = async (): Promise<MenuItem[]> => {
+const optimizeFunction = async (): Promise<MenuItemProps[]> => {
     if (!loginUser?.userId) return [];
 
     const response = await selectMenu({
@@ -122,7 +102,14 @@ const optimizeFunction = async (): Promise<MenuItem[]> => {
         loginId: loginUser.userId,
     });
 
-    const queryResult: MenuItem[] = response?.data?.result || [];
+    const queryResult: MenuItemProps[] = (response.data.result ?? []).map((menu: MenuProps) => ({
+        mcd: menu.mcd ?? '',
+        mnm: menu.mnm ?? '',
+        pcd: menu.pcd,
+        lv: menu.lv ?? 0,
+        mpath: menu.mpath,
+        fileNm: menu.fileNm,
+    }));
     if (!Array.isArray(queryResult)) return [];
 
     menuList.value = queryResult;
@@ -133,12 +120,12 @@ const optimizeFunction = async (): Promise<MenuItem[]> => {
 };
 
 // 즐겨찾기 메뉴 목록 조회
-const createFavoriteMenu = async (): Promise<MenuItem[]> => {
+const createFavoriteMenu = async (): Promise<MenuItemProps[]> => {
     if (!loginUser?.userId) return [];
 
     const response = await selectFavoriteMenu({ loginId: loginUser.userId });
     const targetData = (response as any)?.result || response?.data?.result || response?.data || [];
-    return targetData as MenuItem[];
+    return targetData as MenuItemProps[];
 };
 
 const goPage = (mcd: string) => {
@@ -158,7 +145,7 @@ const goPage = (mcd: string) => {
         mname: findmItem.mnm,
         sname: findItem.mnm,
         path: findItem.mpath,
-        menuSclsCd: findItem.mcd,
+        mcd: findItem.mcd,
         fileNm: findItem.fileNm,
     };
     emit('pageClick', selectedMenu.value);
@@ -168,8 +155,7 @@ const goPage = (mcd: string) => {
 const menuTabSet = (m: any) => {
     if (!m) return;
 
-    // mcd 속성이 있으면 사용하고, 없으면 menuSclsCd 속성을 targetMcd에 할당
-    const targetMcd = m.mcd || m.menuSclsCd;
+    const targetMcd = m.mcd;
 
     if (targetMcd) {
         goPage(String(targetMcd));
@@ -201,20 +187,20 @@ const favoriteOnOff = () => {
 // 부모 컴포넌트 호출 유연성 확보 (오브젝트형 및 프리미티브 불리언 파라미터 전천후 대응)
 const favoriteToggle = async (b: boolean | { flag: boolean }) => {
     const isFlagOn = typeof b === 'boolean' ? b : b?.flag;
-    const menuCd = selectedMenu.value?.menuSclsCd;
-    if (!menuCd || !loginUser?.userId) return;
+    const mcd = selectedMenu.value?.mcd;
+    if (!mcd || !loginUser?.userId) return;
 
     if (isFlagOn) {
         await addFavorite({
             loginId: loginUser.userId,
-            menuSclsCd: menuCd,
-            pmenuCd: menuCd,
+            mcd: mcd,
+            pmenuCd: mcd,
         });
     } else {
         await deleteFavorite({
             loginId: loginUser.userId,
-            menuSclsCd: menuCd,
-            pmenuCd: menuCd,
+            mcd: mcd,
+            pmenuCd: mcd,
         });
     }
 
@@ -251,15 +237,15 @@ const searchMenu = () => {
         return;
     }
 
-    filteredMenu.value = menuDepthList.value.reduce((result: MenuItem[], menu) => {
+    filteredMenu.value = menuDepthList.value.reduce((result: MenuItemProps[], menu) => {
         return result.concat(searchMenuInChildren(menu, searchTerm));
     }, []);
 };
 
-const searchMenuInChildren = (menu: MenuItem, searchTerm: string): MenuItem[] => {
+const searchMenuInChildren = (menu: MenuItemProps, searchTerm: string): MenuItemProps[] => {
     if (!menu.children || menu.children.length === 0) return [];
 
-    return menu.children.reduce((result: MenuItem[], child) => {
+    return menu.children.reduce((result: MenuItemProps[], child) => {
         if (Number(child.lv) === 3 && fuzzyMatcher(searchTerm, child.mnm)) {
             result.push(child);
         }
@@ -344,7 +330,7 @@ const removeSearch = () => {
 };
 
 // ==================================================
-// Hook 및 Watcher 영역
+// Hook 영역
 // ==================================================
 watch(isFavOn, (nv) => {
     if (nv) closeAllMenus();
@@ -449,7 +435,7 @@ defineExpose({
                                     <li v-for="(d3, i3) in d2.children" :key="i3" class="depth03">
                                         <a
                                             v-if="d3.visiable"
-                                            :class="{ on: selectedMenu?.menuSclsCd === d3.mcd }"
+                                            :class="{ on: selectedMenu?.mcd === d3.mcd }"
                                             @click.stop.prevent="goPage(`${d3.mcd}`)"
                                         >
                                             {{ d3.mnm }}
@@ -464,7 +450,7 @@ defineExpose({
                 <ul v-else-if="isFavOn" class="MenuTree">
                     <li v-for="(d3, i3) in favoriteList" :key="i3" class="depth03">
                         <a
-                            :class="{ on: selectedMenu?.menuSclsCd === d3.mcd }"
+                            :class="{ on: selectedMenu?.mcd === d3.mcd }"
                             @click.stop.prevent="goPage(`${d3.mcd}`)"
                         >
                             {{ d3.mnm }}
@@ -475,7 +461,7 @@ defineExpose({
                 <ul v-else-if="!isFavOn && filterFlag" class="MenuTree">
                     <li v-for="(d3, i3) in filteredMenu" :key="i3" class="depth03">
                         <a
-                            :class="{ on: selectedMenu?.menuSclsCd === d3.mcd }"
+                            :class="{ on: selectedMenu?.mcd === d3.mcd }"
                             @click.stop.prevent="goPage(`${d3.mcd}`)"
                         >
                             {{ d3.mnm }}

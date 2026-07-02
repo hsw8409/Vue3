@@ -114,7 +114,6 @@ const getPopupStyle = (item: PopupProps) => {
         const width = item.props?.width || 'auto';
         const height = item.props?.height || 'auto';
 
-        console.info('width>>>', width);
         return {
             transform,
             width: typeof width === 'number' ? `${width}px` : width,
@@ -122,8 +121,6 @@ const getPopupStyle = (item: PopupProps) => {
         };
     }
 
-    // 2. 그 외(message 타입)인 경우
-    // message 타입은 크기를 CSS 클래스에 맡기고 위치(transform)만 반환합니다.
     return {
         transform,
     };

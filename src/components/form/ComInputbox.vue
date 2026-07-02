@@ -18,25 +18,25 @@ import { ref, computed, useAttrs } from 'vue';
 
 // 컴포넌트 표준 Props 정의 (기능/표준 속성 위주)
 interface Props {
-    modelValue?: string | number;
+    modelValue?: string | null;
     placeholder?: string;
-    type?: string;
+    type?: 'text' | 'password' | 'number' | 'email';
     id?: string;
     name?: string;
     autocomplete?: string;
     disabled?: boolean;
     readonly?: boolean;
     label?: string;
-    maxlength?: string | number;
-    // 기타 필요한 속성들만 추가...
-    [key: string]: any;
+    maxlength?: number;
 }
 
 // ==================================================
 // 변수 선언 영역
 // ==================================================
 // 루트 엘리먼트 자동 속성 상속 방지
-defineOptions({ inheritAttrs: false });
+defineOptions({
+    inheritAttrs: false,
+});
 
 const props = withDefaults(defineProps<Props>(), {
     modelValue: '',
@@ -48,20 +48,21 @@ const props = withDefaults(defineProps<Props>(), {
     disabled: false,
     readonly: false,
     label: '',
-    maxlength: undefined,
+    maxlength: 20,
 });
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
+    (e: 'input', value: string): void;
     (e: 'enter'): void;
-    (e: 'click', event: MouseEvent): void; // 필요한 이벤트를 명시적으로 추가하거나...
+    (e: 'click', event: MouseEvent): void;
+    (e: 'keydown', event: KeyboardEvent): void;
 }>();
 
-const attrs = useAttrs();
 const textRef = ref<HTMLInputElement | null>(null);
-// ID 자동 생성
-const attrId = computed(
-    () => (props.id as string) || `input_${Math.random().toString(36).substring(2, 9)}`,
-);
+
+const attrs = useAttrs();
+
+const attrId = computed(() => props.id || `input_${crypto.randomUUID()}`);
 
 // 타입 분기
 const isPassword = computed(() => props.type === 'password');
@@ -69,11 +70,19 @@ const isPassword = computed(() => props.type === 'password');
 // ==================================================
 // 사용자 정의 함수 영역
 // ==================================================
-const onInput = (e: Event) => {
-    const target = e.target as HTMLInputElement;
+const onInput = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+
     emit('update:modelValue', target.value);
 };
-const onEnter = () => emit('enter');
+
+const onClick = (event: MouseEvent) => {
+    emit('click', event);
+};
+
+const onEnter = () => {
+    emit('enter');
+};
 
 defineExpose({ setFocus: () => textRef.value?.focus() });
 
@@ -83,42 +92,49 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
 </script>
 
 <template>
-    <label v-if="label" :for="attrId">{{ label }}</label>
-    <span class="form_cell form_input">
-        <template v-if="isPassword">
-            <div class="password-wrapper">
-                <input
-                    :id="attrId"
-                    ref="textRef"
-                    class="search_input"
-                    type="password"
-                    :value="modelValue"
-                    :readonly="readonly"
-                    :disabled="disabled"
-                    :maxlength="maxlength"
-                    v-bind="attrs"
-                    @input="onInput"
-                    @keyup.enter="onEnter"
-                />
-                <span class="pwd-icon">🔒</span>
-            </div>
-        </template>
+    <label v-if="label" :for="attrId">
+        {{ label }}
+    </label>
 
-        <template v-else>
+    <span class="form_cell form_input">
+        <div v-if="isPassword" class="password-wrapper">
             <input
                 :id="attrId"
                 ref="textRef"
                 class="search_input"
                 :type="type"
                 :value="modelValue"
+                :placeholder="placeholder"
+                :autocomplete="autocomplete"
                 :readonly="readonly"
                 :disabled="disabled"
                 :maxlength="maxlength"
                 v-bind="attrs"
                 @input="onInput"
+                @click="onClick"
                 @keyup.enter="onEnter"
             />
-        </template>
+
+            <span class="pwd-icon">🔒</span>
+        </div>
+
+        <input
+            v-else
+            :id="attrId"
+            ref="textRef"
+            class="search_input"
+            :type="type"
+            :value="modelValue"
+            :placeholder="placeholder"
+            :autocomplete="autocomplete"
+            :readonly="readonly"
+            :disabled="disabled"
+            :maxlength="maxlength"
+            v-bind="attrs"
+            @input="onInput"
+            @click="onClick"
+            @keyup.enter="onEnter"
+        />
     </span>
 </template>
 
@@ -132,7 +148,6 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
 .pwd-icon {
     position: absolute;
     right: 10px;
-    cursor: pointer;
 }
 .search_input {
     width: 100%;

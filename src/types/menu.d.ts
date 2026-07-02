@@ -1,4 +1,4 @@
-export interface MeneProps {
+export interface MenuProps {
     pMenuCd?: string;
     lMenuCd?: string;
     mMenuCd?: string;
@@ -6,12 +6,13 @@ export interface MeneProps {
     mMenuNm?: string;
     pMenuNm?: string;
     filePath?: string;
-    fileNm?: string;
+
+    fileNm?: string; // 파일명
     lv?: number;
-    pCd?: string;
-    mCd?: string;
-    mNm?: string;
-    mPath?: string;
+    mpath?: string; // 파일 경로
+    mnm?: string;
+    mcd?: string;
+    pcd?: string; // 상위코드
 }
 
 export interface LMenuProps {
@@ -69,4 +70,48 @@ export interface MenuGroupUserProps {
     updId?: string; // 수정ID
     updDtime?: string; // 수정일시
     leaveDate?: string; //퇴사일자
+}
+
+export interface MenuItemProps {
+    mcd: string;
+    mnm: string;
+    pcd?: string | null; // 상위코드
+    lv: number | string;
+    mpath?: string; // 파일 경로
+    fileNm?: string; // 파일명
+    useYn?: string;
+    visiable?: boolean;
+    show?: boolean;
+    children?: MenuItemProps[];
+}
+
+export interface SelectedMenuProps {
+    lname: string;
+    mname: string;
+    sname: string;
+    path?: string;
+    mcd: string;
+    fileNm?: string;
+}
+
+export interface MenuGroupResProps {
+    userDtos?: MenuGroupUserProps;
+    programDtos?: MenuGroupPropgramProps[];
+}
+
+export interface MenuGroupPropgramProps {
+    lMenuCd?: string; // 대분류메뉴코드
+    lMenuNm?: string; // 대분류메뉴명칭
+    mMenuCd?: string; // 중분류메뉴코드
+    mMenuNm?: string; // 중분류메뉴명칭
+    pMenuCd?: string; // 프로그램메뉴코드
+    pMenuNm?: string; // 프로그램메뉴명칭
+    chainCd?: string; // 본부코드
+    menuGrpCd?: string; // 메뉴그룹코드
+    useYn?: string; // 사용여부
+    insId?: string; // 등록ID
+    insDtime?: string; // 등록일시
+    updId?: string; // 수정ID
+    updDtime?: string; // 시스템구분코드
+    sysGbCd?: string; //퇴사일자
 }

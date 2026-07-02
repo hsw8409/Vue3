@@ -12,44 +12,47 @@
 // ==================================================
 import { ref, computed, useAttrs } from 'vue';
 
+// ==================================================
+// Type 선언 영역
+// ==================================================
 interface Props {
-    modelValue?: string;
+    modelValue?: boolean;
     id?: string;
-    value?: any; // 체크박스 자체의 value 속성
     label?: string;
+    disabled?: boolean;
 }
 
 // ==================================================
 // 변수 선언 영역
 // ==================================================
 // 루트 엘리먼트 자동 속성 상속 방지
-defineOptions({ inheritAttrs: false });
-
-const props = withDefaults(defineProps<Props>(), {
-    modelValue: '',
-    id: '',
-    value: undefined,
-    label: '',
+defineOptions({
+    inheritAttrs: false,
 });
 
+const props = withDefaults(defineProps<Props>(), {
+    modelValue: false,
+    id: '',
+    label: '',
+    disabled: false,
+});
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: any): void;
+    (e: 'update:modelValue', value: boolean): void;
     (e: 'change', event: Event): void;
 }>();
-// ref
+
 const checkboxRef = ref<HTMLInputElement | null>(null);
 
 const attrs = useAttrs();
-// ID 자동 생성
-const attrId = computed(
-    () => (props.id as string) || `checkbox_${Math.random().toString(36).substring(2, 9)}`,
-);
+
+const attrId = computed(() => props.id || `checkbox_${crypto.randomUUID()}`);
 
 // ==================================================
 // 사용자 정의 함수 영역
 // ==================================================
 const handleChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
+
     emit('update:modelValue', target.checked);
     emit('change', event);
 };
@@ -64,15 +67,19 @@ defineExpose({
 </script>
 
 <template>
-    <span class="form_cell form_check'">
+    <span class="form_cell form_check">
         <input
             :id="attrId"
             ref="checkboxRef"
-            :value="modelValue"
             type="checkbox"
+            :checked="modelValue"
+            :disabled="disabled"
             v-bind="attrs"
             @change="handleChange"
         />
-        <label v-if="label" :for="attrId">{{ label }}</label>
+
+        <label v-if="label" :for="attrId">
+            {{ label }}
+        </label>
     </span>
 </template>

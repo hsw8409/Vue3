@@ -823,7 +823,6 @@ const minOrderQtyOptions = ['1', '2', '3', '4', '5'].map((v) => ({
                                                 <ComInputbox
                                                     v-model="itemDetail.spec"
                                                     type="text"
-                                                    :params="{ inputClass: 'select_w73' }"
                                                 />
                                             </span>
                                         </div>

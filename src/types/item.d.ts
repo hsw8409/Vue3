@@ -35,9 +35,9 @@ export interface CategoryProps {
 }
 
 export interface CategoryGroupsProps {
-    lclsCategory?: CategoryProps[];
-    mclsCategory?: CategoryProps[];
-    sclsCategory?: CategoryProps[];
+    lclsCategory: CategoryProps[];
+    mclsCategory: CategoryProps[];
+    sclsCategory: CategoryProps[];
 }
 
 export interface ItemProps {

@@ -1,6 +1,7 @@
 import { Component } from 'vue';
 
 export interface PopupMessageProps {
+    id?: string;
     title?: string;
     message: string;
     buttonType?: 'alert' | 'confirm'; // 버튼 유형 alert , confirm

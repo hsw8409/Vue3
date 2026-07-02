@@ -671,9 +671,9 @@ onMounted(() => {
 
                     <div class="subBtnWrap">
                         <!-- 신규 -->
-                        <ComButton :params="{ name: t('com.label.new') }" @click="lNew()" />
+                        <ComButton :text="t('com.label.new')" @click="lNew()" />
                         <!-- 저장 -->
-                        <ComButton :params="{ name: t('com.label.save') }" @click="save('L')" />
+                        <ComButton :text="t('com.label.save')" @click="save('L')" />
                     </div>
                 </div>
                 <!--  S : AUI Grid -->
@@ -695,9 +695,9 @@ onMounted(() => {
                     <h3>{{ t('item.label.mclsInfo') }}</h3>
                     <div class="subBtnWrap">
                         <!-- 신규 -->
-                        <ComButton :params="{ name: t('com.label.new') }" @click="mnew()" />
+                        <ComButton :text="t('com.label.new')" @click="mnew()" />
                         <!-- 저장 -->
-                        <ComButton :params="{ name: t('com.label.save') }" @click="save('M')" />
+                        <ComButton :text="t('com.label.save')" @click="save('M')" />
                     </div>
                 </div>
                 <!--  S : AUI Grid -->
@@ -718,9 +718,9 @@ onMounted(() => {
                     <h3>{{ t('item.label.sclsInfo') }}</h3>
                     <div class="subBtnWrap">
                         <!-- 신규 -->
-                        <ComButton :params="{ name: t('com.label.new') }" @click="snew()" />
+                        <ComButton :text="t('com.label.new')" @click="snew()" />
                         <!-- 저장 -->
-                        <ComButton :params="{ name: t('com.label.save') }" @click="save('S')" />
+                        <ComButton :text="t('com.label.save')" @click="save('S')" />
                     </div>
                 </div>
                 <!--  S : AUI Grid -->

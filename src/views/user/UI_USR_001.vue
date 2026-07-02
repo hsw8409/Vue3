@@ -60,7 +60,6 @@ const addTab = inject<(params: any) => void>('addTab');
 
 const newRegi = (i?: string) => {
     addTab?.({
-        menuSclsCd: '01002002',
         fileNm: 'UI_USR_002.vue',
         params: {
             userId: i,
@@ -342,7 +341,7 @@ onMounted(() => {
                         ref="userIdRef"
                         v-model="searchBox.usrId"
                         :label="t('com.label.userId')"
-                        maxlength="20"
+                        :maxlength="20"
                         @enter="search"
                     />
                 </div>
@@ -354,7 +353,7 @@ onMounted(() => {
                         ref="userNameRef"
                         v-model="searchBox.usrName"
                         :label="t('com.label.userName')"
-                        maxlength="50"
+                        :maxlength="50"
                         @enter="search"
                     />
                 </div>

@@ -23,6 +23,7 @@ import ComButton from '@/components/form/ComButton.vue';
 
 import { usePopupStore } from '@/common/stores/popup';
 import { selectMenuGroup, selectMenuGroupUserProgram, saveMenuGroupProgram } from '@/api/menu'; //backend
+import { MenuGroupPropgramProps } from '@/types/menu';
 
 // ==================================================
 // 변수 선언 영역
@@ -385,7 +386,7 @@ const searchMenuGroupInfo = (toSelectRowId?: string) => {
             gridGroup.setGridData(res.data.result);
             const menuGrpCd =
                 toSelectRowId === '-'
-                    ? res.data.result.reduce(
+                    ? res?.data?.result?.reduce(
                           (prev: any, next: any) =>
                               prev.menuGrpCd > next.menuGrpCd ? prev.menuGrpCd : next.menuGrpCd,
                           { menuGrpCd: 0 },
@@ -442,10 +443,13 @@ const searchMenuProgram = (obj: any) => {
     selectMenuGroupUserProgram(params)
         .then((res) => {
             // 그리드 데이터 삽입
-            gridUser.setGridData(res.data.result.userDtos);
+            gridUser.setGridData(res?.data?.result?.userDtos);
 
             gridProgram.setGridData(
-                res.data.result.programDtos.map((v: any) => ({ ...v, menuGrpCd })),
+                res?.data?.result?.programDtos?.map((v: MenuGroupPropgramProps) => ({
+                    ...v,
+                    menuGrpCd,
+                })),
             );
             gridUser.removeAjaxLoader();
             gridProgram.removeAjaxLoader();
@@ -701,9 +705,9 @@ onMounted(() => {
                     </h3>
                     <div class="subBtnWrap">
                         <!-- 신규 -->
-                        <ComButton :params="{ name: t('com.label.new') }" @click="newMenuGroup" />
+                        <ComButton :text="t('com.label.new')" @click="newMenuGroup" />
                         <!-- 삭제 -->
-                        <ComButton :params="{ name: t('com.label.del') }" @click="delMenuGroup" />
+                        <ComButton :text="t('com.label.del')" @click="delMenuGroup" />
                     </div>
                 </div>
                 <!--  S : AUI Grid -->

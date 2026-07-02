@@ -12,7 +12,7 @@ import api from '@/common/axios/api';
 import type { ApiResponse } from '@/types/axios';
 import type { CommonCodeGProps } from '@/types/commonCode';
 import type { LoginProps } from '@/types/auth';
-import type { MeneProps } from '@/types/menu';
+import type { MenuProps } from '@/types/menu';
 
 // =========================
 // Type 선언
@@ -33,7 +33,7 @@ export const tokenCheck = (config?: AxiosRequestConfig) => {
 
 // 메뉴목록 조회
 export function selectMenu(params?: LoginProps) {
-    return api.get<ApiResponse<MeneProps>>(`${BASE}/selectMenu`, { params });
+    return api.get<ApiResponse<MenuProps[]>>(`${BASE}/selectMenu`, { params });
 }
 
 // 공통코드 조회

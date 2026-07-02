@@ -10,7 +10,7 @@
 // ==================================================
 // import 영역
 // ==================================================
-import { ref, onMounted, onActivated, reactive } from 'vue'; // vue 기본 기능
+import { ref, nextTick, onActivated, reactive } from 'vue'; // vue 기본 기능
 import { useI18n } from 'vue-i18n'; // 다국어
 
 import { usePopupStore } from '@/common/stores/popup'; // 팝업
@@ -85,18 +85,18 @@ const savePw = () => {
         userId: props.userId || '',
         passwd: inputParam.inputPw,
         orgPasswd: props.passwd || '',
-    }).then(() => {
-        // 비밀번호가 변경되었습니다.
-        popup.alert(t('user.message.passwordChanged'), '알림', {
-            onOk: async () => {
-                // 부모에게 변경 완료 후 호출 요청
-                if (props.onOk) await props.onOk();
-
-                // 팝업을 닫는다.
-                popup.closePopup(props.id);
-            },
+    })
+        .then(() => {
+            popup.alert(t('user.message.passwordChanged'), '알림', {
+                onOk: async () => {
+                    await props.onOk?.();
+                    popup.closePopup(props.id);
+                },
+            });
+        })
+        .catch((e) => {
+            popup.alert(e.message);
         });
-    });
 };
 
 // ==================================================
@@ -105,9 +105,15 @@ const savePw = () => {
 onActivated(() => {
     inputParam.inputPw = '';
     inputParam.inputVPw = '';
+
+    state.pwd1.type = 'password';
+    state.pwd1.icon = 'pwd_eye_off';
+
+    state.pwd2.type = 'password';
+    state.pwd2.icon = 'pwd_eye_off';
 });
 
-onMounted(() => {
+nextTick(() => {
     pwdInput1.value?.focus();
 });
 </script>
@@ -139,6 +145,7 @@ onMounted(() => {
                         :type="state.pwd2.type"
                         class="pwd_input"
                         :placeholder="t('user.label.newPasswordConfirm')"
+                        autocomplete="new-password"
                         maxlength="30"
                     />
                     <button
@@ -149,7 +156,9 @@ onMounted(() => {
                 </label>
             </div>
             <div>
-                <button class="pwd_btn" @click="savePw">{{ t('com.label.confirm') }}</button>
+                <button type="button" class="pwd_btn" @click="savePw">
+                    {{ t('com.label.confirm') }}
+                </button>
             </div>
         </div>
     </div>
@@ -203,10 +212,10 @@ onMounted(() => {
 }
 
 .pwd_eye_off {
-    background-image: url('/src/static/img/btn_pwd_off.svg');
+    background-image: url('@/static/img/btn_pwd_off.svg');
 }
 .pwd_eye_on {
-    background-image: url('/src/static/img/btn_pwd_on.svg');
+    background-image: url('@/static/img/btn_pwd_on.svg');
 }
 
 .pwd_btn {

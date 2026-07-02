@@ -4,13 +4,13 @@
  * @menu    로딩바
  * @author  astems
  * @since    2026-06-23
- * @version  1.1
+ * @version  1.0
  */
 
 // ==================================================
 // import 영역
 // ==================================================
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useLoadingStore } from '@/common/stores/loadingState';
 
 // ==================================================
@@ -23,36 +23,39 @@ import { useLoadingStore } from '@/common/stores/loadingState';
 const loading = useLoadingStore();
 
 const isLoading = computed(() => loading.isLoading);
-const count = ref(0);
-const timer = ref<ReturnType<typeof setTimeout> | null>(null);
+
+let timer: ReturnType<typeof setTimeout> | null = null;
+let count = 0;
 
 // ==================================================
 // 사용자 정의 함수 영역
 // ==================================================
+
+const reset = () => {
+    if (timer) clearTimeout(timer);
+    timer = null;
+    count = 0;
+};
+
 /**
  * 로딩바 선택시 강제 종료
  *
  */
-const handleClick = () => {
+const onClick = () => {
     // 3초 내에 연속 클릭하지 않으면 타이머 초기화됨
-    if (timer.value === null) {
-        timer.value = setTimeout(reset, 3000);
+    if (!timer) {
+        timer = setTimeout(reset, 3000);
     }
 
-    count.value++;
+    count++;
 
     // 5회 이상 클릭 시 로딩 강제 종료
-    if (count.value >= 5) {
+    if (count >= 5) {
         loading.reset();
         reset();
     }
 };
 
-const reset = () => {
-    if (timer.value) clearTimeout(timer.value);
-    timer.value = null;
-    count.value = 0;
-};
 // ==================================================
 // Hook 영역
 // ==================================================
@@ -69,7 +72,7 @@ const reset = () => {
             type="button"
             class="subBtn easter-egg"
             aria-label="로딩 강제 초기화"
-            @click="handleClick"
+            @click="onClick"
         ></button>
     </div>
 </template>

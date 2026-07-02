@@ -15,13 +15,10 @@ import { utils } from '@/common/utils';
 import { usePopupStore } from '@/common/stores/popup';
 
 // ==================================================
-// 변수 선언 영역
+// Type 선언 영역
 // ==================================================
-// 루트 엘리먼트 자동 속성 상속 방지
-defineOptions({ inheritAttrs: false });
-
 interface Props {
-    modelValue?: Record<string, any>;
+    modelValue: Record<string, any>;
     label?: string;
     codeKey?: string;
     nameKey?: string;
@@ -31,11 +28,16 @@ interface Props {
     popupPg?: string;
 }
 
+// ==================================================
+// 변수 선언 영역
+// ==================================================
+// 루트 엘리먼트 자동 속성 상속 방지
+defineOptions({ inheritAttrs: false });
+
 const props = withDefaults(defineProps<Props>(), {
-    modelValue: () => ({}),
     label: '',
-    codeKey: 'custCd',
-    nameKey: 'custNm',
+    codeKey: 'itemCd',
+    nameKey: 'itemNm',
     params: () => ({}),
     required: false,
     disabled: false,
@@ -47,25 +49,22 @@ const inputRef = ref<HTMLInputElement | null>(null);
 const emit = defineEmits(['update:modelValue', 'enter']);
 
 const popupPage = computed(() => {
-    return props.popupPg || utils.biz.POPUP_COMPONENT?.ITEM_POP || '';
+    return props.popupPg || utils.biz.POPUP_COMPONENT?.CUST_POP || '';
 });
 
-// ==================================================
-// import 영역
-// ==================================================
-
 const inParam = computed(() => props.modelValue ?? {});
+// =================================================================
+// 사용자 정의 함수 영역
+// =================================================================
 
 const popupSelect = (selected: any) => {
     if (!selected) return;
 
-    const newVal = {
+    emit('update:modelValue', {
         ...(props.modelValue ?? {}),
         [props.codeKey]: selected[props.codeKey] ?? '',
         [props.nameKey]: selected[props.nameKey] ?? '',
-    };
-
-    emit('update:modelValue', newVal);
+    });
 };
 const popupHandler = async () => {
     const { popupPromise } = popup.openPopup('biz', popupPage.value, {
@@ -90,9 +89,9 @@ const inputCodeChange = (e: Event) => {
     });
 };
 
-function setFocus() {
+const setFocus = () => {
     inputRef.value?.focus();
-}
+};
 
 defineExpose({ setFocus });
 

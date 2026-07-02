@@ -27,10 +27,13 @@ import HomeView from '@/components/main/layout/HomeView.vue';
 import { usePopupStore } from '@/common/stores/popup';
 import { utils } from '@/common/utils';
 
-// 탭 하나에 들어갈 데이터 구조 타입 선언
+// ==================================================
+// import 영역
+// ==================================================
+
 interface TabItem {
     component: Component;
-    menuSclsCd: string;
+    mcd: string;
     sname: string;
     key: number;
     refreshing: boolean;
@@ -157,7 +160,7 @@ const addTab = async (i: any) => {
     const originList = menuList?.value || [];
     if (!originList.length) return false;
 
-    const findItem = originList.find((menu) => menu.mcd == i.menuSclsCd && menu.lv === 3);
+    const findItem = originList.find((menu) => menu.mcd == i.mcd && menu.lv === 3);
 
     if (!findItem) return false;
 
@@ -170,7 +173,7 @@ const addTab = async (i: any) => {
         mname: findmItem.mnm,
         sname: findItem.mnm,
         path: findItem.mpath,
-        menuSclsCd: findItem.mcd,
+        mcd: findItem.mcd,
         fileNm: findItem.fileNm,
         progCd: findItem.progCd,
     };
@@ -181,9 +184,7 @@ const addTab = async (i: any) => {
             return false;
         }
 
-        const findTabItem = tabs.value.findIndex(
-            (tab) => tab.menuSclsCd === selectedMenu.menuSclsCd,
-        );
+        const findTabItem = tabs.value.findIndex((tab) => tab.mcd === selectedMenu.mcd);
 
         // 기존 탭의 params 보존
         const oldParams = findTabItem >= 0 ? (tabs.value[findTabItem]?.params ?? {}) : {};
@@ -199,7 +200,7 @@ const addTab = async (i: any) => {
                     component: defineAsyncComponent(
                         modules[selectedMenu.path] as () => Promise<Component>,
                     ),
-                    menuSclsCd: selectedMenu.menuSclsCd,
+                    mcd: selectedMenu.mcd,
                     sname: selectedMenu.sname,
                     key: Date.now(),
                     refreshing: false,
@@ -406,7 +407,7 @@ watch(currentIndex, (newIndex) => {
             <transition-group name="fade" tag="ul" class="tabList">
                 <li
                     v-for="(tab, index) in tabs"
-                    :key="tab.menuSclsCd"
+                    :key="tab.mcd"
                     :ref="
                         (el) => {
                             if (el) tabList[index] = el as HTMLElement;

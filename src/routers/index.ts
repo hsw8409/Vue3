@@ -1,3 +1,10 @@
+/*
+ * @file     routers/index.ts
+ * @menu     라우터 index
+ * @author   astems
+ * @since    2026-07-02
+ * @version  1.0
+ */
 import { defineComponent } from 'vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import TokenService from '@/common/service/token';
@@ -7,24 +14,38 @@ import { tokenCheck } from '@/api/main';
 const NotFound = defineComponent({ template: '<div>Not Found</div>' });
 
 const routes: RouteRecordRaw[] = [
-    // 1. 루트 리다이렉트 전용
+    // 루트 리다이렉트 전용
     {
         path: '/',
         redirect: '/main',
     },
-    // 2. 실제 페이지 라우트 그룹
+    // PC 로그인
     {
         path: '/login',
         name: 'login',
         component: () => import('@/components/login/LoginPage.vue'),
     },
+    // PC 메인
     {
         path: '/main',
         name: 'main',
         component: () => import('@/components/main/MainPage.vue'),
     },
+    // 모바일 로그인
     {
-        path: '/:catchAll(.*)+',
+        path: '/mlogin',
+        name: 'mlogin',
+        component: () => import('@/components/mobile/MobileLoginPage.vue'),
+    },
+    // 모바일 메인
+    {
+        path: '/mobile',
+        name: 'mobile',
+        component: () => import('@/components/mobile/MobileMainPage.vue'),
+    },
+    {
+        path: '/:catchAll(.*)',
+        name: 'notFound',
         component: NotFound,
     },
 ];

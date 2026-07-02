@@ -638,14 +638,8 @@ onMounted(() => {
                 <div class="subTitle">
                     <h3>{{ t('menu.label.mainCategoryInfo') }}</h3>
                     <div class="subBtnWrap">
-                        <ComButton
-                            :params="{ name: t('com.label.new') }"
-                            @click="newMainCategory"
-                        />
-                        <ComButton
-                            :params="{ name: t('com.label.save') }"
-                            @click="saveMainCategory"
-                        />
+                        <ComButton :text="t('com.label.new')" @click="newMainCategory" />
+                        <ComButton :text="t('com.label.save')" @click="saveMainCategory" />
                     </div>
                 </div>
                 <div id="auiGrid">
@@ -665,14 +659,8 @@ onMounted(() => {
                 <div class="subTitle">
                     <h3>{{ t('menu.label.middleCategoryInfo') }}</h3>
                     <div class="subBtnWrap">
-                        <ComButton
-                            :params="{ name: t('com.label.new') }"
-                            @click="newMiddleCategory"
-                        />
-                        <ComButton
-                            :params="{ name: t('com.label.save') }"
-                            @click="saveMiddleCategory"
-                        />
+                        <ComButton :text="t('com.label.new')" @click="newMiddleCategory" />
+                        <ComButton :text="t('com.label.save')" @click="saveMiddleCategory" />
                     </div>
                 </div>
                 <div id="auiGrid">
@@ -691,8 +679,8 @@ onMounted(() => {
                 <div class="subTitle">
                     <h3>{{ t('menu.label.programInfo') }}</h3>
                     <div class="subBtnWrap">
-                        <ComButton :params="{ name: t('com.label.new') }" @click="newProgram" />
-                        <ComButton :params="{ name: t('com.label.save') }" @click="saveProgram" />
+                        <ComButton :text="t('com.label.new')" @click="newProgram" />
+                        <ComButton :text="t('com.label.save')" @click="saveProgram" />
                     </div>
                 </div>
                 <div id="auiGrid">

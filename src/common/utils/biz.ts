@@ -135,18 +135,18 @@ const biz = {
     // 메뉴별 버튼 권한 관리
     MENU_COM_BTN: [
         {
-            menuSclsCd: '01001001', // 메뉴분류관리
+            mcd: '01001001', // 메뉴분류관리
             btnList: [{ btnNm: '초기화', btnFnc: 'reset' }],
         },
         {
-            menuSclsCd: '01001002', // 메뉴그룹 및 권한부여
+            mcd: '01001002', // 메뉴그룹 및 권한부여
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '저장', btnFnc: 'save' },
             ],
         },
         {
-            menuSclsCd: '01002001', // 사용자 조회
+            mcd: '01002001', // 사용자 조회
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -154,7 +154,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '01002002', // 사용자 등록 및 수정
+            mcd: '01002002', // 사용자 등록 및 수정
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '저장', btnFnc: 'save' },
@@ -162,14 +162,14 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '01002003', // 사용자 접속 로그
+            mcd: '01002003', // 사용자 접속 로그
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '01003001', // 공토코드관리
+            mcd: '01003001', // 공토코드관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -177,7 +177,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '02004001', // 거래처 관리
+            mcd: '02004001', // 거래처 관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -186,7 +186,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '02004002', // 거래처-바코드지역 및 규칙설정
+            mcd: '02004002', // 거래처-바코드지역 및 규칙설정
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -194,7 +194,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '02004003', // 내부/외부 바코드 매핑관리
+            mcd: '02004003', // 내부/외부 바코드 매핑관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -202,14 +202,14 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '02004004', // 바코드 연결정보
+            mcd: '02004004', // 바코드 연결정보
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '02004005', // 매출처별 품목중량단가관리
+            mcd: '02004005', // 매출처별 품목중량단가관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -217,7 +217,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '02003001', // 매입단가그룹설정 및 매핑관리
+            mcd: '02003001', // 매입단가그룹설정 및 매핑관리
             btnList: [
                 { btnNm: '엑셀양식다운', btnFnc: 'excelSampleDown' },
                 { btnNm: '엑셀양식업로드', btnFnc: 'excelSampleUpload' },
@@ -226,7 +226,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '02003002', // 판매단가그룹설정 및 매핑관리
+            mcd: '02003002', // 판매단가그룹설정 및 매핑관리
             btnList: [
                 { btnNm: '엑셀양식다운', btnFnc: 'excelSampleDown' },
                 { btnNm: '엑셀양식업로드', btnFnc: 'excelSampleUpload' },
@@ -235,25 +235,25 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '02002001', // 매입취급그룹설정 및 품목매핑관리
+            mcd: '02002001', // 매입취급그룹설정 및 품목매핑관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '저장', btnFnc: 'save' },
             ],
         },
         {
-            menuSclsCd: '02002002', // 판매취급그룹설정 및 품목매핑관리
+            mcd: '02002002', // 판매취급그룹설정 및 품목매핑관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '저장', btnFnc: 'save' },
             ],
         },
         {
-            menuSclsCd: '02001001', // 품목분류관리
+            mcd: '02001001', // 품목분류관리
             btnList: [{ btnNm: '초기화', btnFnc: 'reset' }],
         },
         {
-            menuSclsCd: '02001002', // 품목 등록
+            mcd: '02001002', // 품목 등록
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -263,7 +263,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '02001003', // 품목별 라벨속성관리
+            mcd: '02001003', // 품목별 라벨속성관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -271,22 +271,14 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '03001001', // 출고관리
+            mcd: '03001001', // 출고관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '03003001', // 주문/매입 일괄등록
-            btnList: [
-                { btnNm: '초기화', btnFnc: 'reset' },
-                { btnNm: '조회', btnFnc: 'search' },
-                { btnNm: '저장', btnFnc: 'save' },
-            ],
-        },
-        {
-            menuSclsCd: '04001001', // 구매요청등록
+            mcd: '03003001', // 주문/매입 일괄등록
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -294,7 +286,15 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '04001002', // 구매요청확정관리
+            mcd: '04001001', // 구매요청등록
+            btnList: [
+                { btnNm: '초기화', btnFnc: 'reset' },
+                { btnNm: '조회', btnFnc: 'search' },
+                { btnNm: '저장', btnFnc: 'save' },
+            ],
+        },
+        {
+            mcd: '04001002', // 구매요청확정관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -302,7 +302,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '04001003', // 구매금액변경관리
+            mcd: '04001003', // 구매금액변경관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -310,11 +310,11 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '04001004', // 매입처/품목별 예외단가등록
+            mcd: '04001004', // 매입처/품목별 예외단가등록
             btnList: [{ btnNm: '초기화', btnFnc: 'reset' }],
         },
         {
-            menuSclsCd: '04001005', // 구매반품등록
+            mcd: '04001005', // 구매반품등록
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -322,7 +322,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '04001006', // 구매 이력제신고
+            mcd: '04001006', // 구매 이력제신고
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -330,14 +330,14 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '05001001', // 입고관리
+            mcd: '05001001', // 입고관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '05001002', // 유통이력관리
+            mcd: '05001002', // 유통이력관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -345,7 +345,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '05001003', // 입고현황
+            mcd: '05001003', // 입고현황
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -353,7 +353,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06001001', // 견적1
+            mcd: '06001001', // 견적1
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -362,7 +362,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06001002', // 견적2
+            mcd: '06001002', // 견적2
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -370,7 +370,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06001010', // 매출처별 매입처 매핑
+            mcd: '06001010', // 매출처별 매입처 매핑
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -378,7 +378,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06001011', // 매출처별 견적서관리
+            mcd: '06001011', // 매출처별 견적서관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -387,7 +387,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06002001', // 재고현황
+            mcd: '06002001', // 재고현황
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '엑셀', btnFnc: 'excelDown' },
@@ -395,7 +395,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06002002', // 상품해체
+            mcd: '06002002', // 상품해체
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -403,21 +403,21 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06002003', // 한돈 재고현황표
+            mcd: '06002003', // 한돈 재고현황표
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '06002004', // 한우 재고현황표
+            mcd: '06002004', // 한우 재고현황표
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '06002005', // 해체확정관리
+            mcd: '06002005', // 해체확정관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -425,14 +425,14 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06002006', // 바코드 검색
+            mcd: '06002006', // 바코드 검색
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '06003001', // 발주등록
+            mcd: '06003001', // 발주등록
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -440,7 +440,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06003002', // 발주확정관리
+            mcd: '06003002', // 발주확정관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -449,7 +449,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06003003', // 발주현황
+            mcd: '06003003', // 발주현황
             btnList: [
                 { btnNm: '엑셀다운로드(출고대장)', btnFnc: 'excelDown' },
                 { btnNm: '마지막거래일자검색', btnFnc: 'lastTradeDateSearch' },
@@ -461,7 +461,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06003004', // 발주금액변경관리
+            mcd: '06003004', // 발주금액변경관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -469,11 +469,11 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06003005', // 매출처/품목별 예외단가등록
+            mcd: '06003005', // 매출처/품목별 예외단가등록
             btnList: [{ btnNm: '초기화', btnFnc: 'reset' }],
         },
         {
-            menuSclsCd: '06003006', // 발주반품등록
+            mcd: '06003006', // 발주반품등록
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -481,7 +481,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06003007', // 판매 이력제신고
+            mcd: '06003007', // 판매 이력제신고
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -489,7 +489,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06003008', // 재고기준정보
+            mcd: '06003008', // 재고기준정보
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -497,7 +497,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06004001', // 경영목표관리
+            mcd: '06004001', // 경영목표관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -505,14 +505,14 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '06005001', // 실사현황
+            mcd: '06005001', // 실사현황
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '07001001', // 세금계산서 발행
+            mcd: '07001001', // 세금계산서 발행
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -521,7 +521,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '07001002', // 월채권 및 입금관리
+            mcd: '07001002', // 월채권 및 입금관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -529,7 +529,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '07001003', // 월채무 및 지급관리
+            mcd: '07001003', // 월채무 및 지급관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -537,21 +537,21 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '08001001', // 매출분석현황
+            mcd: '08001001', // 매출분석현황
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '08001002', // 매입분석현황
+            mcd: '08001002', // 매입분석현황
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '08001003', // 마감처리
+            mcd: '08001003', // 마감처리
             btnList: [
                 { btnNm: '일자전체마감', btnFnc: 'close' },
                 { btnNm: '전체마감취소', btnFnc: 'closeCancel' },
@@ -560,14 +560,14 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '08002001', // 일별/거래처별 집계현황
+            mcd: '08002001', // 일별/거래처별 집계현황
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '10001001', // 생산지시요청
+            mcd: '10001001', // 생산지시요청
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -576,7 +576,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '10001002', // 포장 이력제신고
+            mcd: '10001002', // 포장 이력제신고
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -584,7 +584,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '10002001', // 생산공정관리
+            mcd: '10002001', // 생산공정관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -593,7 +593,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '10002002', // 생산공정처리
+            mcd: '10002002', // 생산공정처리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '확정', btnFnc: 'approval' },
@@ -601,7 +601,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '10002003', // 생산결과
+            mcd: '10002003', // 생산결과
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -610,7 +610,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '10003001', // 장비관리
+            mcd: '10003001', // 장비관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -618,7 +618,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '10003003', // 라벨사이즈관리
+            mcd: '10003003', // 라벨사이즈관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
@@ -628,7 +628,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '10003004', // 공정유형-사이즈 매핑
+            mcd: '10003004', // 공정유형-사이즈 매핑
             btnList: [
                 { btnNm: '조회', btnFnc: 'search' },
                 { btnNm: '신규', btnFnc: 'newRegi' },
@@ -638,7 +638,7 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '10003005', // 라벨필드관리
+            mcd: '10003005', // 라벨필드관리
             btnList: [
                 { btnICon: '－', btnNm: '배율축소', btnFnc: 'zoomIn' },
                 { btnICon: '＋', btnNm: '배율확대', btnFnc: 'zoomOut' },
@@ -649,14 +649,14 @@ const biz = {
             ],
         },
         {
-            menuSclsCd: '10003006', // 라벨별 필드 문구 관리
+            mcd: '10003006', // 라벨별 필드 문구 관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },
             ],
         },
         {
-            menuSclsCd: '13001001', // 체인 관리
+            mcd: '13001001', // 체인 관리
             btnList: [
                 { btnNm: '초기화', btnFnc: 'reset' },
                 { btnNm: '조회', btnFnc: 'search' },

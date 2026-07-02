@@ -13,10 +13,17 @@
 import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+// ==================================================
+// Type 선언 영역
+// ==================================================
+interface SelectOption {
+    [key: string]: unknown;
+}
+
 interface Props {
-    modelValue?: string | number;
+    modelValue?: string;
     mode?: 'search' | 'input';
-    options?: Record<string, any>[];
+    options?: SelectOption[];
     optionsValueKey?: string;
     optionsLabelKey?: string;
     label?: string;
@@ -25,6 +32,14 @@ interface Props {
     disabled?: boolean;
 }
 
+// ==================================================
+// 변수 선언 영역
+// ==================================================
+// 루트 엘리먼트 자동 속성 상속 방지
+defineOptions({
+    inheritAttrs: false,
+});
+
 const props = withDefaults(defineProps<Props>(), {
     modelValue: '',
     mode: 'search',
@@ -32,106 +47,89 @@ const props = withDefaults(defineProps<Props>(), {
     optionsValueKey: 'dtlCommCd',
     optionsLabelKey: 'dtlCommNm',
     label: '',
-    selectType: undefined,
+    selectType: 'A',
     required: false,
     disabled: false,
 });
+
 const { t } = useI18n();
-const emit = defineEmits(['update:modelValue', 'change']);
+
+const emit = defineEmits<{
+    (e: 'update:modelValue', value: string): void;
+    (e: 'change', event: Event): void;
+}>();
+
 const selectRef = ref<HTMLSelectElement | null>(null);
 
-const placeholderMap: Record<'A' | 'S' | 'N', string> = {
+const placeholderMap = {
     A: 'com.label.all',
     S: 'com.label.select',
     N: 'com.label.notSelect',
-};
-const config = computed(() => {
-    const type = props.selectType;
+} as const;
 
-    return {
-        label: props.label ?? '',
-        required: props.required ?? false,
-        // 2. 타입 검사 통과를 위한 안전한 접근
-        // type이 'A' | 'S' | 'N' 중 하나일 때만 매핑 객체에서 값을 가져옴
-        placeholderKey:
-            type && type in placeholderMap ? placeholderMap[type as 'A' | 'S' | 'N'] : undefined,
-    };
-});
+const placeholderKey = computed(() =>
+    props.selectType ? placeholderMap[props.selectType] : undefined,
+);
 
 const selectedValue = computed({
     get: () => props.modelValue ?? '',
-    set: (val) => emit('update:modelValue', val),
+    set: (value) => emit('update:modelValue', String(value)),
 });
 
-const onChange = (event: Event) => emit('change', event);
-const setFocus = () => selectRef.value?.focus();
+// ==================================================
+// 사용자 정의 함수 영역
+// ==================================================
+const onChange = (event: Event) => {
+    emit('change', event);
+};
 
-defineExpose({ setFocus });
+defineExpose({
+    setFocus() {
+        selectRef.value?.focus();
+    },
+});
 
+// ==================================================
+// Hook 영역
+// ==================================================
 watch(
     () => props.options,
-    (newOptions) => {
-        const type = props.selectType;
-        const isAutoSelect = !type || !['A', 'S', 'N'].includes(type);
+    (options?: SelectOption[]) => {
+        const list: SelectOption[] = options ?? [];
 
-        // 1. newOptions 자체가 존재하고, 첫 번째 요소가 있는지 확인
-        const firstOption = newOptions?.[0];
+        if (!props.selectType && !props.modelValue && list.length > 0) {
+            const value = list[0]?.[props.optionsValueKey];
 
-        // 2. props.modelValue가 비어있고, 자동 선택 조건일 때
-        if (isAutoSelect && !props.modelValue && firstOption) {
-            // 3. 해당 키 값이 존재하는지 확인 후 안전하게 emit
-            const val = firstOption[props.optionsValueKey];
-            if (val !== undefined && val !== null) {
-                emit('update:modelValue', val);
+            if (value !== undefined && value !== null) {
+                emit('update:modelValue', String(value));
             }
         }
     },
-    { immediate: true },
+    {
+        immediate: true,
+    },
 );
 </script>
 
 <template>
-    <div v-if="mode === 'search'" class="combo-select-root">
-        <label v-if="label">{{ required ? '* ' : '' }}{{ label }}</label>
+    <label v-if="label">{{ required ? '* ' : '' }}{{ label }}</label>
 
-        <!-- 일반 select -->
-        <div class="search_cell search_cell_long">
-            <select
-                v-model="selectedValue"
-                class="search_input search_select"
-                :disabled="disabled"
-                @change="onChange"
-            >
-                <option v-if="config.placeholderKey" value="">
-                    {{ t(config.placeholderKey) }}
-                </option>
-
-                <option
-                    v-for="item in options"
-                    :key="item[optionsValueKey]"
-                    :value="item[optionsValueKey]"
-                >
-                    {{ item[optionsLabelKey] }}
-                </option>
-            </select>
-        </div>
-    </div>
-    <div v-else class="form_cell form_input">
-        <select v-model="selectedValue" class="select" v-bind="$attrs" @change="onChange">
-            <option v-if="selectType === 'A'" value="">{{ t('com.label.all') }}</option>
-
-            <option v-else-if="selectType === 'S'" value="">
-                {{ t('com.label.select') }}
-            </option>
-
-            <option v-else-if="selectType === 'N'" value="">
-                {{ t('com.label.notSelect') }}
+    <div :class="mode === 'search' ? 'search_cell search_cell_long' : 'form_cell form_input'">
+        <select
+            ref="selectRef"
+            v-model="selectedValue"
+            :disabled="disabled"
+            class="search_input search_select"
+            @change="onChange"
+        >
+            <option v-if="placeholderKey" value="">
+                {{ t(placeholderKey) }}
             </option>
 
             <option
                 v-for="item in options"
-                :key="item[optionsValueKey]"
-                :value="item[optionsValueKey]"
+                :key="String(item[optionsValueKey])"
+                :value="String(item[optionsValueKey])"
             >
                 {{ item[optionsLabelKey] }}
             </option>

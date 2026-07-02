@@ -608,7 +608,7 @@ onMounted(() => {
                     <ComInputbox
                         v-model="searchBox.commCd"
                         :label="t('com.label.codeAndName')"
-                        maxlength="50"
+                        :maxlength="50"
                         @enter="search"
                     />
                 </div>
@@ -620,9 +620,9 @@ onMounted(() => {
                 <h3>{{ t('commonCode.label.commonCodeGroupInfo') }}</h3>
                 <div class="subBtnWrap">
                     <!-- 신규 -->
-                    <ComButton :params="{ name: t('com.label.new') }" @click="fnAddMain" />
+                    <ComButton :text="t('com.label.new')" @click="fnAddMain" />
                     <!-- 삭제 -->
-                    <ComButton :params="{ name: t('com.label.del') }" @click="fnDeleteMain" />
+                    <ComButton :text="t('com.label.del')" @click="fnDeleteMain" />
                 </div>
             </div>
             <!--  S : AUI Grid -->
@@ -643,9 +643,9 @@ onMounted(() => {
                 <h3>{{ t('commonCode.label.commonCodeDetailInfo') }}</h3>
                 <div class="subBtnWrap">
                     <!-- 신규 -->
-                    <ComButton :params="{ name: t('com.label.new') }" @click="fnAddDetail" />
+                    <ComButton :text="t('com.label.new')" @click="fnAddDetail" />
                     <!-- 삭제 -->
-                    <ComButton :params="{ name: t('com.label.del') }" @click="fnDeleteDetail" />
+                    <ComButton :text="t('com.label.del')" @click="fnDeleteDetail" />
                 </div>
             </div>
             <!--  S : AUI Grid -->

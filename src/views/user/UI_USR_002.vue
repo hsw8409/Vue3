@@ -72,7 +72,7 @@ const user = ref<Partial<UserProps>>({
     telNo: '',
     hpNo: '',
     email: '',
-    zipNo: '',
+    zipno: '',
     roadAddr: '',
     roadDtlAddr: '',
     employGbnFg: '10',
@@ -113,13 +113,13 @@ const disableChangeDetail = reactive({
 
 const addressInfo = computed({
     get: () => ({
-        zipNo: user.value.zipNo ?? '',
+        zipno: user.value.zipno ?? '',
         roadAddr: user.value.roadAddr ?? '',
         roadDtlAddr: user.value.roadDtlAddr ?? '',
     }),
 
     set: (value) => {
-        user.value.zipNo = value.zipNo;
+        user.value.zipno = value.zipno;
         user.value.roadAddr = value.roadAddr;
         user.value.roadDtlAddr = value.roadDtlAddr;
     },
@@ -141,7 +141,7 @@ const reset = function () {
         telNo: '',
         hpNo: '',
         email: '',
-        zipNo: '',
+        zipno: '',
         roadAddr: '',
         roadDtlAddr: '',
         employGbnFg: '10',
@@ -178,7 +178,7 @@ const reset = function () {
 const pageMove = function () {
     reset();
 
-    addTab?.({ menuSclsCd: '01002001', fileNm: 'UI_USR_001.vue' });
+    addTab?.({ fileNm: 'UI_USR_001.vue' });
 };
 
 // 사용자 정보 저장.
@@ -461,15 +461,13 @@ onActivated(() => {
                         <div class="form_wrap" style="width: auto">
                             <ComInputbox
                                 v-model="user.userId"
-                                maxlength="50"
-                                :style="{ width: '95%' }"
+                                :maxlength="50"
                                 :disabled="updateCheckFg == 'U'"
                                 @input="changeId"
                             />
                             <!-- 중복확인 -->
                             <ComButton
-                                :params="{ name: t('user.label.duplicateConfirm') }"
-                                style="align-items: center; display: flex; margin-left: 5px"
+                                :text="t('user.label.duplicateConfirm')"
                                 @click="checkIdDuplication"
                             />
                         </div>
@@ -512,14 +510,14 @@ onActivated(() => {
                     <th>{{ t('com.label.telNo') }}</th>
                     <td class="small">
                         <div class="form_wrap">
-                            <ComInputbox v-model="user.telNo" maxlength="13" />
+                            <ComInputbox v-model="user.telNo" :maxlength="13" />
                         </div>
                     </td>
                     <!-- 핸드폰번호 -->
                     <th>{{ t('com.label.hpNo') }}</th>
                     <td class="small">
                         <div class="form_wrap">
-                            <ComInputbox v-model="user.hpNo" maxlength="13" />
+                            <ComInputbox v-model="user.hpNo" :maxlength="13" />
                         </div>
                     </td>
                 </tr>

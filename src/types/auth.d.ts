@@ -8,7 +8,7 @@ export interface UserProps {
     telNo?: string; // 전화번호
     hpNo?: string; // 핸드폰번호
     email?: string; // 이메일
-    zipNo?: string; // 우편번호
+    zipno?: string; // 우편번호
     roadAddr?: string; // 도로명주소
     roadDtlAddr?: string; // 상세주소
     employGbnFg?: string; //

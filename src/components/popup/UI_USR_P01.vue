@@ -52,8 +52,7 @@ const searchParameter = ref({
 // 그리드 영역
 // =====================================================================================================
 
-// 그리드
-const myGrid = ref();
+const myGrid = ref<any>(null);
 
 // 그리드 속성 정의
 const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
@@ -85,19 +84,16 @@ const columnLayout = [
         labelFunction: (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            let columnValue;
-            EAT100.forEach(function (code: any) {
-                if (code.dtlCommCd === value) {
-                    columnValue = code.dtlCommNm;
-                }
-            });
-            return columnValue;
+            const columnValue = new Map(
+                EAT100.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
+            );
+            return columnValue.get(_value) ?? '';
         },
     },
     {
@@ -108,13 +104,13 @@ const columnLayout = [
         labelFunction: (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            const digitsOnly = value?.replace(/\D/g, '');
+            const digitsOnly = _value?.replace(/\D/g, '');
             if (!digitsOnly) {
                 return '';
             }
@@ -141,13 +137,13 @@ const columnLayout = [
         labelFunction: (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            const digitsOnly = value?.replace(/\D/g, '');
+            const digitsOnly = _value?.replace(/\D/g, '');
             if (!digitsOnly) {
                 return '';
             }
@@ -174,19 +170,16 @@ const columnLayout = [
         labelFunction: (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            let columnValue;
-            EAT050.forEach(function (code: any) {
-                if (code.dtlCommCd == value) {
-                    columnValue = code.dtlCommNm;
-                }
-            });
-            return columnValue;
+            const columnValue = new Map(
+                EAT050.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
+            );
+            return columnValue.get(_value) ?? '';
         },
     },
     {
@@ -198,19 +191,16 @@ const columnLayout = [
         labelFunction: (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            let columnValue;
-            menuGroupList.value.forEach(function (code: any) {
-                if (code.menuGrpCd == value) {
-                    columnValue = code.menuGrpNm;
-                }
-            });
-            return columnValue;
+            const columnValue = new Map(
+                menuGroupList.value?.map((item: any) => [item.menuGrpCd, item.menuGrpNm]),
+            );
+            return columnValue.get(_value) ?? '';
         },
     },
     {
@@ -222,19 +212,16 @@ const columnLayout = [
         labelFunction: (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            let columnValue;
-            EAT150.forEach(function (code: any) {
-                if (code.dtlCommCd == value) {
-                    columnValue = code.dtlCommNm;
-                }
-            });
-            return columnValue;
+            const columnValue = new Map(
+                EAT150.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
+            );
+            return columnValue.get(_value) ?? '';
         },
     },
     {
@@ -262,25 +249,26 @@ const columnLayout = [
 // =====================================================================================================
 
 // 조회 버튼
-const search = function () {
+const search = () => {
     myGrid.value.showAjaxLoader();
     selectUserList(searchParameter.value)
         .then((res) => {
             // 그리드 데이터 삽입
             myGrid.value.setGridData(res?.data?.result);
-            myGrid.value.removeAjaxLoader();
         })
         .catch((e) => {
-            myGrid.value.removeAjaxLoader();
             popup.alert(e.message);
+        })
+        .finally(() => {
+            myGrid.value.removeAjaxLoader();
         });
 };
 
-const doubleClick = function (event: any) {
+const doubleClick = (event: any) => {
     popup.closePopup(props.id, event.item);
 };
 
-const detailRowClick = function () {
+const detailRowClick = () => {
     const grid = myGrid.value;
     const selectedRow = grid.getSelectedRows();
     const userId = selectedRow[0].userId;
@@ -292,7 +280,7 @@ const detailRowClick = function () {
     }
 };
 
-const select = function () {
+const select = () => {
     const item = myGrid.value.getCheckedRowItemsAll();
     if (item.length === 0) {
         popup.alert(t('com.message.selectItemL', [t('com.label.user')])); // 사용자를 선택해 주세요
@@ -301,15 +289,14 @@ const select = function () {
     }
 };
 
-const reset = function () {
-    searchParameter.value = {
+const reset = () => {
+    Object.assign(searchParameter.value, {
         userId: '',
         userNm: '',
         userTypeCd: '',
         menuGrpCd: '',
-    };
+    });
 };
-
 // =====================================================================================================
 // HOOK 영역
 // =====================================================================================================
@@ -320,7 +307,7 @@ onMounted(() => {
             menuGroupList.value = res?.data?.result;
         })
         .catch((e) => {
-            return e;
+            popup.alert(e.message);
         });
 
     searchParameter.value = {
@@ -329,7 +316,7 @@ onMounted(() => {
         userTypeCd: props.param.userTypeCd || '',
         menuGrpCd: props.param.menuGrpCd || '',
     };
-    if (searchParameter.value.itemCd) {
+    if (searchParameter.value.userId) {
         search();
     }
 });
@@ -346,9 +333,9 @@ onMounted(() => {
                 <!-- 메뉴&공통버튼영역 -->
                 <div class="btn_area">
                     <!-- 초기화, 조회, 선택 -->
-                    <ComButton :params="{ name: t('com.label.reset') }" @click="reset" />
-                    <ComButton :params="{ name: t('com.label.search') }" @click="search" />
-                    <ComButton :params="{ name: t('com.label.select') }" @click="select" />
+                    <ComButton :text="t('com.label.reset')" @click="reset" />
+                    <ComButton :text="t('com.label.search')" @click="search" />
+                    <ComButton :text="t('com.select.search')" @click="select" />
                 </div>
             </div>
 
@@ -373,7 +360,7 @@ onMounted(() => {
                             <label>{{ t('com.label.userId') }}</label>
                             <span class="search_cell">
                                 <ComInputbox
-                                    ref="userId"
+                                    ref="userIdRef"
                                     v-model="searchParameter.userId"
                                     type="text"
                                 />
@@ -386,7 +373,7 @@ onMounted(() => {
                             <label>{{ t('com.label.userName') }}</label>
                             <span class="search_cell">
                                 <ComInputbox
-                                    ref="userId"
+                                    ref="userNmRef"
                                     v-model="searchParameter.userNm"
                                     type="text"
                                 />

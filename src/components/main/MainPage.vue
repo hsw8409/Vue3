@@ -10,8 +10,8 @@
 // ==================================================
 // import 영역
 // ==================================================
-import { ref, computed, provide, onMounted, onUnmounted, getCurrentInstance } from 'vue';
-import type { ComponentPublicInstance } from 'vue';
+import { ref, computed, provide, onMounted, onUnmounted, inject } from 'vue';
+
 import { useAuthStore } from '@/common/stores/auth';
 import { usePopupStore } from '@/common/stores/popup';
 
@@ -22,36 +22,28 @@ import MainTab from '@/components/main/layout/MainTab.vue';
 import TokenService from '@/common/service/token';
 import { selectComCd } from '@/api/main';
 
-// 데이터 타입 인터페이스 정의
-interface MenuItem {
-    menuId: string | number;
-    menuNm: string;
-    [key: string]: any;
-}
+import type { Emitter } from 'mitt';
+
+import type { MenuItemProps, SelectedMenuProps } from '@/types/menu';
+
+// ==================================================
+// Type 선언 영역
+// ==================================================
 
 interface AxiosErrorProp {
     type: string;
     msg: string;
 }
 
-// 전역 emitter 확장을 위한 임시 타입 정의
-type ExtendedPublicInstance = ComponentPublicInstance & {
-    $emitter?: {
-        on: (event: string, handler: (...args: any[]) => void) => void;
-        off: (event: string, handler: (...args: any[]) => void) => void;
-    };
-};
-
 // ==================================================
 // 변수 선언 영역
 // ==================================================
-const authStore = useAuthStore();
+const auth = useAuthStore();
 const popup = usePopupStore();
 
-const instance = getCurrentInstance();
-const proxy = instance?.proxy as ExtendedPublicInstance | undefined;
+const emitter = inject<Emitter<Record<string, any>>>('emitter');
 
-const menuList = ref<MenuItem[]>([]);
+const menuList = ref<MenuItemProps[]>([]);
 const hideToggle = ref(false);
 
 const refMenuLeft = ref<InstanceType<typeof MainLeft> | null>(null);
@@ -78,7 +70,7 @@ const hideMenuToggled = (e: boolean) => {
     tabComponents.value?.layoutSizeChanged?.(e);
 };
 
-const goPage = (m: any) => {
+const goPage = (m: SelectedMenuProps) => {
     // 💡 방어 코드: menuList 데이터가 정상적으로 바인딩되었는지 체크
     if (!menuList.value || menuList.value.length === 0) {
         console.warn('메뉴  데이터가 아직 로드되지 않았습니다.');
@@ -89,7 +81,7 @@ const goPage = (m: any) => {
     tabComponents.value?.addTab?.(m);
 };
 
-const menuListEmit = (m: any[]) => {
+const menuListEmit = (m: MenuItemProps[]) => {
     menuList.value = m || [];
 };
 
@@ -97,7 +89,7 @@ const axiosError = (prop: AxiosErrorProp) => {
     popup.alert(`[${prop.type}]\n${prop.msg}`);
 };
 
-const menuSet = (m: MenuItem | null) => {
+const menuSet = (m: MenuItemProps | null) => {
     if (!m) {
         console.log('홈 화면으로 이동하여 메뉴 선택을 해제합니다.');
         return;
@@ -121,11 +113,11 @@ onMounted(() => {
     const loginUser = TokenService.getUser();
 
     if (loginUser && Number(loginUser?.resetTarget) === 1) {
-        authStore.logout();
+        auth.logout();
     }
 
-    if (proxy?.$emitter) {
-        proxy.$emitter.on('errorMessageEvent', axiosError);
+    if (emitter) {
+        emitter.on('errorMessageEvent', axiosError);
     }
 
     selectComCd().then((res) => {
@@ -133,21 +125,26 @@ onMounted(() => {
 
         if (result) {
             try {
-                // Object.keys를 사용하면 hasOwnProperty 체크를 생략할 수 있어 코드가 훨씬 간결해집니다.
                 Object.keys(result).forEach((key) => {
-                    const value = result[key] ?? {};
+                    const typedKey = key as keyof typeof result;
+                    const value = result[typedKey] ?? {};
                     localStorage.setItem(key, JSON.stringify(value));
                 });
             } catch (error) {
-                console.error('공통 코드 스토리지 저장 중 에러 발생:', error);
+                if ((error as DOMException).name === 'QuotaExceededError') {
+                    console.error('localStorage 용량이 초과되었습니다.');
+                    // 필요시 일부 데이터 삭제 로직 추가
+                } else {
+                    console.error('스토리지 저장 실패:', error);
+                }
             }
         }
     });
 });
 
 onUnmounted(() => {
-    if (proxy?.$emitter) {
-        proxy.$emitter.off('errorMessageEvent', axiosError);
+    if (emitter) {
+        emitter.off('errorMessageEvent', axiosError);
     }
 });
 </script>
