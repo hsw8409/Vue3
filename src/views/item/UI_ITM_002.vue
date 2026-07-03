@@ -7,17 +7,16 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
-import { ref, onMounted, nextTick, watch, computed } from 'vue';
+// =====================================================================================================
+import { ref, onMounted, nextTick, watch, computed, reactive } from 'vue';
 import TokenService from '@/common/service/token';
 import { useI18n } from 'vue-i18n';
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 
-import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import MenuTop from '@/components/menu/MenuTop.vue'; // 메뉴&메뉴 공통 버튼 (데이터 기반으로 전체 )
 import MenuContent from '@/components/menu/MenuContent.vue'; // 메뉴 메인
 import SearchArea from '@/components/menu/SearchArea.vue'; // 조회조건 영역
@@ -25,8 +24,12 @@ import ComInputbox from '@/components/form/ComInputbox.vue'; // 텍스트 box
 import ComSelectbox from '@/components/form/ComSelectbox.vue'; // 선택박스 box
 import ItemCdAndNameSearch from '@/components/search/ItemCdAndNameSearch.vue';
 import ItemCategory from '@/components/search/ItemCategory.vue';
+
 import { utils } from '@/common/utils';
+
+import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import { usePopupStore } from '@/common/stores/popup';
+import { useCommonCodeStore } from '@/common/stores/commonCode';
 
 // api
 import { selectCategories, selectItem, saveItemReg } from '@/api/item';
@@ -34,9 +37,62 @@ import { selectCategories, selectItem, saveItemReg } from '@/api/item';
 import type { CategoryGroupsProps, CategoryProps } from '@/types/item';
 
 // =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
+interface SearchParameterProps {
+    itemCd: string;
+    itemNm: string;
+    lclsItemCd: string;
+    mclsItemCd: string;
+    sclsItemCd: string;
+    itemTypeCd: string;
+    selfThirdYn: string;
+    invMngStdCd: string;
+    tranStatCd: string;
+}
+
+interface ItemDetailProps {
+    chainCd: string;
+    itemCd: string;
+    itemNm: string;
+    labelNm: string;
+    taxFreeGbnCd: string;
+    lclsItemCd: string;
+    mclsItemCd: string;
+    sclsItemCd: string;
+    spec: string;
+    dtlSpec: string;
+    originCd: string;
+    dtlOrigin: string;
+    basUnitCd: string;
+    orderContractUnitCd: string;
+    boxQty: string;
+    packingUnitQty: string;
+    oneAnimalQty: string;
+    minOrderQty: string;
+    decimalPointOrderCd: string;
+    displayWt: string;
+    distrHistoryMngYn: string;
+    distrExpiryDayCnt: string;
+    buyerId: string;
+    itemTypeCd: string;
+    orderCloseCountCd: string;
+    keepTempGbnCd: string;
+    imgFileId: string;
+    itemRating: string;
+    selfThirdYn: string;
+    invMngStdCd: string;
+    tranStatCd: string;
+    cowPigGbnFg: string;
+    standardPartCd: string;
+    useYn: string;
+    reportNo: string;
+    ingredients: string;
+    usage: string;
+}
+// =====================================================================================================
 // 변수 선언 영역
 // =====================================================================================================
-
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
 defineProps<{
     menuInfo: any;
@@ -46,21 +102,22 @@ defineProps<{
 // 공통 메세지 변수
 const { t } = useI18n();
 
-const GLB200 = JSON.parse(localStorage.getItem('GLB200') ?? '[]');
-const GLB250 = JSON.parse(localStorage.getItem('GLB250') ?? '[]');
-const EAT300 = JSON.parse(localStorage.getItem('EAT300') ?? '[]');
-const GLB300 = JSON.parse(localStorage.getItem('GLB300') ?? '[]');
-const GLB350 = JSON.parse(localStorage.getItem('GLB350') ?? '[]');
-const GLB400 = JSON.parse(localStorage.getItem('GLB400') ?? '[]');
-const GLB450 = JSON.parse(localStorage.getItem('GLB450') ?? '[]');
-const EAT350 = JSON.parse(localStorage.getItem('EAT350') ?? '[]');
-const GLB500 = JSON.parse(localStorage.getItem('GLB500') ?? '[]');
-const EAT400 = JSON.parse(localStorage.getItem('EAT400') ?? '[]');
-const EAT450 = JSON.parse(localStorage.getItem('EAT450') ?? '[]');
-const GLB800 = JSON.parse(localStorage.getItem('GLB800') ?? '[]');
-const GLB810 = JSON.parse(localStorage.getItem('GLB810') ?? '[]');
-const GLB550 = JSON.parse(localStorage.getItem('GLB550') ?? '[]');
-const COM010 = JSON.parse(localStorage.getItem('COM010') ?? '[]');
+const commonCode = useCommonCodeStore();
+const GLB200 = computed(() => commonCode.get('GLB200'));
+const GLB250 = computed(() => commonCode.get('GLB250'));
+const EAT300 = computed(() => commonCode.get('EAT300'));
+const GLB300 = computed(() => commonCode.get('GLB300'));
+const GLB350 = computed(() => commonCode.get('GLB350'));
+const GLB400 = computed(() => commonCode.get('GLB400'));
+const GLB450 = computed(() => commonCode.get('GLB450'));
+const EAT350 = computed(() => commonCode.get('EAT350'));
+const GLB500 = computed(() => commonCode.get('GLB500'));
+const EAT400 = computed(() => commonCode.get('EAT400'));
+const EAT450 = computed(() => commonCode.get('EAT450'));
+const GLB800 = computed(() => commonCode.get('GLB800'));
+const GLB810 = computed(() => commonCode.get('GLB810'));
+const GLB550 = computed(() => commonCode.get('GLB550'));
+const COM010 = computed(() => commonCode.get('COM010'));
 
 const fileAccept = ['image/gif', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
@@ -72,7 +129,7 @@ const fileName = ref('');
 
 let editFlag = 'D';
 
-const searchParameterInit = {
+const searchParameterInit: SearchParameterProps = {
     itemCd: '',
     itemNm: '',
     lclsItemCd: '',
@@ -83,7 +140,10 @@ const searchParameterInit = {
     invMngStdCd: '',
     tranStatCd: '',
 };
-const searchParameter = ref({ ...searchParameterInit });
+
+const searchParameter = reactive<SearchParameterProps>({
+    ...searchParameterInit,
+});
 
 // 품목상세정보의 카테고리
 const categories = ref<CategoryGroupsProps>({
@@ -98,8 +158,15 @@ const itemParam = ref({
     itemNm: '',
 });
 
-const itemDetailInit = {
-    chainCd: TokenService.getUser().chainCd,
+// 품목분류
+const categoryParam = ref({
+    lclsItemCd: '',
+    mclsItemCd: '',
+    sclsItemCd: '',
+});
+
+const itemDetailInit: ItemDetailProps = {
+    chainCd: TokenService.getUser().chainCd ?? '',
     itemCd: '',
     itemNm: '',
     labelNm: '',
@@ -137,7 +204,10 @@ const itemDetailInit = {
     ingredients: '',
     usage: '',
 };
-const itemDetail = ref({ ...itemDetailInit });
+
+const itemDetail = reactive<ItemDetailProps>({
+    ...itemDetailInit,
+});
 
 /**입력값 변경감지 */
 const changeInfoInit = {
@@ -155,13 +225,11 @@ const popup = usePopupStore();
 // 그리드 높이 계산
 const layoutStore = useLayoutStore();
 const gridResizeHeight = layoutStore.layoutHeight - utils.biz.MENU_LAYOUT.S2_ST;
-const myGrid = ref<any>(null);
+const myGrid = ref<AUIGridProps | null>(null);
 
 // 그리드 속성 정의
 const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
-    // .withRowIdField("custCd")
     .withShowStateColumn(true)
-    // .withRowIdTrustMode(true)
     .withExtraProps({
         rowIdField: '_$uid',
         height: gridResizeHeight,
@@ -199,7 +267,7 @@ const columnLayout = [
             _item: any,
         ) {
             let columnValue;
-            GLB200.forEach(function (code: any) {
+            GLB200.value.forEach(function (code: any) {
                 if (code.dtlCommCd == value) {
                     columnValue = code.dtlCommNm;
                 }
@@ -232,11 +300,12 @@ const selectCategory = () => {
 const showItemDetail = function (e: any) {
     const rowData = e.primeCell.item;
 
-    // 상세 데이터 세팅
-    itemDetail.value = {
+    console.info(typeof rowData.itemCd);
+
+    Object.assign(itemDetail, {
         ...itemDetailInit,
         ...rowData,
-    };
+    });
 
     // 파일 input 초기화
     if (fileInput.value) {
@@ -254,19 +323,21 @@ const showItemDetail = function (e: any) {
 
 // 조회 버튼
 const search = function () {
-    searchParameter.value.itemCd = itemParam.value.itemCd;
-    searchParameter.value.itemNm = itemParam.value.itemNm;
+    Object.assign(searchParameter, itemParam.value);
+    Object.assign(searchParameter, categoryParam.value);
 
     resetItemDetail();
 
-    myGrid.value.showAjaxLoader();
+    myGrid.value?.showAjaxLoader();
 
-    selectItem(searchParameter.value)
+    selectItem(searchParameter)
         .then((res) => {
-            myGrid.value.setGridData(res?.data?.result);
-            myGrid.value.removeAjaxLoader();
+            myGrid.value?.setGridData(res?.data?.result ?? []);
+            myGrid.value?.removeAjaxLoader();
 
-            itemDetail.value = { ...itemDetailInit };
+            Object.assign(itemDetail, {
+                ...itemDetailInit,
+            });
 
             selectedFile.value = null;
             fileName.value = '';
@@ -282,11 +353,11 @@ const search = function () {
             }
 
             if (res?.data?.result?.length == 1) {
-                myGrid.value.setSelectionBlock.call(myGrid.value, 0, 0, 0, 0);
+                myGrid.value?.setSelectionBlock(0, 0, 0, 0);
             }
         })
         .catch((e) => {
-            myGrid.value.removeAjaxLoader();
+            myGrid.value?.removeAjaxLoader();
             popup.alert(e.message);
         });
 };
@@ -294,9 +365,11 @@ const search = function () {
 // 신규 버튼
 const newRegi = function () {
     const okCallBack = () => {
-        myGrid.value.clearSelection();
+        myGrid.value?.clearSelection();
 
-        itemDetail.value = { ...itemDetailInit };
+        Object.assign(itemDetail, {
+            ...itemDetailInit,
+        });
 
         if (fileInput.value) {
             fileInput.value.value = '';
@@ -342,18 +415,18 @@ const save = async function () {
             const formData = new FormData();
             formData.append(
                 'item',
-                new Blob([JSON.stringify(JSON.parse(JSON.stringify(itemDetail.value)))], {
+                new Blob([JSON.stringify(JSON.parse(JSON.stringify(itemDetail)))], {
                     type: 'application/json',
                 }),
             );
             if (selectedFile.value) {
                 formData.append('file', selectedFile.value);
             }
-            myGrid.value.showAjaxLoader();
+            myGrid.value?.showAjaxLoader();
 
             saveItemReg(formData)
                 .then(() => {
-                    myGrid.value.removeAjaxLoader();
+                    myGrid.value?.removeAjaxLoader();
 
                     selectedFile.value = null;
                     fileName.value = '';
@@ -366,112 +439,121 @@ const save = async function () {
                     search();
                 })
                 .catch((e) => {
-                    myGrid.value.removeAjaxLoader();
+                    myGrid.value?.removeAjaxLoader();
                     popup.alert(e.error);
                 });
         },
     });
 };
 
-const copy = function () {
-    if (myGrid.value.getAddedRowItems().length > 0) {
+const copy = () => {
+    // 1. 안전하게 추가된 행 가져오기 (null/undefined 방어)
+    const addedRows = myGrid.value?.getAddedRowItems() ?? [];
+
+    // 2. 신규 행이 존재할 경우 경고 및 리턴
+    if (addedRows.length > 0) {
         popup.alert(t('com.message.proceedAfterSave'));
         return;
     }
 
-    myGrid.value.addRow(
+    // 3. 데이터 복사 및 추가
+    myGrid.value?.addRow(
         {
-            ...itemDetail.value,
-            itemCd: '-',
+            ...itemDetail,
+            itemCd: '-', // 복사 시점에 기본값 처리
         },
         'first',
     );
+
+    // 4. 추가된 후 바로 입력할 수 있도록 UX 개선
+    myGrid.value?.setSelectionByIndex(0, 0);
+    myGrid.value?.openInputer();
 };
 
 // 품목 등록 validation 체크
 const validateBeforeSubmit = async () => {
     const checkItems = [
-        { name: t('item.label.itemCodeAndName'), required: true, value: itemDetail.value.itemNm }, // 품목코드/명
+        { name: t('item.label.itemCodeAndName'), required: true, value: itemDetail.itemNm }, // 품목코드/명
         {
             name: t('item.label.taxClassification'),
             required: true,
-            value: itemDetail.value.taxFreeGbnCd,
+            value: itemDetail.taxFreeGbnCd,
         }, // 세금구분
-        { name: t('item.label.lcls'), required: true, value: itemDetail.value.lclsItemCd }, // 대분류
-        { name: t('item.label.mcls'), required: true, value: itemDetail.value.mclsItemCd }, // 중분류
-        { name: t('item.label.scls'), required: true, value: itemDetail.value.sclsItemCd }, // 소분류
-        { name: t('com.label.origin'), required: true, value: itemDetail.value.originCd }, // 원산지
-        { name: t('item.label.baseUnitCode'), required: true, value: itemDetail.value.basUnitCd }, // 기본단위코드
+        { name: t('item.label.lcls'), required: true, value: itemDetail.lclsItemCd }, // 대분류
+        { name: t('item.label.mcls'), required: true, value: itemDetail.mclsItemCd }, // 중분류
+        { name: t('item.label.scls'), required: true, value: itemDetail.sclsItemCd }, // 소분류
+        { name: t('com.label.origin'), required: true, value: itemDetail.originCd }, // 원산지
+        { name: t('item.label.baseUnitCode'), required: true, value: itemDetail.basUnitCd }, // 기본단위코드
         {
             name: t('item.label.purchaseOrderUnit'),
             required: true,
-            value: itemDetail.value.orderContractUnitCd,
+            value: itemDetail.orderContractUnitCd,
         }, // 수발주 단위
         {
             name: t('item.label.purchaseOrderUnitQuantity'),
             required: true,
-            value: itemDetail.value.boxQty,
+            value: itemDetail.boxQty,
             decimal: true,
         }, // 수발주단위 입수량
         {
             name: t('item.label.purchaseOrderUnitQty'),
             required: true,
-            value: itemDetail.value.packingUnitQty,
+            value: itemDetail.packingUnitQty,
             decimal: true,
         }, // 발주단위수량
         {
             name: t('item.label.minPurchaseOrderQty'),
             required: true,
-            value: itemDetail.value.minOrderQty,
+            value: itemDetail.minOrderQty,
         }, // 최소발주수량
-        { name: t('item.label.displayWeight'), value: itemDetail.value.displayWt, decimal: true }, // 표시중량
+        { name: t('item.label.displayWeight'), value: itemDetail.displayWt, decimal: true }, // 표시중량
         {
             name: t('item.label.decimalPurchaseOrderFlag'),
             required: true,
-            value: itemDetail.value.decimalPointOrderCd,
+            value: itemDetail.decimalPointOrderCd,
         }, // 소숫점발주구분
         {
             name: t('item.label.distributionTraceManageYn'),
             required: true,
-            value: itemDetail.value.distrHistoryMngYn,
+            value: itemDetail.distrHistoryMngYn,
         }, // 유통이력관리여부
         {
             name: t('item.label.expireDateDays'),
-            value: itemDetail.value.distrExpiryDayCnt,
+            value: itemDetail.distrExpiryDayCnt,
             decimal: true,
         }, // 유통기한일수
         {
             name: t('item.label.storageTemperatureFlag'),
             required: true,
-            value: itemDetail.value.keepTempGbnCd,
+            value: itemDetail.keepTempGbnCd,
         }, // 보관온도구분
-        { name: t('item.label.itemGrade'), required: true, value: itemDetail.value.itemRating }, // 품목등급
+        { name: t('item.label.itemGrade'), required: true, value: itemDetail.itemRating }, // 품목등급
         {
             name: t('customer.label.tradeStatus'),
             required: true,
-            value: itemDetail.value.tranStatCd,
+            value: itemDetail.tranStatCd,
         }, // 거래상태
-        { name: t('item.label.companyType'), required: true, value: itemDetail.value.selfThirdYn }, // 자/타사구분
+        { name: t('item.label.companyType'), required: true, value: itemDetail.selfThirdYn }, // 자/타사구분
         {
             name: t('item.label.oneCowQuantity'),
             required: true,
-            value: itemDetail.value.oneAnimalQty,
+            value: itemDetail.oneAnimalQty,
             decimal: true,
         }, // 소한마리 입수량
         {
             name: t('item.label.stockManageStandard'),
             required: true,
-            value: itemDetail.value.invMngStdCd,
+            value: itemDetail.invMngStdCd,
         }, // 재고관리기준
         {
             name: t('item.label.standardClassCode'),
             required: true,
-            value: itemDetail.value.cowPigGbnFg,
+            value: itemDetail.cowPigGbnFg,
         }, // 표준분류코드
         {
             name: t('item.label.standardSectionCode'),
             required: true,
-            value: itemDetail.value.standardPartCd,
+            value: itemDetail.standardPartCd,
         }, // 표준부위코드
     ];
 
@@ -517,7 +599,9 @@ const resetItemDetail = function () {
             undefined,
             {
                 onOk: async () => {
-                    itemDetail.value = { ...itemDetailInit };
+                    Object.assign(itemDetail, {
+                        ...itemDetailInit,
+                    });
 
                     selectedFile.value = null;
                     fileName.value = '';
@@ -533,7 +617,7 @@ const resetItemDetail = function () {
 
 const reset = function () {
     // 검색 파라미터 초기화
-    Object.assign(searchParameter.value, searchParameterInit);
+    Object.assign(searchParameter, searchParameterInit);
 
     // 품목검색창 초기화
     Object.assign(itemParam.value, {
@@ -545,7 +629,9 @@ const reset = function () {
     search();
 
     // 상세정보 초기화
-    itemDetail.value = { ...itemDetailInit };
+    Object.assign(itemDetail, {
+        ...itemDetailInit,
+    });
 
     // 파일 초기화
     selectedFile.value = null;
@@ -585,17 +671,17 @@ const callbackUserOk = function (param?: any[]) {
         return;
     }
 
-    itemDetail.value.buyerId = user.userId;
+    itemDetail.buyerId = user.userId;
 };
 const callbackUserCancel = function () {
-    itemDetail.value.buyerId = '';
+    itemDetail.buyerId = '';
 };
 
 // =====================================================================================================
-// HOOK 영역
+// Hook 영역
 // =====================================================================================================
 watch(
-    () => itemDetail.value.cowPigGbnFg,
+    () => itemDetail.cowPigGbnFg,
     async (newValue, oldValue) => {
         if (newValue === oldValue) {
             return;
@@ -603,13 +689,12 @@ watch(
 
         await nextTick();
 
-        const exist = GLB810.some(
-            (v: any) =>
-                v.dtlRef01Nm === newValue && v.dtlCommCd === itemDetail.value.standardPartCd,
+        const exist = GLB810.value.some(
+            (v: any) => v.dtlRef01Nm === newValue && v.dtlCommCd === itemDetail.standardPartCd,
         );
 
         if (!exist) {
-            itemDetail.value.standardPartCd = '';
+            itemDetail.standardPartCd = '';
         }
     },
 );
@@ -628,7 +713,7 @@ const lclsOptions = computed(() => {
 
 const mclsOptions = computed(() => {
     return (categories.value.mclsCategory ?? [])
-        .filter((i) => i.parentCd === itemDetail.value.lclsItemCd)
+        .filter((i) => i.parentCd === itemDetail.lclsItemCd)
         .map((v) => ({
             dtlCommCd: v.categoryCd,
             dtlCommNm: v.categoryNm,
@@ -637,7 +722,7 @@ const mclsOptions = computed(() => {
 
 const sclsOptions = computed(() => {
     return (categories?.value?.sclsCategory ?? [])
-        .filter((i: CategoryProps) => i.parentCd === itemDetail.value.mclsItemCd)
+        .filter((i: CategoryProps) => i.parentCd === itemDetail.mclsItemCd)
         .map((v: CategoryProps) => ({
             dtlCommCd: v.categoryCd,
             dtlCommNm: v.categoryNm,
@@ -665,16 +750,11 @@ const minOrderQtyOptions = ['1', '2', '3', '4', '5'].map((v) => ({
                 <ItemCdAndNameSearch
                     ref="itemCdInputRef"
                     v-model="itemParam"
-                    :params="{
-                        label: t('item.label.itemCodeAndName'),
-                        codeKey: 'itemCd',
-                        nameKey: 'itemNm',
-                        maxlength: 15,
-                    }"
+                    :label="t('com.label.itemCodeAndName')"
                 />
             </li>
             <!-- 대분류, 중분류, 소분류 -->
-            <ItemCategory v-model="searchParameter" />
+            <ItemCategory v-model="categoryParam" />
 
             <!-- 거래상태 -->
             <li>

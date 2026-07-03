@@ -7,21 +7,24 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
-import { ref, onMounted } from 'vue';
+// =====================================================================================================
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 
-import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import MenuTop from '@/components/menu/MenuTop.vue'; // 메뉴&메뉴 공통 버튼 (데이터 기반으로 전체 )
 import MenuContent from '@/components/menu/MenuContent.vue'; // 메뉴 메인
 import ComButton from '@/components/form/ComButton.vue';
-import { utils } from '@/common/utils';
+
+import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import { usePopupStore } from '@/common/stores/popup';
+import { useCommonCodeStore } from '@/common/stores/commonCode';
+
+import { utils } from '@/common/utils';
 
 import {
     selectLmenuList,
@@ -32,9 +35,13 @@ import {
     savePmenu,
 } from '@/api/menu'; //backend
 
-// ==================================================
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
+
+// =====================================================================================================
 // 변수 선언 영역
-// ==================================================
+// =====================================================================================================
 
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
 defineProps<{
@@ -45,15 +52,15 @@ defineProps<{
 // 메세지 변수
 const { t } = useI18n();
 
-const myGrid1 = ref<any>(null);
-const myGrid2 = ref<any>(null);
-const myGrid3 = ref<any>(null);
+const myGrid1 = ref<AUIGridProps | null>(null);
+const myGrid2 = ref<AUIGridProps | null>(null);
+const myGrid3 = ref<AUIGridProps | null>(null);
 const savelmenuCd = ref('');
 const savemmenuCd = ref('');
 
-const COM010 = JSON.parse(localStorage.getItem('COM010') ?? '[]');
-const COM900 = JSON.parse(localStorage.getItem('COM900') ?? '[]');
-const menuTopRef = ref(null); // 메뉴 공통 버튼
+const commonCode = useCommonCodeStore();
+const COM010 = computed(() => commonCode.get('COM010'));
+const COM900 = computed(() => commonCode.get('COM900'));
 
 const popup = usePopupStore();
 
@@ -66,16 +73,14 @@ const layoutStore = useLayoutStore();
 const gridResizeHeight = ref(layoutStore.layoutHeight - utils.biz.MENU_LAYOUT.ST); // 💡 ref로 감싸 동적 변경 대응
 
 // 그리드 속성 정의 (computed 구조를 쓰지 않으므로 생성용 factory 함수화 혹은 반응형 주입 필요)
-const gridProps: GridProps = ref(
-    AUIGridDefault.gridPropsBuilder()
-        .withEditable(true)
-        .withExtraProps({
-            showRowNumColumn: false,
-            showStateColumn: true,
-            height: gridResizeHeight.value,
-        })
-        .build(),
-);
+const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
+    .withEditable(true)
+    .withExtraProps({
+        showRowNumColumn: false,
+        showStateColumn: true,
+        height: gridResizeHeight.value,
+    })
+    .build();
 
 // 대분류 그리드 레이아웃
 const columnLayout1 = [
@@ -234,16 +239,16 @@ const columnLayout3 = [
     }, // 사용<br/>여부
 ];
 
-// ==================================================
+// =====================================================================================================
 // 사용자 정의 함수 영역
-// ==================================================
+// =====================================================================================================
 
 // 초기화 함수
 const reset = () => {
     const okCallback = () => {
-        myGrid1.value.clearGridData();
-        myGrid2.value.clearGridData();
-        myGrid3.value.clearGridData();
+        myGrid1.value?.clearGridData();
+        myGrid2.value?.clearGridData();
+        myGrid3.value?.clearGridData();
         searchMainCategory();
     };
 
@@ -270,28 +275,28 @@ const reset = () => {
 // 대분류목록 조회
 const searchMainCategory = () => {
     const grid = myGrid1.value;
-    grid.showAjaxLoader();
+    grid?.showAjaxLoader();
 
     // 대분류목록 조회
     selectLmenuList()
         .then((res) => {
-            grid.setGridData(res?.data?.result);
-            grid.removeAjaxLoader();
+            grid?.setGridData(res?.data?.result ?? []);
+            grid?.removeAjaxLoader();
         })
         .catch((e) => {
             popup.alert(e.message);
-            grid.removeAjaxLoader();
+            grid?.removeAjaxLoader();
         });
 };
 
 // 중분류목록 조회
 const searchMiddleCategory = () => {
-    myGrid3.value.clearGridData();
+    myGrid3.value?.clearGridData();
     const grid1 = myGrid1.value;
     const grid2 = myGrid2.value;
 
-    if (!grid1.getSelectedRows()[0]) return; // 선택 행 확인 안전장치
-    grid2.showAjaxLoader();
+    if (!grid1?.getSelectedRows()[0]) return; // 선택 행 확인 안전장치
+    grid2?.showAjaxLoader();
 
     // 대분류코드
     savelmenuCd.value = grid1.getSelectedRows()[0].lmenuCd;
@@ -300,12 +305,12 @@ const searchMiddleCategory = () => {
     selectMmenuList({ lmenuCd: grid1.getSelectedRows()[0].lmenuCd })
         .then((res) => {
             // 그리드 데이터 삽입
-            grid2.setGridData(res?.data?.result);
-            grid2.removeAjaxLoader();
+            grid2?.setGridData(res?.data?.result ?? []);
+            grid2?.removeAjaxLoader();
         })
         .catch((e) => {
             popup.alert(e.message);
-            grid2.removeAjaxLoader();
+            grid2?.removeAjaxLoader();
         });
 };
 
@@ -314,22 +319,22 @@ const searchProgram = () => {
     const grid2 = myGrid2.value;
     const grid3 = myGrid3.value;
 
-    if (!grid2.getSelectedRows()[0]) return; // 선택 행 확인 안전장치
-    grid3.showAjaxLoader();
+    if (!grid2?.getSelectedRows()[0]) return; // 선택 행 확인 안전장치
+    grid3?.showAjaxLoader();
 
     // 중분류 코드
-    savemmenuCd.value = grid2.getSelectedRows()[0].mmenuCd;
+    savemmenuCd.value = grid2?.getSelectedRows()[0].mmenuCd;
 
     // 프로그램목록 조회
-    selectPmenuList({ mmenuCd: grid2.getSelectedRows()[0].mmenuCd })
+    selectPmenuList({ mmenuCd: grid2?.getSelectedRows()[0].mmenuCd })
         .then((res) => {
             // 그리드 데이터 삽입
-            grid3.setGridData(res?.data?.result);
-            grid3.removeAjaxLoader();
+            grid3?.setGridData(res?.data?.result ?? []);
+            grid3?.removeAjaxLoader();
         })
         .catch((e) => {
             popup.alert(e.message);
-            grid3.removeAjaxLoader();
+            grid3?.removeAjaxLoader();
         });
 };
 
@@ -349,11 +354,11 @@ const newMainCategory = () => {
         lmenuNm: '',
         useYn: 'Y',
     };
-    grid.addRow(obj, 'first');
-    grid.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
-    grid.openInputer();
-    myGrid2.value.clearGridData();
-    myGrid3.value.clearGridData();
+    grid?.addRow(obj, 'first');
+    grid?.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
+    grid?.openInputer();
+    myGrid2.value?.clearGridData();
+    myGrid3.value?.clearGridData();
 };
 
 // 대분류 저장
@@ -394,7 +399,7 @@ const saveMainCategory = async () => {
                 })
                 .catch((e) => {
                     popup.alert(e?.message || String(e));
-                    grid.removeAjaxLoader();
+                    grid?.removeAjaxLoader();
                 });
         },
     });
@@ -406,12 +411,12 @@ const newMiddleCategory = () => {
     const grid2 = myGrid2.value; // 중분류
 
     // 대분류 선택여부 체크
-    if (utils.validator.checkIsNull(grid1.getSelectedItems())) {
+    if (utils.validator.checkIsNull(grid1?.getSelectedItems())) {
         // 대분류 선택 후 작업을 진행하여 주세요.
         popup.alert(t('com.message.proceedAfterSelect', [t('menu.label.mainCategory')]));
         return false;
     }
-    if (utils.validator.checkIsNull(grid1.getSelectedItems()[0].item.lmenuCd)) {
+    if (utils.validator.checkIsNull(grid1?.getSelectedItems()[0].item.lmenuCd)) {
         // 대분류 저장 후 작업을 진행하여 주세요.
         popup.alert(t('com.message.proceedAfterSave', [t('menu.label.mainCategory')]));
         return false;
@@ -431,10 +436,10 @@ const newMiddleCategory = () => {
         lmenuCd: savelmenuCd.value,
         useYn: 'Y',
     };
-    grid2.addRow(obj, 'first');
-    grid2.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
-    grid2.openInputer();
-    myGrid3.value.clearGridData();
+    grid2?.addRow(obj, 'first');
+    grid2?.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
+    grid2?.openInputer();
+    myGrid3.value?.clearGridData();
 };
 
 // 중분류 저장
@@ -443,7 +448,7 @@ const saveMiddleCategory = async () => {
     const grid2 = myGrid2.value; // 중분류
 
     // 대분류 선택여부 체크
-    if (utils.validator.checkIsNull(grid1.getSelectedItems())) {
+    if (utils.validator.checkIsNull(grid1?.getSelectedItems())) {
         // 대분류 선택 후 작업을 진행하여 주세요.
         popup.alert(t('com.message.proceedAfterSelect', [t('menu.label.mainCategory')]));
         return false;
@@ -488,7 +493,7 @@ const saveMiddleCategory = async () => {
                 })
                 .catch((e) => {
                     popup.alert(e?.message || String(e));
-                    grid2.removeAjaxLoader();
+                    grid2?.removeAjaxLoader();
                 });
         },
     });
@@ -500,14 +505,14 @@ const newProgram = () => {
     const grid3 = myGrid3.value;
 
     // 중분류 선택여부 체크
-    if (utils.validator.checkIsNull(grid2.getSelectedItems())) {
+    if (utils.validator.checkIsNull(grid2?.getSelectedItems())) {
         // 중분류 선택 후 작업을 진행하여 주세요.
         popup.alert(t('com.message.proceedAfterSelect', [t('menu.label.middleCategory')]));
         return false;
     }
 
     // 중분류 저장 여부
-    if (utils.validator.checkIsNull(grid2.getSelectedItems()[0].item.mmenuCd)) {
+    if (utils.validator.checkIsNull(grid2?.getSelectedItems()[0].item.mmenuCd)) {
         // 중분류 저장 후 작업을 진행하여 주세요.
         popup.alert(t('com.message.proceedAfterSave', [t('menu.label.middleCategory')]));
         return false;
@@ -529,9 +534,9 @@ const newProgram = () => {
         mmenuCd: savemmenuCd.value,
         lmenuCd: savelmenuCd.value,
     };
-    grid3.addRow(obj, 'first');
-    grid3.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
-    grid3.openInputer();
+    grid3?.addRow(obj, 'first');
+    grid3?.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
+    grid3?.openInputer();
 };
 
 // 프로그램 저장
@@ -550,7 +555,7 @@ const saveProgram = async () => {
     }
 
     // 중분류 선택여부 체크
-    if (utils.validator.checkIsNull(grid2.getSelectedItems())) {
+    if (utils.validator.checkIsNull(grid2?.getSelectedItems())) {
         // 중분류 선택 후 작업을 진행하여 주세요.
         popup.alert(t('com.message.proceedAfterSelect', [t('menu.label.middleCategory')]));
         return false;
@@ -581,7 +586,7 @@ const saveProgram = async () => {
                 })
                 .catch((e) => {
                     popup.alert(e?.message || String(e));
-                    grid3.removeAjaxLoader();
+                    grid3?.removeAjaxLoader();
                 });
         },
     });
@@ -615,14 +620,14 @@ const lengthValidation = (event: any) => {
     }
 };
 
-// ==================================================
+// =====================================================================================================
 // Hook 영역
-// ==================================================
+// =====================================================================================================
 
 onMounted(() => {
-    myGrid1.value.clearGridData();
-    myGrid2.value.clearGridData();
-    myGrid3.value.clearGridData();
+    myGrid1.value?.clearGridData();
+    myGrid2.value?.clearGridData();
+    myGrid3.value?.clearGridData();
 
     // 화면이 로드된 이후 실행
     searchMainCategory();

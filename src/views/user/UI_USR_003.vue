@@ -7,16 +7,16 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
-import { reactive, ref, onMounted } from 'vue';
+// =====================================================================================================
+import { reactive, ref, onMounted, computed } from 'vue';
 import { utils } from '@/common/utils';
 import { useI18n } from 'vue-i18n'; // 다국어
 import dayjs from 'dayjs';
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 
 // 공통모듈
 import MenuTop from '@/components/menu/MenuTop.vue'; // 메뉴&메뉴 공통 버튼 (데이터 기반으로 전체 )
@@ -27,13 +27,17 @@ import DatePeriod from '@/components/search/DatePeriod.vue'; // 날짜기간
 import ComButton from '@/components/form/ComButton.vue';
 
 import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
+import { useCommonCodeStore } from '@/common/stores/commonCode';
 
 import { selectUserLoginLog, selectLogByDate } from '@/api/user'; //backend
 
-// ==================================================
-// 변수 선언 영역
-// ==================================================
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
 
+// =====================================================================================================
+// 변수 선언 영역
+// =====================================================================================================
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
 defineProps<{
     menuInfo: any;
@@ -44,7 +48,8 @@ defineProps<{
 const { t } = useI18n();
 const layoutStore = useLayoutStore();
 
-const EAT050 = JSON.parse(localStorage.getItem('EAT050') ?? '[]');
+const commonCode = useCommonCodeStore();
+const EAT050 = computed(() => commonCode.get('EAT050'));
 
 const defaultSearchState = () => ({
     searchDateStart: new Date(),
@@ -54,11 +59,17 @@ const defaultSearchState = () => ({
 });
 const searchBox = reactive(defaultSearchState());
 
+// 날짜기간
+const datePeriodParam = ref({
+    searchDateStart: new Date(),
+    searchDateEnd: new Date(),
+});
+
 // ==================================================
 // 그리드 영역
 // ==================================================
-const myGrid = ref<any>(null);
-const myGridDtl = ref<any>(null);
+const myGrid = ref<AUIGridProps | null>(null);
+const myGridDtl = ref<AUIGridProps | null>(null);
 //그리드 높이 계산
 const gridResizeHeight = layoutStore.layoutHeight - utils.biz.MENU_LAYOUT.S; // 메인 화면 높이에서 그리드를 제외한 영역을 빼줘야 함...
 
@@ -98,7 +109,7 @@ const columnLayout = [
             _cItem: any,
         ) => {
             let columnValue;
-            EAT050.forEach(function (code: any) {
+            EAT050.value.forEach(function (code: any) {
                 if (code.dtlCommCd == _value) {
                     columnValue = code.dtlCommNm;
                 }
@@ -128,10 +139,9 @@ const columnLayoutDtl = [
     { dataField: 'loginInOutLog', headerText: t('user.label.loginYn'), style: 'gridTextAlignLeft' }, //로그인여부
 ];
 
-// ==================================================
-// 사용자 정의 함수 영
-// ==================================================
-
+// =====================================================================================================
+// 사용자 정의 함수 영역
+// =====================================================================================================
 /**초기화 버튼*/
 const reset = () => {
     Object.assign(searchBox, defaultSearchState());
@@ -151,8 +161,8 @@ const search = async () => {
         const params = {
             userId: searchBox.searchId,
             userNm: searchBox.searchNm,
-            searchDateStart: dayjs(searchBox.searchDateStart).format('YYYYMMDD'),
-            searchDateEnd: dayjs(searchBox.searchDateEnd).format('YYYYMMDD'),
+            searchDateStart: dayjs(datePeriodParam.value.searchDateStart).format('YYYYMMDD'),
+            searchDateEnd: dayjs(datePeriodParam.value.searchDateEnd).format('YYYYMMDD'),
         };
         const res = await selectUserLoginLog(params);
         grid?.setGridData(res?.data?.result ?? []);
@@ -198,9 +208,9 @@ const searchPeriod = (period: number) => {
     searchBox.searchDateStart = startDate;
 };
 
-// ==================================================
+// =====================================================================================================
 // Hook 영역
-// ==================================================
+// =====================================================================================================
 onMounted(() => {
     myGrid.value?.clearGridData();
     myGridDtl.value?.clearGridData();
@@ -219,8 +229,8 @@ onMounted(() => {
                 <div class="search_container">
                     <!-- 접속일자 -->
                     <DatePeriod
-                        v-model="searchBox"
-                        :params="{ label: t('user.label.loginDate') }"
+                        v-model="datePeriodParam as any"
+                        :label="t('user.label.loginDate')"
                         start-dt-key="searchDateStart"
                         end-dt-key="searchDateEnd"
                     />

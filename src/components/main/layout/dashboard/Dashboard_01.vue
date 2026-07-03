@@ -6,31 +6,24 @@
  * @since    2026-06-17
  * @version  1.0
  */
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
+// =====================================================================================================
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 import { onMounted, ref } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 import { useI18n } from 'vue-i18n'; // 다국어
 
 import { selectDashboard01Data } from '@/api/dashboard'; //backend
 
-// ==================================================
-// 타입 정의 영역 (Interfaces)
-// ==================================================
+// =====================================================================================================
+// Type 선언
+// =====================================================================================================
 
-interface AUIGridInstance {
-    setGridData: (data: any[]) => void;
-    getGridData: () => any[];
-    clearGridData: () => void;
-    resize: (width?: number, height?: number) => void;
-}
-
-// ==================================================
-// 변수 선언 영역
-// ==================================================
+// =====================================================================================================
+// 변수 선언
+// =====================================================================================================
 // 메세지 변수
 const { t } = useI18n();
 
@@ -78,7 +71,7 @@ const chartProps = ref({
 // 그리드 영역
 // ==================================================
 
-const myGrid = ref<AUIGridInstance | null>(null);
+const myGrid = ref<AUIGridProps | null>(null);
 const columnLayout = [
     {
         dataField: 'month',
@@ -92,15 +85,15 @@ const columnLayout = [
 
         style: 'gridTextAlignRight',
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            return addComma(value);
+            return addComma(_value);
         },
     }, // 전년출고수량
     {
@@ -108,15 +101,15 @@ const columnLayout = [
         headerText: t('dashboard.label.prevYearOutboundWeight'),
         style: 'gridTextAlignRight',
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            return addComma(value);
+            return addComma(_value);
         },
     }, // 전년출고중량
     {
@@ -124,15 +117,15 @@ const columnLayout = [
         headerText: t('dashboard.label.nowYearOutboundQty'),
         style: 'gridTextAlignRight',
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            return addComma(value);
+            return addComma(_value);
         },
     }, // 당해출고수량
     {
@@ -140,32 +133,32 @@ const columnLayout = [
         headerText: t('dashboard.label.nowYearOutboundWeight'),
         style: 'gridTextAlignRight',
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            return addComma(value);
+            return addComma(_value);
         },
     }, // 당해출고중량
     {
         dataField: 'qtyVariation',
         headerText: t('dashboard.label.outboundIncrease'),
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
-            headerText: string,
-            item: any,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
+            _headerText: string,
+            _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
             const rate = Math.round(
-                ((Number(item.curYearSaleQty) - Number(item.preYearSaleQty)) /
-                    Number(item.preYearSaleQty)) *
+                ((Number(_item.curYearSaleQty) - Number(_item.preYearSaleQty)) /
+                    Number(_item.preYearSaleQty)) *
                     100,
             );
 
@@ -177,15 +170,15 @@ const columnLayout = [
         headerText: t('dashboard.label.prevYearSaleAmt'),
         style: 'gridTextAlignRight',
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            return addComma(value);
+            return addComma(_value);
         },
     }, // 전년매출액
     {
@@ -193,32 +186,32 @@ const columnLayout = [
         headerText: t('dashboard.label.nowYearSaleAmt'),
         style: 'gridTextAlignRight',
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            return addComma(value);
+            return addComma(_value);
         },
     }, // 당해매출액
     {
         dataField: 'atmVariation',
         headerText: t('dashboard.label.saleAmtIncrease'),
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
-            headerText: string,
-            item: any,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
+            _headerText: string,
+            _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
             const rate = Math.round(
-                ((Number(item.curYearSaleAmt) - Number(item.preYearSaleAmt)) /
-                    Number(item.preYearSaleAmt)) *
+                ((Number(_item.curYearSaleAmt) - Number(_item.preYearSaleAmt)) /
+                    Number(_item.preYearSaleAmt)) *
                     100,
             );
 
@@ -323,9 +316,9 @@ const footerLayout = [
 
 const toNum = (v: any) => (typeof v === 'number' ? v : Number(String(v ?? 0).replace(/,/g, '')));
 
-// ==================================================
+// =====================================================================================================
 // 사용자 정의 함수 영역
-// ==================================================
+// =====================================================================================================
 
 //숫자 콤마 적용
 const addComma = (num: string | number | null | undefined): string =>
@@ -352,10 +345,10 @@ const chartNumChange = (num: number): number => {
 
     return num;
 };
-// ==================================================
-// HOOK 영역
-// ==================================================
 
+// =====================================================================================================
+// Hook 영역
+// =====================================================================================================
 onMounted(async () => {
     try {
         const res: any = await selectDashboard01Data();

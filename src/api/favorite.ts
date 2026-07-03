@@ -8,32 +8,35 @@
  * @description
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
+// =====================================================================================================
 import api from '@/common/axios/api';
 import type { ApiResponse } from '@/types/axios';
 import type { FavoriteProps } from '@/types/favorite';
 
-// =========================
-// API BASE
-// =========================
+// =====================================================================================================
+// Type 선언
+// =====================================================================================================
+
+// =====================================================================================================
+// 변수 선언
+// =====================================================================================================
 const BASE = '/api/v1/favorite';
 
-// =========================
-// API FUNCTIONS
-// =========================
-
+// =====================================================================================================
+// 사용자 정의 함수 영역
+// =====================================================================================================
 // 즐겨찾기 조회
-export function selectFavoriteMenu(params?: FavoriteProps) {
+export const selectFavoriteMenu = (params?: FavoriteProps) => {
     return api.get<ApiResponse<FavoriteProps[]>>(`${BASE}/selectFavoriteMenu`, { params });
-}
+};
 
 // 즐겨찾기 추가
-export function addFavorite(params?: FavoriteProps) {
+export const addFavorite = (params?: FavoriteProps) => {
     return api.post<ApiResponse>(`${BASE}/addFavorite`, params);
-}
+};
 // 즐겨찾기 삭제
-export function deleteFavorite(params?: FavoriteProps) {
+export const deleteFavorite = (params?: FavoriteProps) => {
     return api.post<ApiResponse>(`${BASE}/deleteFavorite`, params);
-}
+};

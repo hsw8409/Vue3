@@ -1,3 +1,16 @@
+/**
+ * @file     interceptors.ts
+ * @menu     api 호출시 인터셉터 역할
+ * @author   astems
+ * @since    2026-06-22
+ * @version  1.0
+ *
+ * @description
+ */
+
+// =====================================================================================================
+// import 영역
+// =====================================================================================================
 import axiosInstance from '@/common/axios/api';
 import TokenService from '@/common/service/token';
 import { log } from '@/common/utils/log';
@@ -6,6 +19,9 @@ import { useAuthStore } from '@/common/stores/auth';
 
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
+// =====================================================================================================
+// Type 선언
+// =====================================================================================================
 type Mitt = {
     emit: (event: string, payload?: any) => void;
 };
@@ -21,18 +37,17 @@ interface ApiResponse<T = any> {
     result?: T;
 }
 
+// =====================================================================================================
+// 변수 선언
+// =====================================================================================================
+
 // -------------------- state --------------------
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
 
-function onRefreshed(newAccessToken: string) {
-    refreshSubscribers.forEach((cb) => cb(newAccessToken));
-    refreshSubscribers = [];
-}
-
-function addSubscriber(cb: (token: string) => void) {
-    refreshSubscribers.push(cb);
-}
+// -------------------- logout --------------------
+let logoutTriggered = false;
+let isLoggingOut = false;
 
 // -------------------- error codes --------------------
 const code = {
@@ -40,6 +55,18 @@ const code = {
     access_invalid: 1101,
     refresh_invalid: 1201,
     field_invalid: 2001,
+};
+
+// =====================================================================================================
+// 사용자 정의 함수 영역
+// =====================================================================================================
+const onRefreshed = (newAccessToken: string) => {
+    refreshSubscribers.forEach((cb) => cb(newAccessToken));
+    refreshSubscribers = [];
+};
+
+const addSubscriber = (cb: (token: string) => void) => {
+    refreshSubscribers.push(cb);
 };
 
 // -------------------- setup --------------------
@@ -200,10 +227,6 @@ const setup = (mitt: Mitt): void => {
         },
     );
 };
-
-// -------------------- logout --------------------
-let logoutTriggered = false;
-let isLoggingOut = false;
 
 const logout = (mitt: Mitt, showPopup = true, msg = '세션 만료'): void => {
     const logoutByPopup = async () => {

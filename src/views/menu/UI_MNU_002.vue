@@ -7,27 +7,35 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
-import { ref, onMounted } from 'vue';
+// =====================================================================================================
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
-import { utils } from '@/common/utils';
-import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
+
 import MenuTop from '@/components/menu/MenuTop.vue'; // 메뉴&메뉴 공통 버튼 (데이터 기반으로 전체 )
 import MenuContent from '@/components/menu/MenuContent.vue'; // 메뉴 메인
 import ComButton from '@/components/form/ComButton.vue';
 
+import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import { usePopupStore } from '@/common/stores/popup';
+import { useCommonCodeStore } from '@/common/stores/commonCode';
+
+import { utils } from '@/common/utils';
+
 import { selectMenuGroup, selectMenuGroupUserProgram, saveMenuGroupProgram } from '@/api/menu'; //backend
 import { MenuGroupPropgramProps } from '@/types/menu';
 
-// ==================================================
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
+
+// =====================================================================================================
 // 변수 선언 영역
-// ==================================================
+// =====================================================================================================
 
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
 defineProps<{
@@ -38,14 +46,15 @@ defineProps<{
 // 메세지 변수
 const { t } = useI18n();
 
-const myGrid = ref<any>(null);
-const myGridUser = ref<any>(null);
-const myGridProgram = ref<any>(null);
+const myGrid = ref<AUIGridProps | null>(null);
+const myGridUser = ref<AUIGridProps | null>(null);
+const myGridProgram = ref<AUIGridProps | null>(null);
 
-const EAT050 = JSON.parse(localStorage.getItem('EAT050') ?? '[]');
-const EAT150 = JSON.parse(localStorage.getItem('EAT150') ?? '[]');
-const COM010 = JSON.parse(localStorage.getItem('COM010') ?? '[]');
-const COM900 = JSON.parse(localStorage.getItem('COM900') ?? '[]');
+const commonCode = useCommonCodeStore();
+const EAT050 = computed(() => commonCode.get('EAT050'));
+const EAT150 = computed(() => commonCode.get('EAT150'));
+const COM010 = computed(() => commonCode.get('COM010'));
+const COM900 = computed(() => commonCode.get('COM900'));
 
 let clickedRow_grid1 = {}; // 그리드 선택행
 
@@ -201,14 +210,14 @@ const columnLayoutUser = [
         labelFunction: function (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
         ) {
             //rowIndex, columnIndex, value, headerText, item
             let columnValue;
-            EAT050.forEach(function (code: any) {
-                if (code.dtlCommCd == value) {
+            EAT050.value.forEach(function (code: any) {
+                if (code.dtlCommCd == _value) {
                     columnValue = code.dtlCommNm;
                 }
             });
@@ -224,14 +233,14 @@ const columnLayoutUser = [
         labelFunction: function (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
         ) {
             //rowIndex, columnIndex, value, headerText, item
             let columnValue;
-            EAT150.forEach(function (code: any) {
-                if (code.dtlCommCd == value) {
+            EAT150.value.forEach(function (code: any) {
+                if (code.dtlCommCd == _value) {
                     columnValue = code.dtlCommNm;
                 }
             });
@@ -289,14 +298,14 @@ const columnLayoutProgram = [
         labelFunction: function (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
         ) {
             const keyField = this.editRenderer.keyField;
             const valueField = this.editRenderer.valueField;
             const list = this.editRenderer.list;
-            const result = list.find((v: any) => v[keyField] === value); // editRenderer 리스트에서 key-value 에 맞는 값 찾아 반환.
+            const result = list.value?.find((v: any) => v[keyField] === _value); // editRenderer 리스트에서 key-value 에 맞는 값 찾아 반환.
             if (result === undefined) return '';
             return result[valueField]; // key 값이 아닌 value 값으로 출력 시키기
         },
@@ -309,14 +318,14 @@ const columnLayoutProgram = [
         labelFunction: function (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
         ) {
             //rowIndex, columnIndex, value, headerText, item
             let columnValue;
-            COM010.forEach(function (code: any) {
-                if (code.dtlCommCd == value) {
+            COM010.value.forEach(function (code: any) {
+                if (code.dtlCommCd == _value) {
                     columnValue = code.dtlCommNm;
                 }
             });
@@ -326,9 +335,9 @@ const columnLayoutProgram = [
     }, // 사용여부
 ];
 
-// ==================================================
+// =====================================================================================================
 // 사용자 정의 함수 영역
-// ==================================================
+// =====================================================================================================
 
 // 초기화 함수
 const reset = () => {
@@ -338,9 +347,9 @@ const reset = () => {
             return;
         }
 
-        myGrid.value.clearGridData();
-        myGridUser.value.clearGridData();
-        myGridProgram.value.clearGridData();
+        myGrid.value?.clearGridData();
+        myGridUser.value?.clearGridData();
+        myGridProgram.value?.clearGridData();
         searchMenuGroupInfo();
     };
 
@@ -379,11 +388,11 @@ const searchMenuGroupInfo = (toSelectRowId?: string) => {
     //메뉴그룹 그리드 조회
     const gridGroup = myGrid.value;
     const gridProgram = myGridProgram.value;
-    gridGroup.showAjaxLoader();
+    gridGroup?.showAjaxLoader();
     selectMenuGroup()
         .then((res) => {
             // 그리드 데이터 삽입
-            gridGroup.setGridData(res.data.result);
+            gridGroup?.setGridData(res.data.result ?? []);
             const menuGrpCd =
                 toSelectRowId === '-'
                     ? res?.data?.result?.reduce(
@@ -393,23 +402,23 @@ const searchMenuGroupInfo = (toSelectRowId?: string) => {
                       )
                     : toSelectRowId;
 
-            gridGroup.removeAjaxLoader();
+            gridGroup?.removeAjaxLoader();
             if (toSelectRowId) {
                 let toSelectIdx = -1;
                 gridGroup
-                    .getGridData()
+                    ?.getGridData()
                     .map((v: any, i: any) =>
                         v.menuGrpCd === menuGrpCd ? (toSelectIdx = i) : undefined,
                     );
-                gridGroup.setSelectionBlock(toSelectIdx, 1, 1, 1);
-                gridGroup.setRowPosition(toSelectIdx - 5);
-                gridProgram.removeAjaxLoader();
+                gridGroup?.setSelectionBlock(toSelectIdx, 1, 1, 1);
+                gridGroup?.setRowPosition(toSelectIdx - 5);
+                gridProgram?.removeAjaxLoader();
                 return;
             }
             setClickedRow(); //재조회 하는 경우 클릭행 리셋
         })
         .catch(function (e) {
-            gridGroup.removeAjaxLoader();
+            gridGroup?.removeAjaxLoader();
             return e;
         });
 };
@@ -417,7 +426,7 @@ const searchMenuGroupInfo = (toSelectRowId?: string) => {
 // 사용여부 컬럼 데이터 변경
 const setCheckedRowsByValue = () => {
     const gridProgram = myGridProgram.value;
-    gridProgram.setCheckedRowsByValue('useYn', 'Y'); //사용여부  컬럼이 "Y"이면 체크
+    gridProgram?.setCheckedRowsByValue('useYn', 'Y'); //사용여부  컬럼이 "Y"이면 체크
 };
 
 // 메뉴그룹별 프로그램조회 조회
@@ -427,38 +436,38 @@ const searchMenuProgram = (obj: any) => {
     const gridProgram = myGridProgram.value;
 
     //신규 추가된 메뉴에 menuGrpCd가 누락된 경우 넣기 위한 변수
-    const menuGrpCd = grid.getSelectedRows() ? grid.getSelectedRows()[0].menuGrpCd : undefined;
+    const menuGrpCd = grid?.getSelectedRows() ? grid?.getSelectedRows()[0].menuGrpCd : undefined;
 
     // 체인코드가 없으면 프로그램, 사용자 그리드 데이터 초기화
     if (!obj.chainCd) {
-        gridProgram.clearGridData();
-        gridUser.clearGridData();
+        gridProgram?.clearGridData();
+        gridUser?.clearGridData();
         return;
     }
     const params = { menuGrpCd: obj.menuGrpCd, chainCd: obj.chainCd };
 
-    gridUser.showAjaxLoader();
-    gridProgram.showAjaxLoader();
+    gridUser?.showAjaxLoader();
+    gridProgram?.showAjaxLoader();
 
     selectMenuGroupUserProgram(params)
         .then((res) => {
             // 그리드 데이터 삽입
-            gridUser.setGridData(res?.data?.result?.userDtos);
+            gridUser?.setGridData(res?.data?.result?.userDtos ?? []);
 
-            gridProgram.setGridData(
+            gridProgram?.setGridData(
                 res?.data?.result?.programDtos?.map((v: MenuGroupPropgramProps) => ({
                     ...v,
                     menuGrpCd,
-                })),
+                })) ?? [],
             );
-            gridUser.removeAjaxLoader();
-            gridProgram.removeAjaxLoader();
+            gridUser?.removeAjaxLoader();
+            gridProgram?.removeAjaxLoader();
 
             setCheckedRowsByValue();
         })
         .catch(function (e) {
-            gridUser.removeAjaxLoader();
-            gridProgram.removeAjaxLoader();
+            gridUser?.removeAjaxLoader();
+            gridProgram?.removeAjaxLoader();
             return e;
         });
 };
@@ -479,7 +488,7 @@ const fn_selectionChange = (event: any, flag: any) => {
 
         // 2. 인덱스 찾기 (null 체크 추가 권장)
         if (toClickRow?._$uid && myGrid.value) {
-            const idx = myGrid.value.rowIdToIndex(toClickRow._$uid);
+            const idx = myGrid.value?.rowIdToIndex(toClickRow._$uid);
             myGrid.value.setSelectionBlock(idx, 1, 1, 1);
         }
         return;
@@ -526,20 +535,20 @@ const save = async () => {
     const confirmCallback = () => {
         saveMenuGroupProgram(saveParams) //저장
             .then((_res) => {
-                gridProgram.showAjaxLoader();
+                gridProgram?.showAjaxLoader();
                 // {0}건 처리 되었습니다.
                 popup.alert(t('com.message.itemProcessed'));
 
-                gridProgram.setGridData([]);
+                gridProgram?.setGridData([]);
                 searchMenuGroupInfo((getClickedRow() as { item: any }).item.menuGrpCd);
 
-                gridGroup.removeAjaxLoader();
-                gridProgram.removeAjaxLoader();
+                gridGroup?.removeAjaxLoader();
+                gridProgram?.removeAjaxLoader();
                 return;
             })
             .catch((e) => {
-                gridGroup.removeAjaxLoader();
-                gridProgram.removeAjaxLoader();
+                gridGroup?.removeAjaxLoader();
+                gridProgram?.removeAjaxLoader();
                 return e;
             });
     };
@@ -573,43 +582,49 @@ const newMenuGroup = () => {
         alPMenuCnt: '0',
         alUserCnt: '0',
     };
-    gridBasic.addRow(gridBasicObj, 'last'); //신규행 추가.
-    gridProgram.clearGridData();
-    gridUser.clearGridData();
+    gridBasic?.addRow(gridBasicObj, 'last'); //신규행 추가.
+    gridProgram?.clearGridData();
+    gridUser?.clearGridData();
 };
 
 // 메뉴그룹 삭제
 const delMenuGroup = () => {
-    // 선택 여부 체크
-    const selectedRows = myGrid.value.getSelectedRows();
-    if (!selectedRows.length) {
-        // 선택된 항목이 없습니다.
+    const selectedRows = myGrid.value?.getSelectedRows();
+
+    if (!selectedRows?.length) {
         popup.alert(t('com.message.noDataSelected'));
+        return;
     }
 
-    // 사용자권한이 있는 경우 삭제 불가.
-    if (selectedRows[0].alUserCnt) {
-        // 속해있는 유저가 있으면 삭제할 수 없습니다.
+    const target = selectedRows[0];
+
+    if (target.alUserCnt) {
         popup.alert(t('menu.message.notDeleteWithUsers'));
+        return;
     }
 
-    myGrid.value.removeRow(myGrid.value.getSelectedRows()[0].rowIndx);
-    myGrid.value
-        .getGridData()
-        .map((v: any, i: any) =>
-            v.menuGrpCd === selectedRows[0].menuGrpCd ? myGrid.value.removeRow(i) : undefined,
-        );
+    // 1. 선택 row 삭제
+    myGrid.value?.removeRow(target.rowIndx);
+
+    // 2. 같은 그룹 제거 (뒤에서 앞으로 삭제)
+    const rows = myGrid.value?.getGridData() ?? [];
+
+    for (let i = rows.length - 1; i >= 0; i--) {
+        if (rows[i].menuGrpCd === target.menuGrpCd) {
+            myGrid.value?.removeRow(i);
+        }
+    }
 };
 
 // 프로그램 체크박스 전체 선택시 사용여부 일괄 변경
 const rowAllCheckClick = (event: any) => {
     const gridProgram = myGridProgram.value;
-    const programList = gridProgram.getGridData();
+    const programList = gridProgram?.getGridData();
 
     // forEach를 사용하여 index(i)와 item(program)을 동시에 가져옴
-    programList.forEach((program: any, i: number) => {
+    programList?.forEach((program: any, i: number) => {
         program.useYn = event.checked ? 'Y' : 'N';
-        gridProgram.updateRows(program, i);
+        gridProgram?.updateRows(program, i);
     });
 };
 
@@ -619,7 +634,7 @@ const toggleUseYn = (event: any) => {
     const gridProgram = myGridProgram.value;
     const item = event.item;
     item.useYn = item.useYn == 'Y' ? 'N' : 'Y'; // Y값은 N으로 변경 업데이트 하고
-    gridProgram.updateRows(item, event.rowIndex); //그리드에 반영
+    gridProgram?.updateRows(item, event.rowIndex); //그리드에 반영
 
     setCheckedRowsByValue();
 };
@@ -634,7 +649,7 @@ const changeUseYn = (event: any) => {
         // 사용여부 변경 처리
         for (const sRow of selectedRow) {
             sRow.item.useYn = 'Y';
-            grid.updateRows(sRow.item, sRow.rowIndex);
+            grid?.updateRows(sRow.item, sRow.rowIndex);
         }
     }
     setCheckedRowsByValue();
@@ -643,22 +658,24 @@ const changeUseYn = (event: any) => {
 // 업데이트하기
 const updateRows = (event: any) => {
     const grid = myGridProgram.value;
-    event.item.useYn = event.checked && !event.shiftKey ? 'Y' : 'N';
-    grid.updateRows(event.item, event.rowIndex);
+    if (!grid) return;
+
+    const item = event.item;
+    const rowIndex = event.rowIndex;
+
+    // 단건 업데이트
+    item.useYn = event.checked ? 'Y' : 'N';
+    grid.updateRows(item, rowIndex);
 
     if (event.checked && event.shiftKey) {
-        const checkedItems = grid.getCheckedRowItems();
+        const checkedItems = grid.getCheckedRowItems() ?? [];
 
-        // 1. 상태 업데이트
-        checkedItems.forEach((v: any) => (v.item.useYn = 'Y'));
-
-        // 2. for...of를 사용하여 실제 객체(v)에 직접 접근
         for (const v of checkedItems) {
-            const item = v.item;
-            const rowIndex = v.rowIndex;
-            grid.updateRows(item, rowIndex);
+            v.item.useYn = 'Y';
+            grid.updateRows(v.item, v.rowIndex); // ✅ 한 건씩
         }
     }
+
     setCheckedRowsByValue();
 };
 
@@ -671,7 +688,7 @@ const fn_cellEditEnd = (event: any, gridName: any) => {
             //사용여부
             if (event.value === 'N' && event.item.alUserCnt > 0) {
                 //미사용으로 변경하는 경우, 사용자가 있으면
-                gridGroup.updateRow({ ...event.item, useYn: event.oldValue }, event.rowIndex); //기본값 원래값으로 되돌림
+                gridGroup?.updateRow({ ...event.item, useYn: event.oldValue }, event.rowIndex); //기본값 원래값으로 되돌림
                 // 사용자가 있는 경우 미사용으로 변경할 수 없습니다.
                 popup.alert(t('menu.message.notUpdateWithUsers'));
             }
@@ -679,14 +696,14 @@ const fn_cellEditEnd = (event: any, gridName: any) => {
     }
 };
 
-// ==================================================
+// =====================================================================================================
 // Hook 영역
-// ==================================================
+// =====================================================================================================
 
 onMounted(() => {
-    myGrid.value.clearGridData();
-    myGridUser.value.clearGridData();
-    myGridProgram.value.clearGridData();
+    myGrid.value?.clearGridData();
+    myGridUser.value?.clearGridData();
+    myGridProgram.value?.clearGridData();
     //페이지 로딩 시
     searchMenuGroupInfo();
 });

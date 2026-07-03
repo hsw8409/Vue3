@@ -7,10 +7,6 @@ declare module '*.vue' {
 }
 
 declare global {
-    const __VUE_I18N_FULL_INSTALL__: boolean;
-    const __VUE_I18N_LEGACY_API__: boolean;
-    const __INTLIFY_PROD_DEVTOOLS__: boolean;
-
     interface Window {
         AUIGrid?: any;
     }

@@ -1,5 +1,13 @@
 <script setup lang="ts">
-// 변수, import, composable 등이 필요하면 여기에 작성
+/**
+ * @file     MainFooter.vue
+ * @menu     메인화면 footer 영역
+ * @author   astems
+ * @since    2026-06-22
+ * @version  1.0
+ *
+ * @description
+ */
 </script>
 
 <template>

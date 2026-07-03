@@ -8,9 +8,9 @@
  * @description
 
  */
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
+// =====================================================================================================
 import type { Component } from 'vue';
 import { defineAsyncComponent, markRaw } from 'vue';
 
@@ -19,10 +19,6 @@ import { dateUtil } from '@/common/utils/dateUtil.ts';
 import { validator } from '@/common/utils/validator.ts';
 import { stringUtil } from '@/common/utils/stringUtil.ts';
 import { fileService } from '@/common/utils/file.ts';
-
-/* =====================
-    Utils Type
-===================== */
 
 export const utils = {
     string: {

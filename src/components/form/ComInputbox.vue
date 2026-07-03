@@ -7,32 +7,33 @@
  * @version 1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
+// =====================================================================================================
 import { ref, computed, useAttrs } from 'vue';
 
-// ==================================================
-// Type 선언 영역
-// ==================================================
+// =====================================================================================================
+// Type 선언
+// =====================================================================================================
 
 // 컴포넌트 표준 Props 정의 (기능/표준 속성 위주)
 interface Props {
-    modelValue?: string | null;
+    modelValue?: string;
     placeholder?: string;
-    type?: 'text' | 'password' | 'number' | 'email';
+    type?: 'text' | 'password' | 'number';
     id?: string;
     name?: string;
     autocomplete?: string;
     disabled?: boolean;
     readonly?: boolean;
     label?: string;
+    required?: boolean;
     maxlength?: number;
 }
 
-// ==================================================
-// 변수 선언 영역
-// ==================================================
+// =====================================================================================================
+// 변수 선언
+// =====================================================================================================
 // 루트 엘리먼트 자동 속성 상속 방지
 defineOptions({
     inheritAttrs: false,
@@ -48,8 +49,10 @@ const props = withDefaults(defineProps<Props>(), {
     disabled: false,
     readonly: false,
     label: '',
+    required: false,
     maxlength: 20,
 });
+
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
     (e: 'input', value: string): void;
@@ -64,16 +67,16 @@ const attrs = useAttrs();
 
 const attrId = computed(() => props.id || `input_${crypto.randomUUID()}`);
 
-// 타입 분기
 const isPassword = computed(() => props.type === 'password');
 
-// ==================================================
+// =====================================================================================================
 // 사용자 정의 함수 영역
-// ==================================================
+// =====================================================================================================
 const onInput = (event: Event) => {
     const target = event.target as HTMLInputElement;
 
     emit('update:modelValue', target.value);
+    emit('input', target.value);
 };
 
 const onClick = (event: MouseEvent) => {
@@ -86,15 +89,13 @@ const onEnter = () => {
 
 defineExpose({ setFocus: () => textRef.value?.focus() });
 
-// ==================================================
+// =====================================================================================================
 // Hook 영역
-// ==================================================
+// =====================================================================================================
 </script>
 
 <template>
-    <label v-if="label" :for="attrId">
-        {{ label }}
-    </label>
+    <label v-if="label" :for="attrId">{{ required ? '* ' : '' }}{{ label }}</label>
 
     <span class="form_cell form_input">
         <div v-if="isPassword" class="password-wrapper">
@@ -114,7 +115,6 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
                 @click="onClick"
                 @keyup.enter="onEnter"
             />
-
             <span class="pwd-icon">🔒</span>
         </div>
 

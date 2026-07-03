@@ -6,19 +6,19 @@
  * @since    2026-06-17
  * @version  1.0
  */
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
+// =====================================================================================================
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 import { onMounted, ref } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 import { useI18n } from 'vue-i18n'; // 다국어
 
 import { selectDashboard02Data } from '@/api/dashboard'; // backend
-// ==================================================
-// 타입 정의 영역 (Interfaces)
-// ==================================================
+// =====================================================================================================
+// Type 선언
+// =====================================================================================================
 interface MonthlyDataRow {
     month: string | number;
     preYearPurchQty?: string | number;
@@ -27,16 +27,9 @@ interface MonthlyDataRow {
     curYearSaleQty?: string | number;
 }
 
-interface AUIGridInstance {
-    setGridData: (data: any[]) => void;
-    getGridData: () => any[];
-    clearGridData: () => void;
-    resize: (width?: number, height?: number) => void;
-}
-
-// ==================================================
-// 변수 및 상태 관리 영역
-// ==================================================
+// =====================================================================================================
+// 변수 선언
+// =====================================================================================================
 const { t } = useI18n();
 const dateBeforeCnt = 30;
 
@@ -155,9 +148,9 @@ const chartProps2 = ref({
 // ==================================================
 // 그리드 레이아웃 및 프로퍼티 설정 영역
 // ==================================================
-const myGrid0 = ref<AUIGridInstance | null>(null);
-const myGrid1 = ref<AUIGridInstance | null>(null);
-const myGrid2 = ref<AUIGridInstance | null>(null);
+const myGrid0 = ref<AUIGridProps | null>(null);
+const myGrid1 = ref<AUIGridProps | null>(null);
+const myGrid2 = ref<AUIGridProps | null>(null);
 
 const columnLayout0 = [
     { dataField: 'custCd', headerText: t('customer.label.custCode') },
@@ -172,18 +165,18 @@ const columnLayout0 = [
         headerText: t('dashboard.label.outboundPlanDate'),
         width: 100,
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
-            headerText: string,
-            item: any,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
+            _headerText: string,
+            _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            if (!value || value.length < 8) return value;
-            return item._$isGroupSumField
+            if (!_value || _value.length < 8) return _value;
+            return _item._$isGroupSumField
                 ? '계'
-                : `${value.substring(0, 4)}-${value.substring(4, 6)}-${value.substring(6, 8)}`;
+                : `${_value.substring(0, 4)}-${_value.substring(4, 6)}-${_value.substring(6, 8)}`;
         },
     },
     {
@@ -220,8 +213,8 @@ const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
         enableCellMerge: false,
         cellMergeRowSpan: false,
         showBranchOnGrouping: false,
-        rowStyleFunction: function (_rowIndex: number, item: any) {
-            return item?._$isGroupSumField && item._$depth === 2 ? 'sum_column' : null;
+        rowStyleFunction: function (_rowIndex: number, _item: any) {
+            return _item?._$isGroupSumField && _item._$depth === 2 ? 'sum_column' : null;
         },
     })
     .build();
@@ -238,8 +231,8 @@ const gridProps2: GridProps = AUIGridDefault.gridPropsBuilder()
         enableCellMerge: false,
         cellMergeRowSpan: false,
         showBranchOnGrouping: false,
-        rowStyleFunction: function (_rowIndex: number, item: any) {
-            return item?._$isGroupSumField && item._$depth === 2 ? 'sum_column' : null;
+        rowStyleFunction: function (_rowIndex: number, _item: any) {
+            return _item?._$isGroupSumField && _item._$depth === 2 ? 'sum_column' : null;
         },
     })
     .build();
@@ -257,18 +250,18 @@ const columnLayout1 = [
         headerText: t('dashboard.label.inboundPlanDate'),
         width: 100,
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
-            headerText: string,
-            item: any,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
+            _headerText: string,
+            _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            if (!value || value.length < 8) return value;
-            return item._$isGroupSumField
+            if (!_value || _value.length < 8) return _value;
+            return _item._$isGroupSumField
                 ? '계'
-                : `${value.substring(0, 4)}-${value.substring(4, 6)}-${value.substring(6, 8)}`;
+                : `${_value.substring(0, 4)}-${_value.substring(4, 6)}-${_value.substring(6, 8)}`;
         },
     },
     {
@@ -298,16 +291,16 @@ const columnLayout2 = [
         headerText: t('request.label.instructionDate'),
         width: 90,
         labelFunction: (
-            rowIndex: number,
-            columnIndex: number,
-            value: string,
+            _rowIndex: number,
+            _columnIndex: number,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
-            if (!value || value.length < 8) return '';
-            return `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
+            if (!_value || _value.length < 8) return '';
+            return `${_value.slice(0, 4)}-${_value.slice(4, 6)}-${_value.slice(6, 8)}`;
         },
     },
     {
@@ -345,9 +338,9 @@ const columnLayout2 = [
 const rawResultData = ref<any>(null);
 const gridInitialized = ref({ grid0: false, grid1: false, grid2: false });
 
-// ==================================================
+// =====================================================================================================
 // 사용자 정의 함수 영역
-// ==================================================
+// =====================================================================================================
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -423,9 +416,9 @@ const tryBindGridData = () => {
         myGrid2.value.setGridData(rawResultData.value.producingDto || []);
 };
 
-// ==================================================
+// =====================================================================================================
 // Hook 영역
-// ==================================================
+// =====================================================================================================
 onMounted(() => {
     selectDashboard02Data()
         .then((res: any) => {

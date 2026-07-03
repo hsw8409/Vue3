@@ -7,24 +7,30 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
+// =====================================================================================================
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 
 // 메뉴 & 메뉴 공통 버튼 모듈
 import ComButton from '@/components/form/ComButton.vue';
 import ComInputbox from '@/components/form/ComInputbox.vue';
 import ComSelectbox from '@/components/form/ComSelectbox.vue';
+
 import { usePopupStore } from '@/common/stores/popup';
-// api
+import { useCommonCodeStore } from '@/common/stores/commonCode';
+
 import { selectUserList } from '@/api/user'; //backend
 import { selectMenuGroup } from '@/api/menu';
+
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
 
 // =====================================================================================================
 // 변수 선언 영역
@@ -38,9 +44,10 @@ const props = defineProps<{
     onOk?: () => void | Promise<void>;
 }>();
 
-const EAT050 = JSON.parse(localStorage.getItem('EAT050') ?? '[]');
-const EAT100 = JSON.parse(localStorage.getItem('EAT100') ?? '[]');
-const EAT150 = JSON.parse(localStorage.getItem('EAT150') ?? '[]');
+const commonCode = useCommonCodeStore();
+const EAT050 = computed(() => commonCode.get('EAT050'));
+const EAT100 = computed(() => commonCode.get('EAT100'));
+const EAT150 = computed(() => commonCode.get('EAT150'));
 
 const menuGroupList = ref();
 
@@ -52,7 +59,7 @@ const searchParameter = ref({
 // 그리드 영역
 // =====================================================================================================
 
-const myGrid = ref<any>(null);
+const myGrid = ref<AUIGridProps | null>(null);
 
 // 그리드 속성 정의
 const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
@@ -91,7 +98,7 @@ const columnLayout = [
             _cItem: any,
         ) => {
             const columnValue = new Map(
-                EAT100.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
+                EAT100.value.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
             );
             return columnValue.get(_value) ?? '';
         },
@@ -177,7 +184,7 @@ const columnLayout = [
             _cItem: any,
         ) => {
             const columnValue = new Map(
-                EAT050.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
+                EAT050.value.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
             );
             return columnValue.get(_value) ?? '';
         },
@@ -219,7 +226,7 @@ const columnLayout = [
             _cItem: any,
         ) => {
             const columnValue = new Map(
-                EAT150.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
+                EAT150.value.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
             );
             return columnValue.get(_value) ?? '';
         },
@@ -250,17 +257,17 @@ const columnLayout = [
 
 // 조회 버튼
 const search = () => {
-    myGrid.value.showAjaxLoader();
+    myGrid.value?.showAjaxLoader();
     selectUserList(searchParameter.value)
         .then((res) => {
             // 그리드 데이터 삽입
-            myGrid.value.setGridData(res?.data?.result);
+            myGrid.value?.setGridData(res?.data?.result ?? []);
         })
         .catch((e) => {
             popup.alert(e.message);
         })
         .finally(() => {
-            myGrid.value.removeAjaxLoader();
+            myGrid.value?.removeAjaxLoader();
         });
 };
 
@@ -270,19 +277,18 @@ const doubleClick = (event: any) => {
 
 const detailRowClick = () => {
     const grid = myGrid.value;
-    const selectedRow = grid.getSelectedRows();
-    const userId = selectedRow[0].userId;
+    const userId = grid?.getSelectedRows()?.[0]?.userId;
 
-    if (grid.getCheckedRowItems().some((row: any) => row.item.userId === userId) === true) {
-        grid.addUncheckedRowsByValue('userId', userId); // 클릭 행 체크 해제
+    if (grid?.getCheckedRowItems().some((row: any) => row.item.userId === userId) === true) {
+        grid?.addUncheckedRowsByValue('userId', userId); // 클릭 행 체크 해제
     } else {
-        grid.addCheckedRowsByValue('userId', userId); // 클릭 행 체크
+        grid?.addCheckedRowsByValue('userId', userId); // 클릭 행 체크
     }
 };
 
 const select = () => {
-    const item = myGrid.value.getCheckedRowItemsAll();
-    if (item.length === 0) {
+    const item = myGrid.value?.getCheckedRowItemsAll();
+    if (item?.length === 0) {
         popup.alert(t('com.message.selectItemL', [t('com.label.user')])); // 사용자를 선택해 주세요
     } else {
         popup.closePopup(props.id, item);

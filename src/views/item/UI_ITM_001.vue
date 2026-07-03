@@ -7,22 +7,25 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
-import { ref, onMounted } from 'vue';
-import TokenService from '@/common/service/token';
+// =====================================================================================================
+import { ref, onMounted, computed } from 'vue';
+
 import { useI18n } from 'vue-i18n';
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 
-import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import MenuTop from '@/components/menu/MenuTop.vue'; // 메뉴&메뉴 공통 버튼 (데이터 기반으로 전체 )
 import MenuContent from '@/components/menu/MenuContent.vue'; // 메뉴 메인
 import ComButton from '@/components/form/ComButton.vue';
-import { utils } from '@/common/utils';
+
+import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import { usePopupStore } from '@/common/stores/popup';
+import { useCommonCodeStore } from '@/common/stores/commonCode';
+
+import { utils } from '@/common/utils';
 
 // api
 import {
@@ -34,9 +37,13 @@ import {
     saveItemS,
 } from '@/api/item'; //backend
 
-// ==================================================
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
+
+// =====================================================================================================
 // 변수 선언 영역
-// ==================================================
+// =====================================================================================================
 
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
 defineProps<{
@@ -47,24 +54,22 @@ defineProps<{
 // 메세지 변수
 const { t } = useI18n();
 
-const lGrid = ref<any>(null);
-const mGrid = ref<any>(null);
-const sGrid = ref<any>(null);
-const grid = ref<any>(null);
+const lGrid = ref<AUIGridProps | null>(null);
+const mGrid = ref<AUIGridProps | null>(null);
+const sGrid = ref<AUIGridProps | null>(null);
+const grid = ref<AUIGridProps | null>(null);
 
 // 신규나 저장 버튼을 위한 flag 값 (false : 조회 전, true : 조회 후)
 const mitemFg = ref(false);
 const sitemFg = ref(false);
 
-// 그리드 사용여부 드롭다운 리스트 생성
-const EAT570 = JSON.parse(localStorage.getItem('EAT570') ?? '[]');
-const EAT571 = JSON.parse(localStorage.getItem('EAT571') ?? '[]');
-const COM010 = JSON.parse(localStorage.getItem('COM010') ?? '[]');
-const menuTopRef = ref(null); // 메뉴 공통 버튼
+const commonCode = useCommonCodeStore();
+const EAT570 = computed(() => commonCode.get('EAT570'));
+const EAT571 = computed(() => commonCode.get('EAT571'));
+const COM010 = computed(() => commonCode.get('COM010'));
 
 const lsaveCd = ref('');
 const msaveCd = ref('');
-const loginUser = TokenService.getUser(); // 현재 로그인한 유저
 
 const popup = usePopupStore();
 
@@ -221,9 +226,7 @@ const scolumnLayout = [
 // =====================================================================================================
 
 // 그리드 조회 (해당 그리드, parameter로 보낼 값)
-const search = async (i: 'L' | 'M' | 'S', f: any) => {
-    console.info('>>>>>', i);
-    // 1. Define configuration for each type
+const search = async (type: 'L' | 'M' | 'S', f: any) => {
     const config = {
         L: {
             grid: lGrid,
@@ -235,7 +238,6 @@ const search = async (i: 'L' | 'M' | 'S', f: any) => {
             fn: selectItemListM,
             params: { lclsItemCd: f },
             onSuccess: () => {
-                console.info('여기실행..');
                 mitemFg.value = true;
             },
         },
@@ -249,22 +251,21 @@ const search = async (i: 'L' | 'M' | 'S', f: any) => {
         },
     };
 
-    const target = config[i];
+    const target = config[type];
     if (!target) return;
 
-    // 2. Set the current grid reference
     grid.value = target.grid.value;
 
     try {
-        grid.value.showAjaxLoader();
+        grid.value?.showAjaxLoader();
 
         const res = await target.fn(target.params);
-        grid.value.setGridData(res?.data?.result);
+        grid.value?.setGridData(res?.data?.result ?? []);
         (target as any).onSuccess?.();
     } catch (e: any) {
         popup.alert(e.message);
     } finally {
-        grid.value.removeAjaxLoader();
+        grid.value?.removeAjaxLoader();
     }
 };
 
@@ -272,8 +273,8 @@ const search = async (i: 'L' | 'M' | 'S', f: any) => {
 // 초기화 버튼
 const reset = () => {
     search('L', null);
-    mGrid.value.clearGridData();
-    sGrid.value.clearGridData();
+    mGrid.value?.clearGridData();
+    sGrid.value?.clearGridData();
     lsaveCd.value = '';
     msaveCd.value = '';
 };
@@ -284,13 +285,19 @@ const reset = () => {
 const lNew = () => {
     const grid = lGrid.value; // 대분류 그리드 연결
 
-    const seqArray = grid.getColumnValues('orderBySeq').map(Number); // PG코드의 배열을 Int타입으로 가져옴
-    let seq;
-    if (seqArray.length == 0) {
-        seq = 1;
+    const seqArray = (grid?.getColumnValues('orderBySeq', false) || [])
+        .map(Number)
+        .filter((val) => !isNaN(val)); // 숫자가 아닌 값이 섞여있을 경우 대비
+
+    // 2. 로직 처리
+    let seq: number;
+
+    if (seqArray.length === 0) {
+        seq = 1; // 데이터가 하나도 없을 경우 1번으로 시작
     } else {
-        seq = Math.max(...seqArray); // 최대값 계산
-        seq += 1; // 소분류 코드는 1씩 증가
+        // Math.max(...seqArray)는 배열이 클 경우 스택 오버플로우 위험이 있을 수 있으나,
+        // 그리드 행 단위라면 충분히 안전합니다.
+        seq = Math.max(...seqArray) + 1;
     }
     /* 그리드에 추가될 row 데이터 */
     const obj = {
@@ -301,14 +308,14 @@ const lNew = () => {
         useYn: 'Y',
         check: 'Y',
     };
-    grid.addRow(obj, 'first');
-    grid.setAllCheckedRows(false); //모든 선택을 해제
-    grid.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
-    grid.openInputer();
-    mGrid.value.clearGridData();
-    sGrid.value.clearGridData();
+    grid?.addRow(obj, 'first');
+    grid?.setAllCheckedRows(false); //모든 선택을 해제
+    grid?.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
+    grid?.openInputer();
+    mGrid.value?.clearGridData();
+    sGrid.value?.clearGridData();
     lsaveCd.value = '';
-    grid.addCheckedRowsByValue('check', 'Y');
+    grid?.addCheckedRowsByValue('check', 'Y');
 };
 
 // 중분류 신규버튼
@@ -316,13 +323,17 @@ const mnew = () => {
     if (lsaveCd.value != '') {
         const grid = mGrid.value; // 중분류 그리드 연결
 
-        const seqArray = grid.getColumnValues('orderBySeq').map(Number); // PG코드의 배열을 Int타입으로 가져옴
-        let seq;
-        if (seqArray.length == 0) {
-            seq = 1;
+        const seqArray = (grid?.getColumnValues('orderBySeq', false) || [])
+            .map(Number)
+            .filter((val) => !isNaN(val));
+
+        // 2. 최대값 계산
+        let seq: number;
+
+        if (seqArray.length === 0) {
+            seq = 1; // 데이터가 없으면 1로 시작
         } else {
-            seq = Math.max(...seqArray); // 최대값 계산
-            seq += 1; // 소분류 코드는 1씩 증가
+            seq = Math.max(...seqArray) + 1;
         }
         /* 그리드에 추가될 row 데이터 */
         const obj = {
@@ -334,13 +345,13 @@ const mnew = () => {
             lclsItemCd: lsaveCd.value,
             check: 'Y',
         };
-        grid.addRow(obj, 'first');
-        grid.setAllCheckedRows(false); //모든 선택을 해제
-        grid.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
-        grid.openInputer();
-        sGrid.value.clearGridData();
+        grid?.addRow(obj, 'first');
+        grid?.setAllCheckedRows(false); //모든 선택을 해제
+        grid?.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
+        grid?.openInputer();
+        sGrid.value?.clearGridData();
         msaveCd.value = '';
-        grid.addCheckedRowsByValue('check', 'Y');
+        grid?.addCheckedRowsByValue('check', 'Y');
     } else {
         // 조회 후 작업을 진행하여 주세요
         popup.alert(t('com.message.proceedAfterSearch'));
@@ -351,14 +362,20 @@ const mnew = () => {
 const snew = () => {
     if (msaveCd.value != '') {
         const grid = sGrid.value; // 소분류 그리드 연결
-        const seqArray = grid.getColumnValues('orderBySeq').map(Number); // PG코드의 배열을 Int타입으로 가져옴
-        let seq;
-        if (seqArray.length == 0) {
-            seq = 1;
+
+        const seqArray = (grid?.getColumnValues('orderBySeq', false) || [])
+            .map(Number)
+            .filter((val) => !isNaN(val));
+
+        // 2. 최대값 계산
+        let seq: number;
+
+        if (seqArray.length === 0) {
+            seq = 1; // 데이터가 없으면 1로 시작
         } else {
-            seq = Math.max(...seqArray); // 최대값 계산
-            seq += 1; // 소분류 코드는 1씩 증가
+            seq = Math.max(...seqArray) + 1;
         }
+
         /* 그리드에 추가될 row 데이터 */
         const obj = {
             sclsItemCd: '',
@@ -369,11 +386,11 @@ const snew = () => {
             mclsItemCd: msaveCd.value,
             check: 'Y',
         };
-        grid.addRow(obj, 'first');
-        grid.setAllCheckedRows(false); //모든 선택을 해제
-        grid.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
-        grid.openInputer(); //소분류명 입력창 바로열기
-        grid.addCheckedRowsByValue('check', 'Y');
+        grid?.addRow(obj, 'first');
+        grid?.setAllCheckedRows(false); //모든 선택을 해제
+        grid?.setSelectionByIndex(0, 1); //대분류코드는 입력불가, 대분류명을 바로 입력할 수 있게 selection 걸음
+        grid?.openInputer(); //소분류명 입력창 바로열기
+        grid?.addCheckedRowsByValue('check', 'Y');
     } else {
         // 조회 후 작업을 진행하여 주세요.
         popup.alert(t('com.message.proceedAfterSearch'));
@@ -383,12 +400,10 @@ const snew = () => {
 
 //
 //저장 버튼
-const save = async (i: any) => {
-    console.info('mitemFg.value>>>', mitemFg.value);
-    const userId = loginUser.userId;
-    if (i == 'L') {
+const save = async (type: 'L' | 'M' | 'S') => {
+    if (type == 'L') {
         grid.value = lGrid.value;
-    } else if (i == 'M') {
+    } else if (type == 'M') {
         if (mitemFg.value == true) {
             grid.value = mGrid.value;
             reSelectCd.value = lsaveCd.value;
@@ -397,7 +412,7 @@ const save = async (i: any) => {
             popup.alert(t('com.message.proceedAfterSearch'));
             return false;
         }
-    } else if (i == 'S') {
+    } else if (type == 'S') {
         if (sitemFg.value == true) {
             grid.value = sGrid.value;
             reSelectCd.value = msaveCd.value;
@@ -407,13 +422,12 @@ const save = async (i: any) => {
             return false;
         }
     }
-    const insertData = grid.value.getAddedRowItems();
-    const updateData = grid.value.getEditedRowItems();
+    const insertData = grid.value?.getAddedRowItems() ?? [];
+    const updateData = grid.value?.getEditedRowItems() ?? [];
 
     const saveData = {
         insert: insertData,
         update: updateData,
-        userId: userId,
     };
     const saveParams = saveData;
     let count = insertData.length;
@@ -424,17 +438,17 @@ const save = async (i: any) => {
         popup.alert(t('com.message.noDataToSave'));
         return false;
     }
-    if (i == 'L') {
+    if (type == 'L') {
         await lvalidateBeforeSubmit();
         if (validationCheck.value == false) {
             return false;
         }
-    } else if (i == 'M') {
+    } else if (type == 'M') {
         await mvalidateBeforeSubmit();
         if (validationCheck.value == false) {
             return false;
         }
-    } else if (i == 'S') {
+    } else if (type == 'S') {
         await svalidateBeforeSubmit();
         if (validationCheck.value == false) {
             return false;
@@ -443,64 +457,56 @@ const save = async (i: any) => {
     // 저장하시겠습니까?
     popup.confirm(t('com.message.confirmSave'), undefined, {
         onOk: async () => {
-            confirmOk(saveParams, i);
+            confirmOk(saveParams, type);
         },
     });
 };
 
 // cell을 클릭하면 다음 그리드 조회 키값 넘김
-const rowClick = (e: any) => {
-    let grid; //대중소 그리드를 따로 받기 위함
-    let flag; //다음 디테일 그리드의 키값
-    let selectRow;
-    let bfRowIndex;
-    let rowIndex;
-    if (e == 'L') {
-        grid = lGrid.value;
+const rowClick = (type: 'L' | 'M' | 'S') => {
+    // 1. 타입별 그리드 및 데이터 필드 매핑 (반복 제거)
+    const configs = {
+        L: { grid: lGrid.value, key: 'lclsItemCd', nextType: 'M', nextSearch: true },
+        M: { grid: mGrid.value, key: 'mclsItemCd', nextType: 'S', nextSearch: true },
+        S: { grid: sGrid.value, key: 'sclsItemCd', nextType: null, nextSearch: false },
+    } as const;
 
-        selectRow = grid.getSelectedRows(); // 선택한 row를 들고옴
-        flag = selectRow[0].lclsItemCd; // 해당 row의 대분류코드를 flag 값으로 넣어놓음
-        bfRowIndex = grid.getSelectedIndex();
-        rowIndex = bfRowIndex[0];
+    const config = configs[type];
+    const grid = config?.grid;
 
-        lsaveCd.value = flag; // insert할 때 필요한 값 저장
+    // 2. 안전한 데이터 추출
+    const [selectedItem] = grid?.getSelectedRows() || [];
+    const rowIndex = grid?.getSelectedIndex() ?? -1;
 
-        grid.setAllCheckedRows(false); //모든 선택을 해제
-        grid.addCheckedRowsByValue('lclsItemCd', flag); // 클릭 행 체크
+    if (!selectedItem || rowIndex === -1) return;
 
-        if (grid.isAddedByRowIndex(rowIndex) == false) {
-            search('M', flag); // 조회
+    const flag = selectedItem[config.key];
+
+    // 3. 그리드 상태 초기화 및 체크 처리
+    grid?.setAllCheckedRows(false);
+    grid?.addCheckedRowsByValue(config.key, flag);
+
+    // 4. 로직 수행
+    if (type === 'L') lsaveCd.value = flag;
+    if (type === 'M') msaveCd.value = flag;
+
+    // 5. 하위 그리드 연동 로직
+    if (config.nextType) {
+        const isAdded = grid?.isAddedByRowIndex(rowIndex);
+
+        if (isAdded === false) {
+            search(config.nextType, flag);
         } else {
-            //addedRow면
-            mGrid.value.clearGridData();
+            // 하위 그리드 초기화
+            const nextGrid = (config.nextType === 'M' ? mGrid : sGrid).value;
+            nextGrid?.clearGridData();
         }
-        sGrid.value.clearGridData();
+    }
+
+    // L 클릭 시 S도 초기화 등 상세 로직
+    if (type === 'L') {
+        sGrid.value?.clearGridData();
         msaveCd.value = '';
-    }
-    if (e == 'M') {
-        grid = mGrid.value;
-        selectRow = grid.getSelectedRows(); // 선택한 row를 들고옴
-        bfRowIndex = grid.getSelectedIndex();
-        rowIndex = bfRowIndex[0];
-        flag = selectRow[0].mclsItemCd; // 해당 row의 중분류코드를 flag 값으로 넣어놓음
-
-        msaveCd.value = flag; // insert할 때 필요한 값 저장
-        grid.setAllCheckedRows(false); //모든 선택을 해제
-        grid.addCheckedRowsByValue('mclsItemCd', flag); // 클릭 행 체크
-
-        if (grid.isAddedByRowIndex(rowIndex) == false) {
-            search('S', flag); //조회
-        } else {
-            //addedRow면
-            sGrid.value.clearGridData();
-        }
-    }
-    if (e == 'S') {
-        grid = sGrid.value;
-        selectRow = grid.getSelectedRows(); // 선택한 row를 들고옴
-        flag = selectRow[0].sclsItemCd; // 해당 row의 중분류코드를 flag 값으로 넣어놓음
-        grid.setAllCheckedRows(false); //모든 선택을 해제
-        grid.addCheckedRowsByValue('sclsItemCd', flag); // 클릭 행 체크
     }
 };
 
@@ -607,13 +613,12 @@ const confirmOk = async (saveParams: any, i: 'L' | 'M' | 'S') => {
     }
 
     try {
-        grid.value.showAjaxLoader();
+        grid.value?.showAjaxLoader();
 
         const res = await fn(saveParams);
 
-        // Handle result safely
         const resultData = res?.data?.result;
-        grid.value.setGridData(resultData);
+        grid.value?.setGridData(resultData);
 
         popup.alert(t('com.message.itemProcessed', [resultData || 0]));
 
@@ -622,7 +627,7 @@ const confirmOk = async (saveParams: any, i: 'L' | 'M' | 'S') => {
     } catch (e: any) {
         popup.alert(e.message);
     } finally {
-        grid.value.removeAjaxLoader();
+        grid.value?.removeAjaxLoader();
     }
 };
 
@@ -644,16 +649,16 @@ const lengthValidation = (event: any) => {
 };
 
 // =====================================================================================================
-// HOOK 영역
+// Hook 영역
 // =====================================================================================================
 
 // 페이지가 로드되기 전에 전체 데이터 출력
 onMounted(() => {
-    EAT570.unshift({ dtlCommCd: '', dtlCommNm: t('com.label.select') }); // 선택
-    EAT571.unshift({ dtlCommCd: '', dtlCommNm: t('com.label.select') }); // 선택
+    EAT570.value.unshift({ dtlCommCd: '', dtlCommNm: t('com.label.select') }); // 선택
+    EAT571.value.unshift({ dtlCommCd: '', dtlCommNm: t('com.label.select') }); // 선택
     search('L', null);
-    mGrid.value.clearGridData();
-    sGrid.value.clearGridData();
+    mGrid.value?.clearGridData();
+    sGrid.value?.clearGridData();
 });
 </script>
 

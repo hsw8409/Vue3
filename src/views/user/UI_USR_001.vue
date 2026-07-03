@@ -7,14 +7,14 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
-import { ref, onMounted, reactive, inject } from 'vue';
+// =====================================================================================================
+import { ref, onMounted, reactive, inject, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 import { utils } from '@/common/utils';
 
 import MenuTop from '@/components/menu/MenuTop.vue'; // 메뉴&메뉴 공통 버튼 (데이터 기반으로 전체 )
@@ -25,12 +25,17 @@ import ComSelectbox from '@/components/form/ComSelectbox.vue'; // 선택박스 b
 
 import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import { usePopupStore } from '@/common/stores/popup';
+import { useCommonCodeStore } from '@/common/stores/commonCode';
 
 import { selectUserList, randomPassword } from '@/api/user'; //backend
 
-// ==================================================
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
+
+// =====================================================================================================
 // 변수 선언 영역
-// ==================================================
+// =====================================================================================================
 
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
 defineProps<{
@@ -41,7 +46,7 @@ defineProps<{
 // 메세지 변수
 const { t } = useI18n();
 
-const myGrid = ref<any>(null); // aui grid 변수
+const myGrid = ref<AUIGridProps | null>(null);
 const userIdRef = ref<any>(null);
 const userNameRef = ref<any>(null);
 
@@ -60,6 +65,7 @@ const addTab = inject<(params: any) => void>('addTab');
 
 const newRegi = (i?: string) => {
     addTab?.({
+        mcd: '01002002',
         fileNm: 'UI_USR_002.vue',
         params: {
             userId: i,
@@ -68,9 +74,10 @@ const newRegi = (i?: string) => {
     });
 };
 
-const EAT100 = JSON.parse(localStorage.getItem('EAT100') ?? '[]');
-const EAT050 = JSON.parse(localStorage.getItem('EAT050') ?? '[]');
-const EAT150 = JSON.parse(localStorage.getItem('EAT150') ?? '[]');
+const commonCode = useCommonCodeStore();
+const EAT100 = computed(() => commonCode.get('EAT100'));
+const EAT050 = computed(() => commonCode.get('EAT050'));
+const EAT150 = computed(() => commonCode.get('EAT150'));
 
 const popup = usePopupStore();
 
@@ -104,7 +111,7 @@ const columnLayout = [
             _cItem: any,
         ) => {
             let columnValue;
-            EAT050.forEach(function (code: any) {
+            EAT050.value.forEach(function (code: any) {
                 if (code.dtlCommCd == _value) {
                     columnValue = code.dtlCommNm;
                 }
@@ -131,15 +138,15 @@ const columnLayout = [
         labelFunction: (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
             let columnValue;
-            EAT100.forEach(function (code: any) {
-                if (code.dtlCommCd == value) {
+            EAT100.value.forEach(function (code: any) {
+                if (code.dtlCommCd == _value) {
                     columnValue = code.dtlCommNm;
                 }
             });
@@ -161,15 +168,15 @@ const columnLayout = [
         labelFunction: (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
             _dataField: any,
             _cItem: any,
         ) => {
             let columnValue;
-            EAT150.forEach(function (code: any) {
-                if (code.dtlCommCd == value) {
+            EAT150.value.forEach(function (code: any) {
+                if (code.dtlCommCd == _value) {
                     columnValue = code.dtlCommNm;
                 }
             });
@@ -226,10 +233,9 @@ const columnLayout = [
     }, // pw초기화
 ];
 
-// ==================================================
+// =====================================================================================================
 // 사용자 정의 함수 영역
-// ==================================================
-
+// =====================================================================================================
 const reset = () => {
     Object.assign(searchBox, getInitialState());
     search();
@@ -250,7 +256,7 @@ const search = () => {
         return;
     }
 
-    grid.showAjaxLoader();
+    grid?.showAjaxLoader();
     const params = {
         userId: searchBox.usrId,
         userNm: searchBox.usrName,
@@ -261,13 +267,13 @@ const search = () => {
     // 조회
     selectUserList(params)
         .then((res) => {
-            grid.setGridData(res?.data?.result);
+            grid?.setGridData(res?.data?.result ?? []);
         })
         .catch((e) => {
             popup.alert(e.message);
         }) // <-- 여기에 있던 세미콜론(;)을 제거해야 합니다.
         .finally(() => {
-            grid.removeAjaxLoader();
+            grid?.removeAjaxLoader();
         });
 };
 
@@ -285,20 +291,23 @@ const generateRandomPassword = (length: number) => {
 // 사용자등록 페이지 이동
 const pageChange = () => {
     const grid = myGrid.value;
-    const selectedItem = grid.getSelectedItems();
-    const selectUserId = selectedItem[0].item.userId;
-    const columnIndex = selectedItem[0].columnIndex;
+    if (!grid) return;
 
-    if (columnIndex == '2' || columnIndex == '3') {
-        newRegi(selectUserId);
+    const selectedItems = grid.getSelectedItems();
+    if (!selectedItems.length) return;
+
+    const { item, columnIndex } = selectedItems[0];
+
+    if (columnIndex === 2 || columnIndex === 3) {
+        newRegi(item.userId);
     }
 };
 
-// ==================================================
+// =====================================================================================================
 // Hook 영역
-// ==================================================
+// =====================================================================================================
 onMounted(() => {
-    myGrid.value.clearGridData();
+    myGrid.value?.clearGridData();
     // 화면 로드시 조회
     search();
 });

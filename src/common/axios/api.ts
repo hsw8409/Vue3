@@ -1,10 +1,20 @@
+/**
+ * @file     api.ts
+ * @menu     axios api
+ * @author   astems
+ * @since    2026-06-22
+ * @version  1.0
+ *
+ * @description
+ */
+
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+    baseURL: import.meta.env.VITE_API_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
 });
 
 export default instance;

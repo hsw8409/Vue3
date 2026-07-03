@@ -8,15 +8,14 @@
  * @description
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
+// =====================================================================================================
 import TokenService from '@/common/service/token'; // 토큰 서비스
 
 import { utils } from '@/common/utils'; // 유틸
 
-import type { UserProps } from '@/types/auth'; // 권한 타입
-import type { TokenProps } from '@/types/token'; // 토큰 타입
+import type { UserProps, TokenProps } from '@/types/auth'; // 권한 타입
 
 import { login, logout } from '@/api/auth'; // api
 

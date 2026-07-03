@@ -1,3 +1,11 @@
+/*
+ * @file     types/commonCode.d.ts
+ * @menu     공통코드 타입 관련
+ * @author   astems
+ * @since    2026-06-26
+ * @version  1.0
+ */
+
 export interface CommonCodeGroupProps {
     commCd?: string;
     commNm?: string;

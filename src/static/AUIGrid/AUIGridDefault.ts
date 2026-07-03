@@ -6,10 +6,15 @@
  * @version  1.0
  */
 
+// =====================================================================================================
+// import 영역
+// =====================================================================================================
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
 import i18n from '@/i18n';
 
-// 1. AUIGrid가 가질 수 있는 Props 타입 선언 (필요한 속성 지속 추가 가능)
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
 export interface GridProps {
     noDataMessage?: string;
     headerHeight?: number;
@@ -37,6 +42,76 @@ export interface GridProps {
     [key: string]: any; // 그 외 동적 속성 허용
 }
 
+/**
+ * AUIGrid 핵심 타입 정의
+ * @template T 그리드 데이터의 인터페이스를 제네릭으로 전달하여 사용
+ */
+export interface AUIGridProps<T = any> {
+    // --- 데이터 제어 ---
+    setGridData: (data: T[]) => void;
+    getGridData: () => T[];
+    appendData: (data: T[]) => void;
+    addRow: (item: T, rowPosition?: 'first' | 'last' | number) => void;
+    removeRow: (rowIndex: 'checked' | number) => void;
+    clearGridData: () => void;
+    updateRow: (item: T, rowIndex: number) => void;
+    addUncheckedRowsByValue: (dataField: string, value: string | number | boolean) => void;
+    addCheckedRowsByValue: (dataField: string, value: string | number | boolean) => void;
+    isAddedByRowIndex: (rowIndex: number) => boolean;
+    getAddedRowItems: () => T[];
+    getEditedRowItems: () => T[];
+    getRemovedItems: () => T[];
+    getColumnValues: (dataField: string, total?: boolean) => any[];
+    getCellValue: (rowIndex: number, dataField: string) => any;
+
+    // --- 선택 및 체크 관리 ---
+    getCheckedRowItems: () => T[];
+    getCheckedRowIndices: () => number[];
+    setAllCheckedRows: (checked: boolean) => void;
+    getSelectedItems: () => any[];
+    getSelectedRows: () => T[];
+    getCheckedRowItemsAll: () => T[];
+    getSelectedIndex: () => number;
+    removeCheckedRows: () => void;
+    setSelectionByIndex: (rowIndex: number, columnIndex: number) => void;
+    setSelectionBlock: (
+        startRowIndex: number,
+        endRowIndex: number,
+        startColumnIndex: number,
+        endColumnIndex: number,
+    ) => void;
+    clearSelection: () => void;
+    setRowPosition(rowPosition: number): void;
+    setCheckedRowsByValue(dataField: string, value: unknown): void;
+    rowIdToIndex(rowId: string): number;
+    updateRows(item: T[], rowIndexes: number, isMarkEdited?: boolean): void;
+
+    // --- 레이아웃 및 설정 ---
+    setColumnLayout: (columnLayout: any[]) => void;
+    resize: (width?: number | string, height?: number | string) => void;
+
+    // --- 정렬, 필터, 검색 ---
+    sortingByFields: (sortFields: { dataField: string; sortType: 1 | -1 }[]) => void;
+    clearFilter: () => void;
+    clearSorting: () => void;
+    searchStart: (term: string, fields: string[]) => void;
+
+    // --- 상태 관리 ---
+    getRowCount: () => number;
+    showColumn: (dataField: string) => void;
+    hideColumn: (dataField: string) => void;
+
+    // --- 기타 ---
+    destroy: () => void;
+    refresh: () => void;
+    showAjaxLoader: () => void;
+    removeAjaxLoader: () => void;
+    openInputer: () => void;
+}
+
+// =====================================================================================================
+// 사용자 정의 함수 영역
+// =====================================================================================================
 const AUIGridDefault = {
     // 기본 값 생성 함수
     getDefaultGridProps(): GridProps {

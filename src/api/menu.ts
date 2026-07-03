@@ -8,6 +8,9 @@
  * @description
  */
 
+// =====================================================================================================
+// import 영역
+// =====================================================================================================
 import api from '@/common/axios/api';
 import type { ApiResponse } from '@/types/axios';
 import type {
@@ -19,63 +22,67 @@ import type {
     MenuGroupResProps,
 } from '@/types/menu';
 
-// =========================
-// API BASE
-// =========================
+// =====================================================================================================
+// Type 선언
+// =====================================================================================================
+
+// =====================================================================================================
+// 변수 선언
+// =====================================================================================================
 const BASE = '/api/v1/biz/menu';
 
-// =========================
-// API FUNCTIONS
-// =========================
+// =====================================================================================================
+// 사용자 정의 함수 영역
+// =====================================================================================================
 
 // 대분류목록 조회
-export function selectLmenuList() {
-    return api.get<ApiResponse<LMenuProps>>(`${BASE}/menuManage/selectLmenuList`);
-}
+export const selectLmenuList = () => {
+    return api.get<ApiResponse<LMenuProps[]>>(`${BASE}/menuManage/selectLmenuList`);
+};
 
 // 중분류목록 조회
-export function selectMmenuList(params: MMenuProps) {
-    return api.get<ApiResponse<MMenuProps>>(`${BASE}/menuManage/selectMmenuList`, { params });
-}
+export const selectMmenuList = (params: MMenuProps) => {
+    return api.get<ApiResponse<MMenuProps[]>>(`${BASE}/menuManage/selectMmenuList`, { params });
+};
 
 // 프로그램목록 조회
-export function selectPmenuList(params: PMenuProps) {
-    return api.get<ApiResponse<PMenuProps>>(`${BASE}/menuManage/selectPmenuList`, { params });
-}
+export const selectPmenuList = (params: PMenuProps) => {
+    return api.get<ApiResponse<PMenuProps[]>>(`${BASE}/menuManage/selectPmenuList`, { params });
+};
 
 // 대분류 저장
-export function saveLmenu(params: any) {
+export const saveLmenu = (params: any) => {
     return api.post<ApiResponse>(`${BASE}/menuManage/saveLmenu`, params);
-}
+};
 
 // 중분류 저장
-export function saveMmenu(params: any) {
+export const saveMmenu = (params: any) => {
     return api.post<ApiResponse>(`${BASE}/menuManage/saveMmenu`, params);
-}
+};
 
 // 프로그램 저장
-export function savePmenu(params: any) {
+export const savePmenu = (params: any) => {
     return api.post<ApiResponse>(`${BASE}/menuManage/savePmenu`, params);
-}
+};
 
 // 메뉴그룹정보 조회
-export function selectMenuGroup() {
+export const selectMenuGroup = () => {
     return api.get<ApiResponse<MenuGroupProps[]>>(`${BASE}/selectMenuGroup`);
-}
+};
 
 // 메뉴그룹별 프로그램정보 조회
-export function selectMenuGroupUserProgram(params: MenuGroupUserProps) {
+export const selectMenuGroupUserProgram = (params: MenuGroupUserProps) => {
     return api.get<ApiResponse<MenuGroupResProps>>(`${BASE}/selectMenuGroupUserProgram`, {
         params,
     });
-}
+};
 
 // 메뉴그룹별 프로그램정보 저장
-export function saveMenuGroupProgram(params: any) {
+export const saveMenuGroupProgram = (params: any) => {
     return api.post<ApiResponse>(`${BASE}/saveMenuGropListAndUpdateProgramList`, params);
-}
+};
 
 // 메뉴그룹 조회
-export function selectMenuGroupUsing(params?: MenuGroupProps) {
+export const selectMenuGroupUsing = (params?: MenuGroupProps) => {
     return api.get<ApiResponse<MenuGroupProps>>(`${BASE}/selectMenuGroupUsing`, { params });
-}
+};

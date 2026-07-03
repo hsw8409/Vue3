@@ -7,29 +7,37 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
-import { onMounted, reactive, ref } from 'vue';
+// =====================================================================================================
+import { onMounted, reactive, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n'; // 다국어
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 
-import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import MenuTop from '@/components/menu/MenuTop.vue'; // 메뉴&메뉴 공통 버튼 (데이터 기반으로 전체 )
 import MenuContent from '@/components/menu/MenuContent.vue'; // 메뉴 메인
 import SearchArea from '@/components/menu/SearchArea.vue'; // 조회조건 영역
-import { utils } from '@/common/utils';
+
+import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import { usePopupStore } from '@/common/stores/popup';
+import { useCommonCodeStore } from '@/common/stores/commonCode';
+
+import { utils } from '@/common/utils';
 
 import ComButton from '@/components/form/ComButton.vue';
 import ComInputbox from '@/components/form/ComInputbox.vue'; // 텍스트 box
 
 import { selectGroupList, selectDetailList, saveComCode } from '@/api/commonCode'; //backend
-// ==================================================
+
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
+
+// =====================================================================================================
 // 변수 선언 영역
-// ==================================================
+// =====================================================================================================
 
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
 defineProps<{
@@ -40,38 +48,39 @@ defineProps<{
 // 메세지 변수
 const { t } = useI18n();
 
-// 사용여부 공통코드화 필요.
-const COM010 = JSON.parse(localStorage.getItem('COM010') ?? '{}');
-
 // 검색 조건
 const searchBoxState = {
     commCd: '',
 };
-const searchBox = reactive({ ...searchBoxState });
+
+const searchBox = reactive({
+    commCd: '',
+});
 
 const popup = usePopupStore();
+
+const commonCode = useCommonCodeStore();
+const COM010 = computed(() => commonCode.get('COM010'));
 
 // ==================================================
 // 그리드 영역
 // ==================================================
-const myGrid1 = ref<any>(null);
-const myGrid2 = ref<any>(null);
+const myGrid1 = ref<AUIGridProps | null>(null);
+const myGrid2 = ref<AUIGridProps | null>(null);
 
-const gridProps: GridProps = ref(
-    AUIGridDefault.gridPropsBuilder()
-        .withExtraProps({
-            editable: true,
-            showStateColumn: true,
-            showRowNumColumn: true, // 줄번호 칼럼 렌더러 출력
-            showRowCheckColumn: true, // 체크박스 표시 설정
-            height: 280,
-            rowIdField: '_$uid',
-            selectionMode: 'singleRow',
-            enableFilter: true,
-            enableRowSelector: true,
-        })
-        .build(),
-);
+const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
+    .withExtraProps({
+        editable: true,
+        showStateColumn: true,
+        showRowNumColumn: true, // 줄번호 칼럼 렌더러 출력
+        showRowCheckColumn: true, // 체크박스 표시 설정
+        height: 280,
+        rowIdField: '_$uid',
+        selectionMode: 'singleRow',
+        enableFilter: true,
+        enableRowSelector: true,
+    })
+    .build();
 
 //그리드 높이 계산
 const layoutStore = useLayoutStore();
@@ -114,11 +123,11 @@ const columnLayout1 = [
                 _rowIndex: number,
                 _columnIndex: number,
                 _value: string,
-                item: any,
+                _item: any,
                 _dataField: any,
             ) {
                 // 행 아이템의 name 이 Anna 라면 드랍다운리스트 비활성화(disabled) 처리
-                if (item.ref10Nm === 'N') {
+                if (_item.ref10Nm === 'N') {
                     return true;
                 }
                 return false;
@@ -245,11 +254,11 @@ const columnLayout2 = [
                 _rowIndex: number,
                 _columnIndex: number,
                 _value: string,
-                item: any,
+                _item: any,
                 _dataField: any,
             ) {
                 // 1. 상세 항목의 참조값 확인
-                const isDetailLocked = item.dtlRef10Nm === 'N';
+                const isDetailLocked = _item.dtlRef10Nm === 'N';
 
                 // 2. 부모 그리드(myGrid1)의 선택된 행의 참조값 확인
                 // 옵셔널 체이닝(?.)을 사용하여 안전하게 접근
@@ -349,9 +358,9 @@ const columnLayout2 = [
     }, // 수정일시
 ];
 
-// ==================================================
+// =====================================================================================================
 // 사용자 정의 함수 영역
-// ==================================================
+// =====================================================================================================
 
 // 조회조건 초기화
 const reset = () => {
@@ -363,8 +372,8 @@ const reset = () => {
 const search = () => {
     selectGroupList(searchBox)
         .then((res) => {
-            myGrid1.value.setGridData(res?.data?.result);
-            myGrid2.value.clearGridData();
+            myGrid1.value?.setGridData(res?.data?.result ?? []);
+            myGrid2.value?.clearGridData();
         })
         .catch((e) => {
             return popup.alert(e.message);
@@ -373,10 +382,10 @@ const search = () => {
 
 // 공통코드 상세 조회
 const fnSearchDetail = () => {
-    const param = { commCd: myGrid1.value.getSelectedRows()[0].commCd };
+    const param = { commCd: myGrid1.value?.getSelectedRows()[0].commCd };
     selectDetailList(param)
         .then((res) => {
-            myGrid2.value.setGridData(res?.data?.result);
+            myGrid2.value?.setGridData(res?.data?.result ?? []);
             return;
         })
         .catch((e) => {
@@ -386,23 +395,23 @@ const fnSearchDetail = () => {
 
 // 공통코드 그룹 행 추가
 const fnAddedRowCheck = (e: any) => {
-    if (myGrid1.value.getSelectedRows()[0].ref10Nm == 'N') {
+    if (myGrid1.value?.getSelectedRows()[0].ref10Nm == 'N') {
         return false;
     }
-    if (!myGrid1.value.isAddedByRowIndex(e.rowIndex) && e.dataField == 'commCd') {
+    if (!myGrid1.value?.isAddedByRowIndex(e.rowIndex) && e.dataField == 'commCd') {
         return false;
     }
 };
 
 // 공통코드 행 추가
 const fnAddedRowCheck2 = (e: any) => {
-    if (myGrid1.value.getSelectedRows()[0].ref10Nm == 'N') {
+    if (myGrid1.value?.getSelectedRows()[0].ref10Nm == 'N') {
         return false;
     }
-    if (myGrid2.value.getSelectedRows()[0].dtlRef10Nm == 'N') {
+    if (myGrid2.value?.getSelectedRows()[0].dtlRef10Nm == 'N') {
         return false;
     }
-    if (!myGrid2.value.isAddedByRowIndex(e.rowIndex) && e.dataField == 'dtlCommCd') {
+    if (!myGrid2.value?.isAddedByRowIndex(e.rowIndex) && e.dataField == 'dtlCommCd') {
         return false;
     }
 };
@@ -424,34 +433,35 @@ const fnAddMain = () => {
         ref10Nm: 'Y',
         useYn: 'Y',
     };
-    myGrid1.value.addRow(addRowItem, 'first');
+    myGrid1.value?.addRow(addRowItem, 'first');
 };
 
 // 공통코드 상세 행 추가
 const fnAddDetail = () => {
-    if (myGrid1.value.getSelectedRows().length == 0) {
+    if (myGrid1.value?.getSelectedRows().length == 0) {
         // 공통코드 그룹 정보를 선택해주세요.
         popup.alert(t('com.message.selectItemL', [t('commonCode.label.commonCodeGroupInfo')]));
         return false;
     }
-    const rowIndex = myGrid1.value.getSelectedIndex();
-    if (myGrid1.value.isAddedByRowIndex(rowIndex[0])) {
-        // 공통코드 그룹 정보 먼저 등록 후에 신규 등록 가능합니다.
-        popup.alert(
-            t('com.message.registerRequiredBeforeNewL', [
-                t('commonCode.label.commonCodeGroupInfo'),
-            ]),
-        );
-
-        return false;
+    const rowIndex = myGrid1.value?.getSelectedIndex();
+    if (rowIndex !== undefined && rowIndex !== -1) {
+        // 2. 이제 안전하게 isAddedByRowIndex를 호출
+        if (myGrid1.value?.isAddedByRowIndex(rowIndex)) {
+            popup.alert(
+                t('com.message.registerRequiredBeforeNewL', [
+                    t('commonCode.label.commonCodeGroupInfo'),
+                ]),
+            );
+            return false;
+        }
     }
-    if (myGrid1.value.getSelectedRows()[0].ref10Nm == 'N') {
+    if (myGrid1.value?.getSelectedRows()[0].ref10Nm == 'N') {
         // 해당 공통코드는 화면에서 수정할 권한이 없습니다.\n관리자에게 문의해주세요.
         popup.alert(t('com.message.noUpdatePermissionContactAdmin', [t('com.label.comCode')]));
         return false;
     }
     const addRowItem = {
-        commCd: myGrid1.value.getSelectedRows()[0].commCd,
+        commCd: myGrid1.value?.getSelectedRows()[0].commCd,
         dtlCommCd: '',
         dtlCommNm: '',
         dtlRef01Cd: '',
@@ -477,55 +487,54 @@ const fnAddDetail = () => {
         orderBySeq: '0',
         useYn: 'Y',
     };
-    myGrid2.value.addRow(addRowItem, 'first');
+    myGrid2.value?.addRow(addRowItem, 'first');
 };
 
 // 공통코드 그룹 삭제
 const fnDeleteMain = () => {
-    if (myGrid1.value.getCheckedRowItemsAll().length == 0) {
+    if (myGrid1.value?.getCheckedRowItemsAll().length == 0) {
         // 선택된 데이터가 없습니다.
         popup.alert(t('com.message.noDataSelected'));
         return false;
     }
 
-    if (myGrid1.value.getCheckedRowItemsAll()[0].ref10Nm == 'N') {
+    if (myGrid1.value?.getCheckedRowItemsAll()[0].ref10Nm == 'N') {
         // 해당 공통코드는 화면에서 수정할 권한이 없습니다.\n관리자에게 문의해주세요.
         popup.alert(t('com.message.noUpdatePermissionContactAdmin', [t('com.label.comCode')]));
         return false;
     }
-    myGrid1.value.removeCheckedRows();
+    myGrid1.value?.removeCheckedRows();
 };
 
 // 공통코드 상세 삭제
 const fnDeleteDetail = () => {
-    if (myGrid1.value.getSelectedRows().length == 0) {
+    if (myGrid1.value?.getSelectedRows().length == 0) {
         // 공통코드 그룹 정보를 선택해주세요.
         popup.alert(t('com.message.selectItemL', [t('commonCode.label.commonCodeGroupInfo')]));
         return false;
     }
 
-    if (myGrid1.value.getSelectedRows()[0].ref10Nm == 'N') {
+    if (myGrid1.value?.getSelectedRows()[0].ref10Nm == 'N') {
         // 해당 공통코드는 화면에서 수정할 권한이 없습니다.\n관리자에게 문의해주세요.
         popup.alert(t('com.message.noUpdatePermissionContactAdmin', [t('com.label.comCode')]));
         return false;
     }
 
-    if (myGrid2.value.getCheckedRowItemsAll().length == 0) {
+    if (myGrid2.value?.getCheckedRowItemsAll().length == 0) {
         // 선택된 데이터가 없습니다.
         popup.alert(t('com.message.noDataSelected'));
         return false;
     }
 
-    const filterEditableFalse = myGrid2.value
-        .getCheckedRowItemsAll()
-        .filter((data: any) => data.dtlRef10Nm == 'N');
-    console.log(filterEditableFalse);
+    const filterEditableFalse = (myGrid2.value?.getCheckedRowItemsAll() || []).filter(
+        (data: any) => data.dtlRef10Nm === 'N',
+    );
+
     if (filterEditableFalse.length > 0) {
-        // 선택한 항목 중에 화면에서 수정할 권한이 없는 항목이 존재합니다.\n관리자에게 문의해주세요.
         popup.alert(t('com.message.noUpdatePermissionOnSelectedContactAdmin'));
         return false;
     }
-    myGrid2.value.removeCheckedRows();
+    myGrid2.value?.removeCheckedRows();
 };
 
 // 공통코드 저장
@@ -567,12 +576,12 @@ const save = async () => {
     }
 
     const param = {
-        insertGroup: myGrid1.value.getAddedRowItems(),
-        updateGroup: myGrid1.value.getEditedRowItems(),
-        deleteGroup: myGrid1.value.getRemovedItems(),
-        insertDetail: myGrid2.value.getAddedRowItems(),
-        updateDetail: myGrid2.value.getEditedRowItems(),
-        deleteDetail: myGrid2.value.getRemovedItems(),
+        insertGroup: myGrid1.value?.getAddedRowItems(),
+        updateGroup: myGrid1.value?.getEditedRowItems(),
+        deleteGroup: myGrid1.value?.getRemovedItems(),
+        insertDetail: myGrid2.value?.getAddedRowItems(),
+        updateDetail: myGrid2.value?.getEditedRowItems(),
+        deleteDetail: myGrid2.value?.getRemovedItems(),
     };
 
     saveComCode(param)
@@ -580,19 +589,19 @@ const save = async () => {
             // {0}건 처리되었습니다.
             popup.alert(t('com.message.itemProcessed', [res?.data?.result]));
             search();
-            myGrid2.value.clearGridData();
+            myGrid2.value?.clearGridData();
         })
         .catch((e) => {
             return popup.alert(e.message);
         });
 };
 
-// ==================================================
+// =====================================================================================================
 // Hook 영역
-// ==================================================
+// =====================================================================================================
 onMounted(() => {
-    myGrid1.value.clearGridData();
-    myGrid2.value.clearGridData();
+    myGrid1.value?.clearGridData();
+    myGrid2.value?.clearGridData();
     //초기 로드시 기본 조회
     search();
 });

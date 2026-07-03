@@ -1,3 +1,15 @@
+/*
+ * @file     types/auth.d.ts
+ * @menu     권한 타입 관련
+ * @author   astems
+ * @since    2026-06-26
+ * @version  1.0
+ */
+export interface TokenProps {
+    accessToken: string;
+    refreshToken?: string;
+}
+
 export interface UserProps {
     userId?: string; // 사용자 id
     userNm?: string; // 사용자명

@@ -1,3 +1,11 @@
+/*
+ * @file     types/item.d.ts
+ * @menu     품목 타입 관련
+ * @author   astems
+ * @since    2026-06-26
+ * @version  1.0
+ */
+
 export interface LitemProps {
     lclsItemCd?: string;
     lclsItemNm?: string;
@@ -91,6 +99,7 @@ export interface ItemProps {
     usage?: string;
     expirationDate?: string;
     wmOrderItemReqDtl?: boolean;
+    tranStatCd?: string;
 }
 
 export interface ItemLabelProps {

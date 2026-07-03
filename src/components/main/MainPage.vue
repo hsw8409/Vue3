@@ -7,39 +7,39 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
+// =====================================================================================================
 import { ref, computed, provide, onMounted, onUnmounted, inject } from 'vue';
 
 import { useAuthStore } from '@/common/stores/auth';
 import { usePopupStore } from '@/common/stores/popup';
+import { useCommonCodeStore } from '@/common/stores/commonCode';
 
 import MainHeader from '@/components/main/layout/MainHeader.vue';
 import MainLeft from '@/components/main/layout/MainLeft.vue';
 import MainTab from '@/components/main/layout/MainTab.vue';
 
 import TokenService from '@/common/service/token';
-import { selectComCd } from '@/api/main';
 
 import type { Emitter } from 'mitt';
 
 import type { MenuItemProps, SelectedMenuProps } from '@/types/menu';
 
-// ==================================================
+// =====================================================================================================
 // Type 선언 영역
-// ==================================================
-
+// =====================================================================================================
 interface AxiosErrorProp {
     type: string;
     msg: string;
 }
 
-// ==================================================
+// =====================================================================================================
 // 변수 선언 영역
-// ==================================================
+// =====================================================================================================
 const auth = useAuthStore();
 const popup = usePopupStore();
+const commonCodeStore = useCommonCodeStore();
 
 const emitter = inject<Emitter<Record<string, any>>>('emitter');
 
@@ -62,9 +62,9 @@ provide(
 );
 provide('loginUser', TokenService.getUser() || {});
 
-// ==================================================
+// =====================================================================================================
 // 사용자 정의 함수 영역
-// ==================================================
+// =====================================================================================================
 const hideMenuToggled = (e: boolean) => {
     hideToggle.value = e;
     tabComponents.value?.layoutSizeChanged?.(e);
@@ -106,40 +106,23 @@ const favoriteToggleEmit = (b: boolean) => {
     refMenuLeft.value?.favoriteToggle?.(b);
 };
 
-// ==================================================
+// =====================================================================================================
 // Hook 영역
-// ==================================================
-onMounted(() => {
+// =====================================================================================================
+onMounted(async () => {
     const loginUser = TokenService.getUser();
 
     if (loginUser && Number(loginUser?.resetTarget) === 1) {
         auth.logout();
+        return;
     }
 
     if (emitter) {
         emitter.on('errorMessageEvent', axiosError);
     }
 
-    selectComCd().then((res) => {
-        const result = res.data?.result; // 서버에서 보낸 실제 데이터
-
-        if (result) {
-            try {
-                Object.keys(result).forEach((key) => {
-                    const typedKey = key as keyof typeof result;
-                    const value = result[typedKey] ?? {};
-                    localStorage.setItem(key, JSON.stringify(value));
-                });
-            } catch (error) {
-                if ((error as DOMException).name === 'QuotaExceededError') {
-                    console.error('localStorage 용량이 초과되었습니다.');
-                    // 필요시 일부 데이터 삭제 로직 추가
-                } else {
-                    console.error('스토리지 저장 실패:', error);
-                }
-            }
-        }
-    });
+    // ⭐ 핵심: 공통코드 로딩
+    await commonCodeStore.fetchAll();
 });
 
 onUnmounted(() => {

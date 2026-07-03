@@ -7,23 +7,31 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
-import { ref, reactive } from 'vue';
+// =====================================================================================================
+import { ref, reactive, computed } from 'vue';
 
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 
-import DatePeriod from '@/components/search/DatePeriod.vue'; // 날짜기간
+import ComDateSelect from '@/components/form/ComDateSelect.vue'; // 날짜
 import CustCdAndNameSearch from '@/components/search/CustCdAndNameSearch.vue';
+
 import { usePopupStore } from '@/common/stores/popup';
-import { mobilePurchaseList } from '@/api/mobile';
+import { useCommonCodeStore } from '@/common/stores/commonCode';
 
 import dayjs from 'dayjs';
-// ==================================================
+
+import { mobilePurchaseList } from '@/api/mobile';
+
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
+
+// =====================================================================================================
 // 변수 선언 영역
-// ==================================================
+// =====================================================================================================
 
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
 defineProps<{
@@ -31,10 +39,11 @@ defineProps<{
     params: Record<string, any>;
 }>();
 
-const myGrid = ref<any>(null);
+const myGrid = ref<AUIGridProps | null>(null);
 
-const COM110 = JSON.parse(localStorage.getItem('COM110') ?? '[]');
-const COM101 = JSON.parse(localStorage.getItem('COM101') ?? '[]');
+const commonCode = useCommonCodeStore();
+const COM110 = computed(() => commonCode.get('COM110'));
+const COM101 = computed(() => commonCode.get('COM101'));
 
 const popup = usePopupStore();
 
@@ -44,6 +53,7 @@ const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
         selectionMode: 'singleRow', // 셀 선택모드
     })
     .build();
+
 // 그리드 칼럼 레이아웃
 const columnLayout = [
     { dataField: 'slipNo', headerText: '전표번호' },
@@ -54,14 +64,13 @@ const columnLayout = [
         labelFunction: function (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
         ) {
-            //rowIndex, columnIndex, value, headerText, item
             let columnValue;
-            COM110.forEach(function (code: any) {
-                if (code.dtlCommCd == value) {
+            COM110.value.forEach(function (code: any) {
+                if (code.dtlCommCd == _value) {
                     columnValue = code.dtlCommNm;
                 }
             });
@@ -76,14 +85,13 @@ const columnLayout = [
         labelFunction: function (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
         ) {
-            //rowIndex, columnIndex, value, headerText, item
             let columnValue;
-            COM101.forEach(function (code: any) {
-                if (code.dtlCommCd == value) {
+            COM101.value.forEach(function (code: any) {
+                if (code.dtlCommCd == _value) {
                     columnValue = code.dtlCommNm;
                 }
             });
@@ -99,7 +107,7 @@ const inCustParamState = {
     inWhCustNm: null,
     custCd: null,
     custTypeCd: 100,
-    searchDate: new Date(),
+    searchDate: null,
 };
 const oriCustParamState = {
     purchCustCd: null,
@@ -108,12 +116,15 @@ const oriCustParamState = {
     inWhCustNm: null,
     custCd: null,
     custTypeCd: 100,
-    searchDate: new Date(),
+    searchDate: null,
 };
 const inCustParam = reactive({ ...inCustParamState });
 const oriCustParam = reactive({ ...oriCustParamState });
 
-/** 조회 */
+// =====================================================================================================
+// 사용자 정의 함수 영역
+// =====================================================================================================
+
 const retrieve = () => {
     if (inCustParam.purchCustCd === null) return popup.alert('매입처 검색 후 조회 해주세요');
 
@@ -123,15 +134,15 @@ const retrieve = () => {
         searchDate: dayjs(inCustParam.searchDate).format('YYYYMMDD'),
     };
 
-    myGrid.value.showAjaxLoader();
+    myGrid.value?.showAjaxLoader();
     mobilePurchaseList(params)
         .then((res) => res?.data?.result)
         .then((res) => {
             Object.assign(oriCustParam, inCustParam);
             return res;
         })
-        .then(myGrid.value.setGridData)
-        .then(myGrid.value.removeAjaxLoader)
+        .then(myGrid.value?.setGridData)
+        .then(myGrid.value?.removeAjaxLoader)
         .catch(console.error);
 };
 
@@ -153,7 +164,7 @@ const emitParam = reactive({
 /** 상세 조회 */
 const retrieveDetail = (e: any) => {
     Object.assign(emitParam.props, {
-        slipNo: myGrid.value.getCellValue(e.rowIndex, 'slipNo'),
+        slipNo: myGrid.value?.getCellValue(e.rowIndex, 'slipNo'),
         purchCustCd: oriCustParam.purchCustCd,
         purchCustNm: oriCustParam.purchCustNm,
         inWhCustCd: oriCustParam.inWhCustCd,
@@ -162,6 +173,10 @@ const retrieveDetail = (e: any) => {
     });
     emit('goPage', emitParam);
 };
+
+// =====================================================================================================
+// Hook 영역
+// =====================================================================================================
 </script>
 
 <template>
@@ -189,11 +204,12 @@ const retrieveDetail = (e: any) => {
                 </li>
                 <li>
                     <div class="form_wrap">
-                        <DatePeriod
+                        <ComDateSelect
                             v-model="inCustParam.searchDate"
-                            :params="{ label: '입고일자' }"
-                            start-dt-key="searchDateStart"
-                            end-dt-key="searchDateEnd"
+                            :mode="'input'"
+                            :week-starts-on="0"
+                            input-format="yyyy-MM-dd"
+                            @update:model-value="(val) => console.log('부모에서 받은 값:', val)"
                         />
                     </div>
                 </li>

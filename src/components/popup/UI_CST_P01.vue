@@ -7,12 +7,12 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
-import { ref, onMounted } from 'vue';
+// =====================================================================================================
+import { ref, onMounted, computed } from 'vue';
 import AUIGrid from '@/static/AUIGrid/AUIGrid.vue';
-import { AUIGridDefault, type GridProps } from '@/static/AUIGrid/AUIGridDefault';
+import { AUIGridDefault, type GridProps, type AUIGridProps } from '@/static/AUIGrid/AUIGridDefault';
 
 import { useI18n } from 'vue-i18n'; // 다국어
 
@@ -21,12 +21,18 @@ import ComInputbox from '@/components/form/ComInputbox.vue'; // 텍스트 box
 import ComButton from '@/components/form/ComButton.vue';
 
 import { usePopupStore } from '@/common/stores/popup';
+import { useCommonCodeStore } from '@/common/stores/commonCode';
 
 import { selectPopupCustomerList } from '@/api/customer'; //backend
 import { utils } from '@/common/utils';
-// =================================================================
+
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
+
+// =====================================================================================================
 // 변수 선언 영역
-// =================================================================
+// =====================================================================================================
 // 메세지 변수
 const { t } = useI18n();
 
@@ -40,8 +46,8 @@ const searchParameter = ref({
 });
 const custCdRef = ref<any>(null);
 
-// 공통코드
-const GLB150 = JSON.parse(localStorage.getItem('GLB150') ?? '[]');
+const commonCode = useCommonCodeStore();
+const GLB150 = computed(() => commonCode.get('GLB150'));
 
 const popup = usePopupStore();
 // ==================================================
@@ -49,7 +55,7 @@ const popup = usePopupStore();
 // ==================================================
 
 // 그리드
-const myGrid = ref<any>(null); // aui grid 변수
+const myGrid = ref<AUIGridProps | null>(null);
 
 const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
     .withExtraProps({ height: 530 })
@@ -79,7 +85,7 @@ const columnLayout = [
             _cItem: any,
         ) => {
             const columnValue = new Map(
-                GLB150.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
+                GLB150.value.map((item: any) => [item.dtlCommCd, item.dtlCommNm]),
             );
             return columnValue.get(_value) ?? '';
         },
@@ -124,9 +130,9 @@ const columnLayout = [
     },
 ];
 
-// ==================================================
+// =====================================================================================================
 // 사용자 정의 함수 영역
-// ==================================================
+// =====================================================================================================
 
 // 초기화
 const reset = () => {
@@ -140,7 +146,7 @@ const reset = () => {
 
 // 조회
 const search = () => {
-    myGrid.value.showAjaxLoader();
+    myGrid.value?.showAjaxLoader();
 
     const params = {
         ...searchParameter.value,
@@ -150,19 +156,19 @@ const search = () => {
     selectPopupCustomerList(params)
         .then((res) => {
             // 그리드 데이터 삽입
-            myGrid.value.setGridData(res?.data?.result);
+            myGrid.value?.setGridData(res?.data?.result || []);
         })
         .catch((e) => {
             popup.alert(e.message);
         })
         .finally(() => {
-            myGrid.value.removeAjaxLoader();
+            myGrid.value?.removeAjaxLoader();
         });
 };
 
 // 선택
 const select = async () => {
-    const [item] = myGrid.value.getSelectedRows();
+    const [item] = myGrid.value?.getSelectedRows() || [];
 
     if (!item) {
         popup.alert(t('com.message.selectItemL', [t('com.label.cust')]));
@@ -177,9 +183,9 @@ const rowSelect = async (event: any) => {
     popup.closePopup(props.id, event.item);
 };
 
-// ==================================================
+// =====================================================================================================
 // Hook 영역
-// ==================================================
+// =====================================================================================================
 
 onMounted(() => {
     searchParameter.value.custCd = props.param.custCd || '';

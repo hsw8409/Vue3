@@ -7,9 +7,9 @@
  * @version  1.0
  */
 
-// ==================================================
+// =====================================================================================================
 // import 영역
-// ==================================================
+// =====================================================================================================
 import { inject, onActivated, reactive, ref, watch, computed } from 'vue';
 import TokenService from '@/common/service/token';
 import crypto from '@/common/service/crypto.js';
@@ -29,6 +29,7 @@ import ComDateSelect from '@/components/form/ComDateSelect.vue'; // 달력
 import CustCdAndNameSearch from '@/components/search/CustCdAndNameSearch.vue'; //거래처
 
 import { usePopupStore } from '@/common/stores/popup';
+import { useCommonCodeStore } from '@/common/stores/commonCode';
 
 // api
 import { selectMenuGroupUsing } from '@/api/menu'; //backend
@@ -36,15 +37,17 @@ import { checkUserIdDuplication, insertUser, selectUser, updateUser } from '@/ap
 
 import type { UserProps } from '@/types/auth';
 
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
 interface PageParams {
     userId?: string;
     mode?: 'new' | 'edit';
 }
 
-// ==================================================
+// =====================================================================================================
 // 변수 선언 영역
-// ==================================================
-
+// =====================================================================================================
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
 const props = defineProps<{
     menuInfo: any;
@@ -57,9 +60,10 @@ const { t } = useI18n();
 const enterDate = ref<Date | null>(null);
 const leaveDate = ref<Date | null>(null);
 
-const EAT050 = JSON.parse(localStorage.getItem('EAT050') ?? '[]');
-const EAT100 = JSON.parse(localStorage.getItem('EAT100') ?? '[]');
-const EAT150 = JSON.parse(localStorage.getItem('EAT150') ?? '[]');
+const commonCode = useCommonCodeStore();
+const EAT050 = computed(() => commonCode.get('EAT050'));
+const EAT100 = computed(() => commonCode.get('EAT100'));
+const EAT150 = computed(() => commonCode.get('EAT150'));
 
 const popup = usePopupStore();
 
@@ -103,7 +107,7 @@ let idCheckFg = false;
 let updateCheckFg = 'C';
 
 //비밀번호체크
-const passwdChk = ref<string | null>(null);
+const passwdChk = ref<string>('');
 
 // 자동 등록 사용자의 경우 거래체 메뉴그룹 수정 불가
 const disableChangeDetail = reactive({
@@ -127,10 +131,9 @@ const addressInfo = computed({
 
 const addTab = inject<(params: any) => Promise<boolean>>('addTab');
 
-// ==================================================
+// =====================================================================================================
 // 사용자 정의 함수 영역
-// ==================================================
-
+// =====================================================================================================
 // 초기화
 const reset = function () {
     updateCheckFg = 'C';
@@ -161,9 +164,7 @@ const reset = function () {
         custParam.value[key as keyof typeof custParam.value] = '';
     });
 
-    if (passwdChk.value) {
-        passwdChk.value = null;
-    }
+    passwdChk.value = '';
     enterDate.value = new Date();
     if (leaveDate.value) {
         leaveDate.value = null;
@@ -388,9 +389,9 @@ const loadUserDetail = async (userId: string) => {
     }
 };
 
-// ==================================================
+// =====================================================================================================
 // Hook 영역
-// ==================================================
+// =====================================================================================================
 
 watch(
     () => user.value.telNo,
