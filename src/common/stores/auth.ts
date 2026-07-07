@@ -23,16 +23,16 @@ import type { UserProps } from '@/types/auth';
 // 사용자 정의 함수 영역
 // =====================================================================================================
 export const useAuthStore = defineStore('auth', () => {
-    // 1. State: ref와 초기값 설정
+    // State
     const user = ref<UserProps | null>(TokenService.getUser() || null);
     const isAuthenticated = ref<boolean>(!!(TokenService.getUser() && TokenService.getToken()));
     const isLoggedOut = ref<boolean>(false);
 
-    // 2. Getters: computed 사용
+    // Getters
     const isLoggedIn = computed(() => !!user.value && isAuthenticated.value);
     const getUser = computed(() => user.value);
 
-    // 3. Actions: 일반 함수 정의
+    // Actions
     const resetState = () => {
         user.value = null;
         isAuthenticated.value = false;

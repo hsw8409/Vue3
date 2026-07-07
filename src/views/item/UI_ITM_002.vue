@@ -300,8 +300,6 @@ const selectCategory = () => {
 const showItemDetail = function (e: any) {
     const rowData = e.primeCell.item;
 
-    console.info(typeof rowData.itemCd);
-
     Object.assign(itemDetail, {
         ...itemDetailInit,
         ...rowData,

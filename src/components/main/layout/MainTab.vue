@@ -86,8 +86,6 @@ const currentIndex = computed({
 const currentTabComponent = computed<Component>(() => {
     const component = tabStore.activeTab?.component;
 
-    console.log('현재 component:', component);
-
     return component ?? HomeView;
 });
 

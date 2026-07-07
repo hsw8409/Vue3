@@ -20,6 +20,7 @@ import type { PopupProps, PopupMessageProps } from '@/types/popup';
 // 사용자 정의 함수 영역
 // =====================================================================================================
 export const usePopupStore = defineStore('popup', () => {
+    // State
     const popups = ref<PopupProps[]>([]);
 
     const popupModules = import.meta.glob([
@@ -27,9 +28,7 @@ export const usePopupStore = defineStore('popup', () => {
         '/src/components/popup/*.vue',
     ]);
 
-    /**
-     * 팝업 통합 호출 함수
-     */
+    // Actions
     const openPopup = (
         type: 'message' | 'biz',
         componentOrName: Component | string,
@@ -38,7 +37,6 @@ export const usePopupStore = defineStore('popup', () => {
         const id = `${type}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
         const popupPromise = new Promise((resolve) => {
-            // 🚨 [방어 코드] 타입 불일치 사전 차단
             if (type === 'biz' && typeof componentOrName !== 'string') {
                 return resolve(null);
             }
@@ -46,7 +44,6 @@ export const usePopupStore = defineStore('popup', () => {
                 return resolve(null);
             }
 
-            // 1. 업무용 팝업('biz') 분기 처리
             if (type === 'biz') {
                 const viewsPath = `/src/views/popup/${componentOrName}.vue`;
                 const componentsPath = `/src/components/popup/${componentOrName}.vue`;
@@ -98,42 +95,27 @@ export const usePopupStore = defineStore('popup', () => {
         return { id, popupPromise };
     };
 
-    /**
-     * Alert 팝업
-     * 기본:
-     * [확인]
-     */
     const alert = (message: string, title?: string, options?: Partial<PopupMessageProps>) => {
         return openPopup('message', PopupMessage, {
             title,
             message,
             buttonType: 'alert',
-            // 기본값
             okText: '확인',
             ...options,
         });
     };
 
-    /**
-     * Confirm 팝업
-     * 기본:
-     * [예] [아니오]
-     */
     const confirm = (message: string, title?: string, options?: Partial<PopupMessageProps>) => {
         return openPopup('message', PopupMessage, {
             title,
             message,
             buttonType: 'confirm',
-            // 기본값
             okText: '예',
             cancelText: '아니오',
             ...options,
         });
     };
 
-    /**
-     * 특정 팝업 종료 및 데이터 반환 🌟
-     */
     const closePopup = (id: string, result: any = null) => {
         const target = popups.value.find((p) => p.id === id);
 
@@ -149,9 +131,6 @@ export const usePopupStore = defineStore('popup', () => {
         popups.value = popups.value.filter((p) => p.id !== id);
     };
 
-    /**
-     * 활성화된 모든 팝업 일괄 강제 종료
-     */
     const closeAllPopups = (result: any = null) => {
         popups.value.forEach((popup) => {
             if (popup.resolve) {

@@ -21,15 +21,14 @@ import { selectComCd } from '@/api/main';
 // 사용자 정의 함수 영역
 // =====================================================================================================
 export const useCommonCodeStore = defineStore('commonCode', () => {
-    // 1. State
+    // State
     const codes = ref<Record<string, any>>({});
     const loaded = ref<boolean>(false);
 
-    // 2. Getters (computed)
-    // get 메서드를 getter로 변경하여 더 직관적으로 접근 가능하게 합니다.
+    // Getters
     const getCode = computed(() => (group: string) => codes.value[group] ?? []);
 
-    // 3. Actions
+    // Actions
     const fetchAll = async (force: boolean = false) => {
         // 이미 로드되어 있으면 재호출 방지
         if (loaded.value && !force) return;

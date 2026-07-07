@@ -18,17 +18,16 @@ import { ref, computed } from 'vue';
 // 사용자 정의 함수 영역
 // =====================================================================================================
 export const useLayoutStore = defineStore('layout', () => {
-    // 1. State
+    // State
     const layoutHeight = ref<number>(0);
     const isLnbHidden = ref<boolean>(false);
 
-    // 2. Getters
-    // 함수를 반환하는 computed를 통해 동적 계산
+    // Getters
     const getContentHeight = computed(() => (windowHeight: number) => {
         return windowHeight - layoutHeight.value;
     });
 
-    // 3. Actions
+    // Actions
     const setLayoutHeight = (height: number) => {
         layoutHeight.value = height;
     };

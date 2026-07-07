@@ -50,15 +50,17 @@ interface OpenTabParam {
 // 사용자 정의 함수 영역
 // =====================================================================================================
 export const useTabStore = defineStore('tab', () => {
+    // State
     const tabs = ref<TabItem[]>([]);
     const activeIndex = ref<number>(-1);
+    const tabKey = () => `tab_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-    const createTabKey = () => `tab_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-
+    // Getters
     const activeTab = computed<TabItem | undefined>(() => {
         return tabs.value[activeIndex.value];
     });
 
+    // Actions
     const findTabIndex = (mcd: string) => {
         return tabs.value.findIndex((tab) => tab.mcd === mcd);
     };
@@ -98,7 +100,7 @@ export const useTabStore = defineStore('tab', () => {
         tabs.value.push({
             ...tab,
             component: tab.component ? markRaw(tab.component) : undefined,
-            key: createTabKey(),
+            key: tabKey(),
             params: tab.params ?? {},
         });
 
@@ -192,16 +194,11 @@ export const useTabStore = defineStore('tab', () => {
     };
 
     return {
-        // state
         tabs,
         activeIndex,
-
-        // getter
         activeTab,
         findTabIndex,
         hasTab,
-
-        // action
         openTab,
         setActive,
         closeTab,

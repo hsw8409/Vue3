@@ -24,10 +24,11 @@ import type { MenuProps, MenuItemProps, SelectedMenuProps } from '@/types/menu';
 // 사용자 정의 함수 영역
 // =====================================================================================================
 export const useMenuStore = defineStore('menu', () => {
+    // State
     const menuList = ref<MenuItemProps[]>([]);
     const isLoading = ref(false);
 
-    // 메뉴 데이터 가져오기 (MainPage에서 하던 로직)
+    // Actions
     const fetchMenuList = async (params: { loginChainCd: string; loginId: string }) => {
         isLoading.value = true;
         try {

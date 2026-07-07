@@ -21,10 +21,10 @@ import type { FavoriteProps } from '@/types/favorite';
 // 사용자 정의 함수 영역
 // =====================================================================================================
 export const useFavoriteStore = defineStore('favorite', () => {
-    // 1. State: ref로 관리
+    // State
     const items = ref<FavoriteProps[]>([]);
 
-    // 2. Actions: 일반 함수로 정의
+    // Actions
     const fetchFavoriteList = async (userId: string) => {
         try {
             const res = await selectFavoriteMenu({ loginId: userId });

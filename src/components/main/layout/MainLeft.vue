@@ -295,7 +295,6 @@ const filterFlag = computed(() => searchQuery.value.trim() !== '');
 // =====================================================================================================
 
 onMounted(async () => {
-    console.info('여기 실행안됨?');
     if (!loginUser?.userId) {
         return;
     }

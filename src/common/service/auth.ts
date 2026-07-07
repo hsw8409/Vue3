@@ -27,7 +27,6 @@ class AuthService {
     async login(user: UserProps): Promise<UserProps> {
         const res = await login(user);
 
-        // API 응답 구조를 안전하게 확인
         const result = res?.data?.result;
 
         if (!result || !result.user || !result.token) {
