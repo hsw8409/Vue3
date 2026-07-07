@@ -102,22 +102,22 @@ defineProps<{
 // 공통 메세지 변수
 const { t } = useI18n();
 
-const commonCode = useCommonCodeStore();
-const GLB200 = computed(() => commonCode.get('GLB200'));
-const GLB250 = computed(() => commonCode.get('GLB250'));
-const EAT300 = computed(() => commonCode.get('EAT300'));
-const GLB300 = computed(() => commonCode.get('GLB300'));
-const GLB350 = computed(() => commonCode.get('GLB350'));
-const GLB400 = computed(() => commonCode.get('GLB400'));
-const GLB450 = computed(() => commonCode.get('GLB450'));
-const EAT350 = computed(() => commonCode.get('EAT350'));
-const GLB500 = computed(() => commonCode.get('GLB500'));
-const EAT400 = computed(() => commonCode.get('EAT400'));
-const EAT450 = computed(() => commonCode.get('EAT450'));
-const GLB800 = computed(() => commonCode.get('GLB800'));
-const GLB810 = computed(() => commonCode.get('GLB810'));
-const GLB550 = computed(() => commonCode.get('GLB550'));
-const COM010 = computed(() => commonCode.get('COM010'));
+const commonCodeStore = useCommonCodeStore();
+const GLB200 = computed(() => commonCodeStore.getCode('GLB200'));
+const GLB250 = computed(() => commonCodeStore.getCode('GLB250'));
+const EAT300 = computed(() => commonCodeStore.getCode('EAT300'));
+const GLB300 = computed(() => commonCodeStore.getCode('GLB300'));
+const GLB350 = computed(() => commonCodeStore.getCode('GLB350'));
+const GLB400 = computed(() => commonCodeStore.getCode('GLB400'));
+const GLB450 = computed(() => commonCodeStore.getCode('GLB450'));
+const EAT350 = computed(() => commonCodeStore.getCode('EAT350'));
+const GLB500 = computed(() => commonCodeStore.getCode('GLB500'));
+const EAT400 = computed(() => commonCodeStore.getCode('EAT400'));
+const EAT450 = computed(() => commonCodeStore.getCode('EAT450'));
+const GLB800 = computed(() => commonCodeStore.getCode('GLB800'));
+const GLB810 = computed(() => commonCodeStore.getCode('GLB810'));
+const GLB550 = computed(() => commonCodeStore.getCode('GLB550'));
+const COM010 = computed(() => commonCodeStore.getCode('COM010'));
 
 const fileAccept = ['image/gif', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
@@ -216,7 +216,7 @@ const changeInfoInit = {
 };
 const changeInfo = ref({ ...changeInfoInit });
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 // =====================================================================================================
 // 그리드 영역
@@ -262,13 +262,13 @@ const columnLayout = [
         labelFunction: function (
             _rowIndex: number,
             _columnIndex: number,
-            value: string,
+            _value: string,
             _headerText: string,
             _item: any,
         ) {
             let columnValue;
             GLB200.value.forEach(function (code: any) {
-                if (code.dtlCommCd == value) {
+                if (code.dtlCommCd == _value) {
                     columnValue = code.dtlCommNm;
                 }
             });
@@ -328,12 +328,9 @@ const search = function () {
 
     resetItemDetail();
 
-    myGrid.value?.showAjaxLoader();
-
     selectItem(searchParameter)
         .then((res) => {
             myGrid.value?.setGridData(res?.data?.result ?? []);
-            myGrid.value?.removeAjaxLoader();
 
             Object.assign(itemDetail, {
                 ...itemDetailInit,
@@ -357,8 +354,7 @@ const search = function () {
             }
         })
         .catch((e) => {
-            myGrid.value?.removeAjaxLoader();
-            popup.alert(e.message);
+            popupStore.alert(e.message);
         });
 };
 
@@ -385,7 +381,7 @@ const newRegi = function () {
     };
     if (changeInfo.value.changedSet.size > 0) {
         // 변경사항이 있습니다. 변경사항이 저장되지 않습니다. \n 계속하시겠습니까?
-        popup.confirm(
+        popupStore.confirm(
             t('com.message.confirmContinueBr', [t('com.message.changeNotSavedProceed')]),
             undefined,
             {
@@ -402,7 +398,7 @@ const newRegi = function () {
 const save = async function () {
     if (editFlag == 'D') {
         // 조회 후 작업을 진행하여 주세요.
-        popup.alert(t('com.message.proceedAfterSearch'));
+        popupStore.alert(t('com.message.proceedAfterSearch'));
         return;
     }
     if (!(await validateBeforeSubmit())) {
@@ -410,7 +406,7 @@ const save = async function () {
     }
 
     // 저장하시겠습니까?
-    popup.confirm(t('com.message.confirmSave'), undefined, {
+    popupStore.confirm(t('com.message.confirmSave'), undefined, {
         onOk: async () => {
             const formData = new FormData();
             formData.append(
@@ -422,12 +418,9 @@ const save = async function () {
             if (selectedFile.value) {
                 formData.append('file', selectedFile.value);
             }
-            myGrid.value?.showAjaxLoader();
 
             saveItemReg(formData)
                 .then(() => {
-                    myGrid.value?.removeAjaxLoader();
-
                     selectedFile.value = null;
                     fileName.value = '';
 
@@ -435,12 +428,11 @@ const save = async function () {
                         fileInput.value.value = '';
                     }
 
-                    popup.alert(t('com.message.processed'));
+                    popupStore.alert(t('com.message.processed'));
                     search();
                 })
                 .catch((e) => {
-                    myGrid.value?.removeAjaxLoader();
-                    popup.alert(e.error);
+                    popupStore.alert(e.error);
                 });
         },
     });
@@ -452,7 +444,7 @@ const copy = () => {
 
     // 2. 신규 행이 존재할 경우 경고 및 리턴
     if (addedRows.length > 0) {
-        popup.alert(t('com.message.proceedAfterSave'));
+        popupStore.alert(t('com.message.proceedAfterSave'));
         return;
     }
 
@@ -575,7 +567,7 @@ const uploadFile = function (e: any) {
     const file = files[0];
 
     if (fileAccept.indexOf(file.type) === -1) {
-        popup.alert(t('item.message.imageUploadMsg'));
+        popupStore.alert(t('item.message.imageUploadMsg'));
 
         // input 초기화
         e.target.value = '';
@@ -594,7 +586,7 @@ const uploadFile = function (e: any) {
 
 const resetItemDetail = function () {
     if (changeInfo.value.changedSet.size > 0) {
-        popup.confirm(
+        popupStore.confirm(
             t('com.message.confirmContinueBr', [t('com.message.changeNotSavedProceed')]),
             undefined,
             {
@@ -649,7 +641,7 @@ const reset = function () {
 };
 
 const popup_usrP01 = function () {
-    popup.openPopup('biz', 'UI_USR_P01', {
+    popupStore.openPopup('biz', 'UI_USR_P01', {
         userId: '',
         userNm: '',
         userTypeCd: '10',
@@ -750,7 +742,7 @@ const minOrderQtyOptions = ['1', '2', '3', '4', '5'].map((v) => ({
                 <ItemCdAndNameSearch
                     ref="itemCdInputRef"
                     v-model="itemParam"
-                    :label="t('com.label.itemCodeAndName')"
+                    :label="t('item.label.itemCodeAndName')"
                 />
             </li>
             <!-- 대분류, 중분류, 소분류 -->

@@ -31,8 +31,8 @@ import type { UserProps } from '@/types/auth'; // 권한 타입
 const router = useRouter();
 const { t } = useI18n();
 
-const auth = useAuthStore();
-const popup = usePopupStore();
+const authStore = useAuthStore();
+const popupStore = usePopupStore();
 
 const userId = ref<string>('');
 const passwd = ref<string>('');
@@ -74,15 +74,15 @@ const doLogin = async () => {
  */
 const authLogin = async (params: UserProps) => {
     // 로그인 시작 시 로그아웃 상태를 false로 설정
-    auth.setLoggedOut(false);
+    authStore.setLoggedOut(false);
 
     try {
         // 로그인 요청
-        const res = await auth.login(params);
+        const res = await authStore.login(params);
 
         // 비밀번호 초기화 대상인 경우
         if (res.resetTarget === '1') {
-            popup.openPopup('biz', 'UI_USR_P02', {
+            popupStore.openPopup('biz', 'UI_USR_P02', {
                 userId: userId.value,
                 passwd: passwd.value,
                 width: 600,
@@ -102,7 +102,7 @@ const authLogin = async (params: UserProps) => {
         const err = error as Error;
 
         // {0} \n 로그인 중 오류가 발생했습니다.
-        popup.alert(t('user.message.loginErr001', [err?.message]));
+        popupStore.alert(t('user.message.loginErr001', [err?.message]));
     }
 };
 

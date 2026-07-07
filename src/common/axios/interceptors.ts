@@ -73,10 +73,10 @@ const addSubscriber = (cb: (token: string) => void) => {
 const setup = (mitt: Mitt): void => {
     axiosInstance.interceptors.request.use(
         (config: CustomAxiosRequestConfig) => {
-            const auth = useAuthStore();
+            const authStore = useAuthStore();
             const loadingStore = useLoadingStore();
 
-            if (auth.isLoggedOut && config.url !== '/api/v1/login') {
+            if (authStore.isLoggedOut && config.url !== '/api/v1/login') {
                 return Promise.reject(new Error('로그아웃 상태에서 요청이 차단되었습니다'));
             }
 
@@ -154,8 +154,8 @@ const setup = (mitt: Mitt): void => {
 
                             TokenService.updateLocalAccessToken(accessToken);
 
-                            const auth = useAuthStore();
-                            auth.refreshToken(accessToken);
+                            const authStore = useAuthStore();
+                            authStore.refreshToken(accessToken);
 
                             isRefreshing = false;
                             onRefreshed(accessToken);
@@ -234,9 +234,9 @@ const logout = (mitt: Mitt, showPopup = true, msg = '세션 만료'): void => {
         isLoggingOut = true;
 
         try {
-            const auth = useAuthStore();
-            await auth.logout();
-            auth.$reset();
+            const authStore = useAuthStore();
+            await authStore.logout();
+            authStore.$reset();
 
             localStorage.removeItem('accessToken');
             sessionStorage.clear();

@@ -63,15 +63,15 @@ const grid = ref<AUIGridProps | null>(null);
 const mitemFg = ref(false);
 const sitemFg = ref(false);
 
-const commonCode = useCommonCodeStore();
-const EAT570 = computed(() => commonCode.get('EAT570'));
-const EAT571 = computed(() => commonCode.get('EAT571'));
-const COM010 = computed(() => commonCode.get('COM010'));
+const commonCodeStore = useCommonCodeStore();
+const EAT570 = computed(() => commonCodeStore.getCode('EAT570'));
+const EAT571 = computed(() => commonCodeStore.getCode('EAT571'));
+const COM010 = computed(() => commonCodeStore.getCode('COM010'));
 
 const lsaveCd = ref('');
 const msaveCd = ref('');
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 const validationCheck = ref(true);
 const reSelectCd = ref('');
@@ -257,15 +257,11 @@ const search = async (type: 'L' | 'M' | 'S', f: any) => {
     grid.value = target.grid.value;
 
     try {
-        grid.value?.showAjaxLoader();
-
         const res = await target.fn(target.params);
         grid.value?.setGridData(res?.data?.result ?? []);
         (target as any).onSuccess?.();
     } catch (e: any) {
-        popup.alert(e.message);
-    } finally {
-        grid.value?.removeAjaxLoader();
+        popupStore.alert(e.message);
     }
 };
 
@@ -354,7 +350,7 @@ const mnew = () => {
         grid?.addCheckedRowsByValue('check', 'Y');
     } else {
         // 조회 후 작업을 진행하여 주세요
-        popup.alert(t('com.message.proceedAfterSearch'));
+        popupStore.alert(t('com.message.proceedAfterSearch'));
         return false;
     }
 };
@@ -393,7 +389,7 @@ const snew = () => {
         grid?.addCheckedRowsByValue('check', 'Y');
     } else {
         // 조회 후 작업을 진행하여 주세요.
-        popup.alert(t('com.message.proceedAfterSearch'));
+        popupStore.alert(t('com.message.proceedAfterSearch'));
         return false;
     }
 };
@@ -409,7 +405,7 @@ const save = async (type: 'L' | 'M' | 'S') => {
             reSelectCd.value = lsaveCd.value;
         } else {
             // 조회 후 작업을 진행하여 주세요.
-            popup.alert(t('com.message.proceedAfterSearch'));
+            popupStore.alert(t('com.message.proceedAfterSearch'));
             return false;
         }
     } else if (type == 'S') {
@@ -418,7 +414,7 @@ const save = async (type: 'L' | 'M' | 'S') => {
             reSelectCd.value = msaveCd.value;
         } else {
             // 조회 후 작업을 진행하여 주세요.
-            popup.alert(t('com.message.proceedAfterSearch'));
+            popupStore.alert(t('com.message.proceedAfterSearch'));
             return false;
         }
     }
@@ -435,7 +431,7 @@ const save = async (type: 'L' | 'M' | 'S') => {
 
     if (count == 0) {
         // 저장할 데이터가 없습니다.
-        popup.alert(t('com.message.noDataToSave'));
+        popupStore.alert(t('com.message.noDataToSave'));
         return false;
     }
     if (type == 'L') {
@@ -455,7 +451,7 @@ const save = async (type: 'L' | 'M' | 'S') => {
         }
     }
     // 저장하시겠습니까?
-    popup.confirm(t('com.message.confirmSave'), undefined, {
+    popupStore.confirm(t('com.message.confirmSave'), undefined, {
         onOk: async () => {
             confirmOk(saveParams, type);
         },
@@ -613,21 +609,17 @@ const confirmOk = async (saveParams: any, i: 'L' | 'M' | 'S') => {
     }
 
     try {
-        grid.value?.showAjaxLoader();
-
         const res = await fn(saveParams);
 
         const resultData = res?.data?.result;
         grid.value?.setGridData(resultData);
 
-        popup.alert(t('com.message.itemProcessed', [resultData || 0]));
+        popupStore.alert(t('com.message.itemProcessed', [resultData || 0]));
 
         // Refresh grid
         await search(i, reSelectCd.value);
     } catch (e: any) {
-        popup.alert(e.message);
-    } finally {
-        grid.value?.removeAjaxLoader();
+        popupStore.alert(e.message);
     }
 };
 
@@ -635,14 +627,14 @@ const lengthValidation = (event: any) => {
     if (event.columnIndex === 1) {
         if (utils.stringUtil.getByteB(event.value) > 100) {
             // 입력한 값이 너무 깁니다.
-            popup.alert(t('com.message.messageTooLong'));
+            popupStore.alert(t('com.message.messageTooLong'));
             return event.oldValue;
         }
     }
     if (event.columnIndex === 2) {
         if (Number(event.value) > 9999999999) {
             // 입력한 값이 너무 깁니다.
-            popup.alert(t('com.message.messageTooLong'));
+            popupStore.alert(t('com.message.messageTooLong'));
             return event.oldValue;
         }
     }

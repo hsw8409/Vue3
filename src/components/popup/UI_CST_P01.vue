@@ -46,10 +46,10 @@ const searchParameter = ref({
 });
 const custCdRef = ref<any>(null);
 
-const commonCode = useCommonCodeStore();
-const GLB150 = computed(() => commonCode.get('GLB150'));
+const commonCodeStore = useCommonCodeStore();
+const GLB150 = computed(() => commonCodeStore.getCode('GLB150'));
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 // ==================================================
 // 그리드 영역
 // ==================================================
@@ -146,8 +146,6 @@ const reset = () => {
 
 // 조회
 const search = () => {
-    myGrid.value?.showAjaxLoader();
-
     const params = {
         ...searchParameter.value,
         show: props.param.show,
@@ -159,10 +157,7 @@ const search = () => {
             myGrid.value?.setGridData(res?.data?.result || []);
         })
         .catch((e) => {
-            popup.alert(e.message);
-        })
-        .finally(() => {
-            myGrid.value?.removeAjaxLoader();
+            popupStore.alert(e.message);
         });
 };
 
@@ -171,16 +166,16 @@ const select = async () => {
     const [item] = myGrid.value?.getSelectedRows() || [];
 
     if (!item) {
-        popup.alert(t('com.message.selectItemL', [t('com.label.cust')]));
+        popupStore.alert(t('com.message.selectItemL', [t('com.label.cust')]));
         return;
     }
 
-    popup.closePopup(props.id, item);
+    popupStore.closePopup(props.id, item);
 };
 
 // 행 더블클릭 이벤트
 const rowSelect = async (event: any) => {
-    popup.closePopup(props.id, event.item);
+    popupStore.closePopup(props.id, event.item);
 };
 
 // =====================================================================================================

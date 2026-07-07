@@ -134,7 +134,9 @@ export const fileService = {
 
                 sheet.eachRow((row, rowNumber) => {
                     if (rowNumber === 1) return;
+
                     const rowValues: any = {};
+
                     row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
                         const columnKey = headerRow.getCell(colNumber).value?.toString();
                         if (!columnKey) return;
@@ -145,6 +147,14 @@ export const fileService = {
                         }
                         rowValues[columnKey] = val;
                     });
+
+                    // 👇 여기 넣는 게 정답 (result.push 바로 직전)
+                    const isEmptyRow = Object.values(rowValues).every(
+                        (v) => v === null || v === undefined || v === '',
+                    );
+
+                    if (isEmptyRow) return;
+
                     result.push(rowValues);
                 });
                 resolve(result);

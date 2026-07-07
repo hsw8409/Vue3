@@ -60,12 +60,12 @@ const { t } = useI18n();
 const enterDate = ref<Date | null>(null);
 const leaveDate = ref<Date | null>(null);
 
-const commonCode = useCommonCodeStore();
-const EAT050 = computed(() => commonCode.get('EAT050'));
-const EAT100 = computed(() => commonCode.get('EAT100'));
-const EAT150 = computed(() => commonCode.get('EAT150'));
+const commonCodeStore = useCommonCodeStore();
+const EAT050 = computed(() => commonCodeStore.getCode('EAT050'));
+const EAT100 = computed(() => commonCodeStore.getCode('EAT100'));
+const EAT150 = computed(() => commonCodeStore.getCode('EAT150'));
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 const menuGroupList = ref();
 
@@ -193,16 +193,16 @@ const save = async function () {
     // 재직구분이 '퇴사'인 경우 퇴사일자는 필수
     if (user.value.employGbnFg === '30' && !leaveDate.value) {
         // 퇴사일자를 입력해주세요.
-        return popup.alert(t('com.message.inputItemL', [t('user.label.leaveDate')]));
+        return popupStore.alert(t('com.message.inputItemL', [t('user.label.leaveDate')]));
     }
     // ID중복 체크를 하지 않은 경우
     if (!idCheckFg) {
         // 사용자ID를 중복 확인을 해주세요.
-        popup.alert(t('user.message.checkDuplicateUserId'));
+        popupStore.alert(t('user.message.checkDuplicateUserId'));
         return;
     } else if (!(user.value.passwd == passwdChk.value) && updateCheckFg == 'C') {
         // 비밀번호를 확인해 해주세요.
-        popup.alert(t('com.message.confirmItemL', [t('com.label.password')]));
+        popupStore.alert(t('com.message.confirmItemL', [t('com.label.password')]));
         return;
     } else {
         const checkItems = [
@@ -240,16 +240,16 @@ const save = async function () {
 
             user.value.loginChainCd = TokenService.getUser().chainCd ?? '';
 
-            popup.confirm(t('com.message.confirmSave'), undefined, {
+            popupStore.confirm(t('com.message.confirmSave'), undefined, {
                 onOk: async () => {
                     if (updateCheckFg == 'C') {
                         insertUser(Object.assign(user.value, { leaveDate: leaveDate.value }))
                             .then((_res) => {
                                 // 처리되었습니다.
-                                popup.alert(t('com.message.processed'));
+                                popupStore.alert(t('com.message.processed'));
                             })
                             .catch((e) => {
-                                popup.alert(e.message);
+                                popupStore.alert(e.message);
                             });
                     } else if (updateCheckFg == 'U') {
                         updateUser(
@@ -260,10 +260,10 @@ const save = async function () {
                         )
                             .then((_res) => {
                                 // 처리되었습니다.
-                                popup.alert(t('com.message.processed'));
+                                popupStore.alert(t('com.message.processed'));
                             })
                             .catch((e) => {
-                                popup.alert(e.message);
+                                popupStore.alert(e.message);
                             });
                     }
                 },
@@ -293,11 +293,11 @@ const checkIdDuplication = async function () {
             if (res?.data?.result == 1) {
                 idCheckFg = false;
                 // 중복되는 사용자ID 입니다.
-                popup.alert(t('user.message.duplicateUserId'));
+                popupStore.alert(t('user.message.duplicateUserId'));
             } else if (res?.data?.result == -1) {
                 idCheckFg = true;
                 // 사용 가능한 사용자ID 입니다.
-                popup.alert(t('user.message.useAbleUserId'));
+                popupStore.alert(t('user.message.useAbleUserId'));
             }
         })
         .catch((e) => {
@@ -329,7 +329,7 @@ const changeUserType = (userType: any) => {
 // 사용자 유형 선택 팝업
 const showUserTypeAlert = () => {
     // 사용자 유형을 선택해 주세요
-    popup.alert(t('com.message.selectItemE', [t('com.label.userType')]));
+    popupStore.alert(t('com.message.selectItemE', [t('com.label.userType')]));
 };
 
 // 날짜 변환 헬퍼 함수
@@ -385,7 +385,7 @@ const loadUserDetail = async (userId: string) => {
             disableChangeDetail.disableDept = true;
         }
     } catch (e: any) {
-        popup.alert(e.message);
+        popupStore.alert(e.message);
     }
 };
 

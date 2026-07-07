@@ -55,7 +55,12 @@ export interface AUIGridProps<T = any> {
     removeRow: (rowIndex: 'checked' | number) => void;
     clearGridData: () => void;
     updateRow: (item: T, rowIndex: number) => void;
-    addUncheckedRowsByValue: (dataField: string, value: string | number | boolean) => void;
+    updateRows: (item: T[], rowIndexes: number, isMarkEdited?: boolean) => void;
+    update: () => void;
+    addUncheckedRowsByValue: (
+        dataField: string,
+        value: string | number | boolean | Array<string | number>,
+    ) => void;
     addCheckedRowsByValue: (dataField: string, value: string | number | boolean) => void;
     isAddedByRowIndex: (rowIndex: number) => boolean;
     getAddedRowItems: () => T[];
@@ -63,6 +68,9 @@ export interface AUIGridProps<T = any> {
     getRemovedItems: () => T[];
     getColumnValues: (dataField: string, total?: boolean) => any[];
     getCellValue: (rowIndex: number, dataField: string) => any;
+    getColumnDistinctValues: (dataField: string, total?: boolean) => string[];
+    isCheckedRowById: (rowId: string) => boolean;
+    setCellValue: (rowIndex: number, dataField: string, value: any) => void;
 
     // --- 선택 및 체크 관리 ---
     getCheckedRowItems: () => T[];
@@ -81,10 +89,11 @@ export interface AUIGridProps<T = any> {
         endColumnIndex: number,
     ) => void;
     clearSelection: () => void;
-    setRowPosition(rowPosition: number): void;
-    setCheckedRowsByValue(dataField: string, value: unknown): void;
-    rowIdToIndex(rowId: string): number;
-    updateRows(item: T[], rowIndexes: number, isMarkEdited?: boolean): void;
+    setRowPosition: (rowPosition: number) => void;
+    setCheckedRowsByValue: (dataField: string, value: unknown) => void;
+    rowIdToIndex: (rowId: string) => number;
+    openEditDownListLayer: () => void;
+    restoreEditedCells: (cells: any[]) => void;
 
     // --- 레이아웃 및 설정 ---
     setColumnLayout: (columnLayout: any[]) => void;
@@ -107,6 +116,7 @@ export interface AUIGridProps<T = any> {
     showAjaxLoader: () => void;
     removeAjaxLoader: () => void;
     openInputer: () => void;
+    exportToXlsx: (exportWithStyle: boolean, props?: any) => void;
 }
 
 // =====================================================================================================

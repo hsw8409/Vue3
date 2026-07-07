@@ -58,11 +58,11 @@ const myGrid3 = ref<AUIGridProps | null>(null);
 const savelmenuCd = ref('');
 const savemmenuCd = ref('');
 
-const commonCode = useCommonCodeStore();
-const COM010 = computed(() => commonCode.get('COM010'));
-const COM900 = computed(() => commonCode.get('COM900'));
+const commonCodeStore = useCommonCodeStore();
+const COM010 = computed(() => commonCodeStore.getCode('COM010'));
+const COM900 = computed(() => commonCodeStore.getCode('COM900'));
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 // ==================================================
 // 그리드 영역
@@ -70,9 +70,8 @@ const popup = usePopupStore();
 
 //그리드 높이 계산
 const layoutStore = useLayoutStore();
-const gridResizeHeight = ref(layoutStore.layoutHeight - utils.biz.MENU_LAYOUT.ST); // 💡 ref로 감싸 동적 변경 대응
+const gridResizeHeight = ref(layoutStore.layoutHeight - utils.biz.MENU_LAYOUT.ST);
 
-// 그리드 속성 정의 (computed 구조를 쓰지 않으므로 생성용 factory 함수화 혹은 반응형 주입 필요)
 const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
     .withEditable(true)
     .withExtraProps({
@@ -258,7 +257,7 @@ const reset = () => {
 
     if (result) {
         // 변경사항이 있습니다. 변경사항이 저장되지 않습니다. 계속하시겠습니까?
-        popup.confirm(
+        popupStore.confirm(
             t('com.message.confirmContinue', [t('com.message.changeNotSavedProceed')]),
             undefined,
             {
@@ -275,17 +274,14 @@ const reset = () => {
 // 대분류목록 조회
 const searchMainCategory = () => {
     const grid = myGrid1.value;
-    grid?.showAjaxLoader();
 
     // 대분류목록 조회
     selectLmenuList()
         .then((res) => {
             grid?.setGridData(res?.data?.result ?? []);
-            grid?.removeAjaxLoader();
         })
         .catch((e) => {
-            popup.alert(e.message);
-            grid?.removeAjaxLoader();
+            popupStore.alert(e.message);
         });
 };
 
@@ -296,7 +292,6 @@ const searchMiddleCategory = () => {
     const grid2 = myGrid2.value;
 
     if (!grid1?.getSelectedRows()[0]) return; // 선택 행 확인 안전장치
-    grid2?.showAjaxLoader();
 
     // 대분류코드
     savelmenuCd.value = grid1.getSelectedRows()[0].lmenuCd;
@@ -306,11 +301,9 @@ const searchMiddleCategory = () => {
         .then((res) => {
             // 그리드 데이터 삽입
             grid2?.setGridData(res?.data?.result ?? []);
-            grid2?.removeAjaxLoader();
         })
         .catch((e) => {
-            popup.alert(e.message);
-            grid2?.removeAjaxLoader();
+            popupStore.alert(e.message);
         });
 };
 
@@ -320,7 +313,6 @@ const searchProgram = () => {
     const grid3 = myGrid3.value;
 
     if (!grid2?.getSelectedRows()[0]) return; // 선택 행 확인 안전장치
-    grid3?.showAjaxLoader();
 
     // 중분류 코드
     savemmenuCd.value = grid2?.getSelectedRows()[0].mmenuCd;
@@ -330,11 +322,9 @@ const searchProgram = () => {
         .then((res) => {
             // 그리드 데이터 삽입
             grid3?.setGridData(res?.data?.result ?? []);
-            grid3?.removeAjaxLoader();
         })
         .catch((e) => {
-            popup.alert(e.message);
-            grid3?.removeAjaxLoader();
+            popupStore.alert(e.message);
         });
 };
 
@@ -345,7 +335,7 @@ const newMainCategory = () => {
     // 신규로 추가된 행이 있는지 체크.
     if (utils.validator.checkAddedRowItems(grid)) {
         // 신규 행은 하나만 등록 가능합니다.
-        popup.alert(t('com.message.allowOnlyOneNewRow'));
+        popupStore.alert(t('com.message.allowOnlyOneNewRow'));
         return false;
     }
     /* 그리드에 추가될 row 데이터 */
@@ -371,7 +361,7 @@ const saveMainCategory = async () => {
     // 저장할 데이터 체크
     if (!result) {
         // 저장할 데이터가 없습니다.
-        popup.alert(t('com.message.noDataToSave'));
+        popupStore.alert(t('com.message.noDataToSave'));
         return false;
     }
 
@@ -389,16 +379,16 @@ const saveMainCategory = async () => {
     // 변경된 데이터 가져오기
     const mainCategoryData = utils.validator.getGridSaveData(grid);
 
-    popup.confirm(t('com.message.confirmSave'), undefined, {
+    popupStore.confirm(t('com.message.confirmSave'), undefined, {
         onOk: async () => {
             saveLmenu(mainCategoryData)
                 .then((res: any) => {
-                    popup.alert(t('com.message.itemProcessed', [res?.result]));
+                    popupStore.alert(t('com.message.itemProcessed', [res?.data?.result]));
                     searchMainCategory();
                     myGrid2.value?.clearGridData();
                 })
                 .catch((e) => {
-                    popup.alert(e?.message || String(e));
+                    popupStore.alert(e?.message || String(e));
                     grid?.removeAjaxLoader();
                 });
         },
@@ -413,19 +403,19 @@ const newMiddleCategory = () => {
     // 대분류 선택여부 체크
     if (utils.validator.checkIsNull(grid1?.getSelectedItems())) {
         // 대분류 선택 후 작업을 진행하여 주세요.
-        popup.alert(t('com.message.proceedAfterSelect', [t('menu.label.mainCategory')]));
+        popupStore.alert(t('com.message.proceedAfterSelect', [t('menu.label.mainCategory')]));
         return false;
     }
     if (utils.validator.checkIsNull(grid1?.getSelectedItems()[0].item.lmenuCd)) {
         // 대분류 저장 후 작업을 진행하여 주세요.
-        popup.alert(t('com.message.proceedAfterSave', [t('menu.label.mainCategory')]));
+        popupStore.alert(t('com.message.proceedAfterSave', [t('menu.label.mainCategory')]));
         return false;
     }
 
     // 신규로 추가된 행이 있는지 체크.
     if (utils.validator.checkAddedRowItems(grid2)) {
         // 신규 행은 하나만 등록 가능합니다.
-        popup.alert(t('com.message.allowOnlyOneNewRow'));
+        popupStore.alert(t('com.message.allowOnlyOneNewRow'));
         return false;
     }
 
@@ -450,7 +440,7 @@ const saveMiddleCategory = async () => {
     // 대분류 선택여부 체크
     if (utils.validator.checkIsNull(grid1?.getSelectedItems())) {
         // 대분류 선택 후 작업을 진행하여 주세요.
-        popup.alert(t('com.message.proceedAfterSelect', [t('menu.label.mainCategory')]));
+        popupStore.alert(t('com.message.proceedAfterSelect', [t('menu.label.mainCategory')]));
         return false;
     }
 
@@ -460,7 +450,7 @@ const saveMiddleCategory = async () => {
     // 저장할 데이터 체크
     if (!result) {
         // 저장할 데이터가 없습니다.
-        popup.alert(t('com.message.noDataToSave'));
+        popupStore.alert(t('com.message.noDataToSave'));
         return false;
     }
 
@@ -483,16 +473,16 @@ const saveMiddleCategory = async () => {
     // 변경된 데이터 가져오기
     const middleCategoryData = utils.validator.getGridSaveData(grid2);
 
-    popup.confirm(t('com.message.confirmSave'), undefined, {
+    popupStore.confirm(t('com.message.confirmSave'), undefined, {
         onOk: async () => {
             saveMmenu(middleCategoryData)
                 .then((res: any) => {
-                    popup.alert(t('com.message.itemProcessed', [res?.result]));
+                    popupStore.alert(t('com.message.itemProcessed', [res?.data?.result]));
                     searchMainCategory();
                     myGrid3.value?.clearGridData();
                 })
                 .catch((e) => {
-                    popup.alert(e?.message || String(e));
+                    popupStore.alert(e?.message || String(e));
                     grid2?.removeAjaxLoader();
                 });
         },
@@ -507,21 +497,21 @@ const newProgram = () => {
     // 중분류 선택여부 체크
     if (utils.validator.checkIsNull(grid2?.getSelectedItems())) {
         // 중분류 선택 후 작업을 진행하여 주세요.
-        popup.alert(t('com.message.proceedAfterSelect', [t('menu.label.middleCategory')]));
+        popupStore.alert(t('com.message.proceedAfterSelect', [t('menu.label.middleCategory')]));
         return false;
     }
 
     // 중분류 저장 여부
     if (utils.validator.checkIsNull(grid2?.getSelectedItems()[0].item.mmenuCd)) {
         // 중분류 저장 후 작업을 진행하여 주세요.
-        popup.alert(t('com.message.proceedAfterSave', [t('menu.label.middleCategory')]));
+        popupStore.alert(t('com.message.proceedAfterSave', [t('menu.label.middleCategory')]));
         return false;
     }
 
     // 신규로 추가된 행이 있는지 체크.
     if (utils.validator.checkAddedRowItems(grid3)) {
         // 신규 행은 하나만 등록 가능합니다.
-        popup.alert(t('com.message.allowOnlyOneNewRow'));
+        popupStore.alert(t('com.message.allowOnlyOneNewRow'));
         return false;
     }
 
@@ -550,14 +540,14 @@ const saveProgram = async () => {
     // 저장할 데이터 체크
     if (!result) {
         // 저장할 데이터가 없습니다.
-        popup.alert(t('com.message.noDataToSave'));
+        popupStore.alert(t('com.message.noDataToSave'));
         return false;
     }
 
     // 중분류 선택여부 체크
     if (utils.validator.checkIsNull(grid2?.getSelectedItems())) {
         // 중분류 선택 후 작업을 진행하여 주세요.
-        popup.alert(t('com.message.proceedAfterSelect', [t('menu.label.middleCategory')]));
+        popupStore.alert(t('com.message.proceedAfterSelect', [t('menu.label.middleCategory')]));
         return false;
     }
 
@@ -577,15 +567,15 @@ const saveProgram = async () => {
         return;
     }
 
-    popup.confirm(t('com.message.confirmSave'), undefined, {
+    popupStore.confirm(t('com.message.confirmSave'), undefined, {
         onOk: async () => {
             savePmenu(programData)
                 .then((res: any) => {
-                    popup.alert(t('com.message.itemProcessed', [res?.data?.result]));
+                    popupStore.alert(t('com.message.itemProcessed', [res?.data?.result]));
                     searchProgram();
                 })
                 .catch((e) => {
-                    popup.alert(e?.message || String(e));
+                    popupStore.alert(e?.message || String(e));
                     grid3?.removeAjaxLoader();
                 });
         },
@@ -598,7 +588,7 @@ const lengthValidation = (event: any) => {
     if (event.columnIndex === 1) {
         if (utils.stringUtil.getByteB(event.value) > 100) {
             // "입력한 값이 너무 깁니다.
-            popup.alert(t('com.message.messageTooLong'));
+            popupStore.alert(t('com.message.messageTooLong'));
             return event.oldValue;
         }
     }
@@ -606,7 +596,7 @@ const lengthValidation = (event: any) => {
     if (event.columnIndex === 2 && event.headerText == t('menu.label.filePath')) {
         if (utils.stringUtil.getByteB(event.value) > 1000) {
             // 입력한 값이 너무 깁니다.
-            popup.alert(t('com.message.messageTooLong'));
+            popupStore.alert(t('com.message.messageTooLong'));
             return event.oldValue;
         }
     }
@@ -614,7 +604,7 @@ const lengthValidation = (event: any) => {
     if (event.columnIndex === 3 && event.headerText == t('menu.label.fileName')) {
         if (utils.stringUtil.getByteB(event.value) > 200) {
             // 입력한 값이 너무 깁니다.
-            popup.alert(t('com.message.messageTooLong'));
+            popupStore.alert(t('com.message.messageTooLong'));
             return event.oldValue;
         }
     }

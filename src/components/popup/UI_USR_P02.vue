@@ -25,7 +25,7 @@ import { updatePassword } from '@/api/auth'; // api
 // 변수 선언 영역
 // =====================================================================================================
 const { t } = useI18n();
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 const props = defineProps<{
     id: string;
@@ -67,17 +67,17 @@ const toggleEye = (target: 'pwd1' | 'pwd2') => {
 const savePw = () => {
     if (!inputParam.inputPw || !inputParam.inputVPw) {
         // 비밀번호를 입력해주세요.
-        popup.alert(t('com.message.inputItemL', [t('com.label.password')]));
+        popupStore.alert(t('com.message.inputItemL', [t('com.label.password')]));
         return;
     }
     if (inputParam.inputPw !== inputParam.inputVPw) {
         // 비밀번호가 일치하지 않습니다.
-        popup.alert(t('user.message.passwordNotMatched'));
+        popupStore.alert(t('user.message.passwordNotMatched'));
         return;
     }
     if (inputParam.inputPw.length < 5) {
         // 비밀번호를 5자 이상 입력해주세요.
-        popup.alert(t('com.message.inputMinLengthL', [t('com.label.password'), 5]));
+        popupStore.alert(t('com.message.inputMinLengthL', [t('com.label.password'), 5]));
         return;
     }
 
@@ -87,15 +87,15 @@ const savePw = () => {
         orgPasswd: props.passwd || '',
     })
         .then(() => {
-            popup.alert(t('user.message.passwordChanged'), '알림', {
+            popupStore.alert(t('user.message.passwordChanged'), '알림', {
                 onOk: async () => {
                     await props.onOk?.();
-                    popup.closePopup(props.id);
+                    popupStore.closePopup(props.id);
                 },
             });
         })
         .catch((e) => {
-            popup.alert(e.message);
+            popupStore.alert(e.message);
         });
 };
 

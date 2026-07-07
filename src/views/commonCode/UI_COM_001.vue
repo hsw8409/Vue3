@@ -57,10 +57,10 @@ const searchBox = reactive({
     commCd: '',
 });
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
-const commonCode = useCommonCodeStore();
-const COM010 = computed(() => commonCode.get('COM010'));
+const commonCodeStore = useCommonCodeStore();
+const COM010 = computed(() => commonCodeStore.getCode('COM010'));
 
 // ==================================================
 // 그리드 영역
@@ -376,7 +376,7 @@ const search = () => {
             myGrid2.value?.clearGridData();
         })
         .catch((e) => {
-            return popup.alert(e.message);
+            return popupStore.alert(e.message);
         });
 };
 
@@ -389,7 +389,7 @@ const fnSearchDetail = () => {
             return;
         })
         .catch((e) => {
-            return popup.alert(e.message);
+            return popupStore.alert(e.message);
         });
 };
 
@@ -440,14 +440,14 @@ const fnAddMain = () => {
 const fnAddDetail = () => {
     if (myGrid1.value?.getSelectedRows().length == 0) {
         // 공통코드 그룹 정보를 선택해주세요.
-        popup.alert(t('com.message.selectItemL', [t('commonCode.label.commonCodeGroupInfo')]));
+        popupStore.alert(t('com.message.selectItemL', [t('commonCode.label.commonCodeGroupInfo')]));
         return false;
     }
     const rowIndex = myGrid1.value?.getSelectedIndex();
     if (rowIndex !== undefined && rowIndex !== -1) {
         // 2. 이제 안전하게 isAddedByRowIndex를 호출
         if (myGrid1.value?.isAddedByRowIndex(rowIndex)) {
-            popup.alert(
+            popupStore.alert(
                 t('com.message.registerRequiredBeforeNewL', [
                     t('commonCode.label.commonCodeGroupInfo'),
                 ]),
@@ -457,7 +457,7 @@ const fnAddDetail = () => {
     }
     if (myGrid1.value?.getSelectedRows()[0].ref10Nm == 'N') {
         // 해당 공통코드는 화면에서 수정할 권한이 없습니다.\n관리자에게 문의해주세요.
-        popup.alert(t('com.message.noUpdatePermissionContactAdmin', [t('com.label.comCode')]));
+        popupStore.alert(t('com.message.noUpdatePermissionContactAdmin', [t('com.label.comCode')]));
         return false;
     }
     const addRowItem = {
@@ -494,13 +494,13 @@ const fnAddDetail = () => {
 const fnDeleteMain = () => {
     if (myGrid1.value?.getCheckedRowItemsAll().length == 0) {
         // 선택된 데이터가 없습니다.
-        popup.alert(t('com.message.noDataSelected'));
+        popupStore.alert(t('com.message.noDataSelected'));
         return false;
     }
 
     if (myGrid1.value?.getCheckedRowItemsAll()[0].ref10Nm == 'N') {
         // 해당 공통코드는 화면에서 수정할 권한이 없습니다.\n관리자에게 문의해주세요.
-        popup.alert(t('com.message.noUpdatePermissionContactAdmin', [t('com.label.comCode')]));
+        popupStore.alert(t('com.message.noUpdatePermissionContactAdmin', [t('com.label.comCode')]));
         return false;
     }
     myGrid1.value?.removeCheckedRows();
@@ -510,19 +510,19 @@ const fnDeleteMain = () => {
 const fnDeleteDetail = () => {
     if (myGrid1.value?.getSelectedRows().length == 0) {
         // 공통코드 그룹 정보를 선택해주세요.
-        popup.alert(t('com.message.selectItemL', [t('commonCode.label.commonCodeGroupInfo')]));
+        popupStore.alert(t('com.message.selectItemL', [t('commonCode.label.commonCodeGroupInfo')]));
         return false;
     }
 
     if (myGrid1.value?.getSelectedRows()[0].ref10Nm == 'N') {
         // 해당 공통코드는 화면에서 수정할 권한이 없습니다.\n관리자에게 문의해주세요.
-        popup.alert(t('com.message.noUpdatePermissionContactAdmin', [t('com.label.comCode')]));
+        popupStore.alert(t('com.message.noUpdatePermissionContactAdmin', [t('com.label.comCode')]));
         return false;
     }
 
     if (myGrid2.value?.getCheckedRowItemsAll().length == 0) {
         // 선택된 데이터가 없습니다.
-        popup.alert(t('com.message.noDataSelected'));
+        popupStore.alert(t('com.message.noDataSelected'));
         return false;
     }
 
@@ -531,7 +531,7 @@ const fnDeleteDetail = () => {
     );
 
     if (filterEditableFalse.length > 0) {
-        popup.alert(t('com.message.noUpdatePermissionOnSelectedContactAdmin'));
+        popupStore.alert(t('com.message.noUpdatePermissionOnSelectedContactAdmin'));
         return false;
     }
     myGrid2.value?.removeCheckedRows();
@@ -544,7 +544,7 @@ const save = async () => {
 
     if (!result) {
         // 저장할 데이터가 없습니다.
-        popup.alert(t('com.message.noDataToSave'));
+        popupStore.alert(t('com.message.noDataToSave'));
         return false;
     }
 
@@ -587,12 +587,12 @@ const save = async () => {
     saveComCode(param)
         .then((res) => {
             // {0}건 처리되었습니다.
-            popup.alert(t('com.message.itemProcessed', [res?.data?.result]));
+            popupStore.alert(t('com.message.itemProcessed', [res?.data?.result]));
             search();
             myGrid2.value?.clearGridData();
         })
         .catch((e) => {
-            return popup.alert(e.message);
+            return popupStore.alert(e.message);
         });
 };
 

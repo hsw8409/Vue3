@@ -1,5 +1,5 @@
 /**
- * @file     popup.ts
+ * @file     /stores/popup.ts
  * @menu     팝업 관련 store
  * @author   astems
  * @since    2026-06-17

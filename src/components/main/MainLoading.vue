@@ -20,9 +20,9 @@ import { useLoadingStore } from '@/common/stores/loadingState';
 // =====================================================================================================
 // 변수 선언 영역
 // =====================================================================================================
-const loading = useLoadingStore();
+const loadingStore = useLoadingStore();
 
-const isLoading = computed(() => loading.isLoading);
+const isLoading = computed(() => loadingStore.isLoading);
 
 let timer: ReturnType<typeof setTimeout> | null = null;
 let count = 0;
@@ -51,7 +51,7 @@ const onClick = () => {
 
     // 5회 이상 클릭 시 로딩 강제 종료
     if (count >= 5) {
-        loading.reset();
+        loadingStore.reset();
         reset();
     }
 };

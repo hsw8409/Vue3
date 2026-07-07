@@ -28,7 +28,15 @@ import { mobilePurchaseList } from '@/api/mobile';
 // =====================================================================================================
 // Type 선언 영역
 // =====================================================================================================
-
+interface InCustParam {
+    purchCustCd: string | null;
+    purchCustNm: string | null;
+    inWhCustCd: string | null;
+    inWhCustNm: string | null;
+    custCd: string | null;
+    custTypeCd: number;
+    searchDate: Date | null;
+}
 // =====================================================================================================
 // 변수 선언 영역
 // =====================================================================================================
@@ -41,11 +49,11 @@ defineProps<{
 
 const myGrid = ref<AUIGridProps | null>(null);
 
-const commonCode = useCommonCodeStore();
-const COM110 = computed(() => commonCode.get('COM110'));
-const COM101 = computed(() => commonCode.get('COM101'));
+const commonCodeStore = useCommonCodeStore();
+const COM110 = computed(() => commonCodeStore.getCode('COM110'));
+const COM101 = computed(() => commonCodeStore.getCode('COM101'));
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 const gridProps: GridProps = AUIGridDefault.gridPropsBuilder()
     .withExtraProps({
@@ -100,7 +108,7 @@ const columnLayout = [
     },
 ];
 
-const inCustParamState = {
+const inCustParamState: InCustParam = {
     purchCustCd: null,
     purchCustNm: null,
     inWhCustCd: null,
@@ -126,7 +134,7 @@ const oriCustParam = reactive({ ...oriCustParamState });
 // =====================================================================================================
 
 const retrieve = () => {
-    if (inCustParam.purchCustCd === null) return popup.alert('매입처 검색 후 조회 해주세요');
+    if (inCustParam.purchCustCd === null) return popupStore.alert('매입처 검색 후 조회 해주세요');
 
     // 시작날짜, 마지막날짜
     const params = {
@@ -134,7 +142,6 @@ const retrieve = () => {
         searchDate: dayjs(inCustParam.searchDate).format('YYYYMMDD'),
     };
 
-    myGrid.value?.showAjaxLoader();
     mobilePurchaseList(params)
         .then((res) => res?.data?.result)
         .then((res) => {
@@ -142,7 +149,7 @@ const retrieve = () => {
             return res;
         })
         .then(myGrid.value?.setGridData)
-        .then(myGrid.value?.removeAjaxLoader)
+
         .catch(console.error);
 };
 

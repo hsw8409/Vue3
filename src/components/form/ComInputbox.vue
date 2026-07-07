@@ -56,6 +56,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
     (e: 'input', value: string): void;
+    (e: 'change', value: string): void;
     (e: 'enter'): void;
     (e: 'click', event: MouseEvent): void;
     (e: 'keydown', event: KeyboardEvent): void;
@@ -87,6 +88,11 @@ const onEnter = () => {
     emit('enter');
 };
 
+const onChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    emit('change', target.value);
+};
+
 defineExpose({ setFocus: () => textRef.value?.focus() });
 
 // =====================================================================================================
@@ -114,6 +120,7 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
                 @input="onInput"
                 @click="onClick"
                 @keyup.enter="onEnter"
+                @change="onChange"
             />
             <span class="pwd-icon">🔒</span>
         </div>
@@ -134,6 +141,7 @@ defineExpose({ setFocus: () => textRef.value?.focus() });
             @input="onInput"
             @click="onClick"
             @keyup.enter="onEnter"
+            @change="onChange"
         />
     </span>
 </template>

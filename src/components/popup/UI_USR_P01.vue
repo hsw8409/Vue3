@@ -36,7 +36,7 @@ import { selectMenuGroup } from '@/api/menu';
 // 변수 선언 영역
 // =====================================================================================================
 const { t } = useI18n();
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 const props = defineProps<{
     id: string;
@@ -44,10 +44,10 @@ const props = defineProps<{
     onOk?: () => void | Promise<void>;
 }>();
 
-const commonCode = useCommonCodeStore();
-const EAT050 = computed(() => commonCode.get('EAT050'));
-const EAT100 = computed(() => commonCode.get('EAT100'));
-const EAT150 = computed(() => commonCode.get('EAT150'));
+const commonCodeStore = useCommonCodeStore();
+const EAT050 = computed(() => commonCodeStore.getCode('EAT050'));
+const EAT100 = computed(() => commonCodeStore.getCode('EAT100'));
+const EAT150 = computed(() => commonCodeStore.getCode('EAT150'));
 
 const menuGroupList = ref();
 
@@ -257,22 +257,18 @@ const columnLayout = [
 
 // 조회 버튼
 const search = () => {
-    myGrid.value?.showAjaxLoader();
     selectUserList(searchParameter.value)
         .then((res) => {
             // 그리드 데이터 삽입
             myGrid.value?.setGridData(res?.data?.result ?? []);
         })
         .catch((e) => {
-            popup.alert(e.message);
-        })
-        .finally(() => {
-            myGrid.value?.removeAjaxLoader();
+            popupStore.alert(e.message);
         });
 };
 
 const doubleClick = (event: any) => {
-    popup.closePopup(props.id, event.item);
+    popupStore.closePopup(props.id, event.item);
 };
 
 const detailRowClick = () => {
@@ -289,9 +285,9 @@ const detailRowClick = () => {
 const select = () => {
     const item = myGrid.value?.getCheckedRowItemsAll();
     if (item?.length === 0) {
-        popup.alert(t('com.message.selectItemL', [t('com.label.user')])); // 사용자를 선택해 주세요
+        popupStore.alert(t('com.message.selectItemL', [t('com.label.user')])); // 사용자를 선택해 주세요
     } else {
-        popup.closePopup(props.id, item);
+        popupStore.closePopup(props.id, item);
     }
 };
 
@@ -313,7 +309,7 @@ onMounted(() => {
             menuGroupList.value = res?.data?.result;
         })
         .catch((e) => {
-            popup.alert(e.message);
+            popupStore.alert(e.message);
         });
 
     searchParameter.value = {

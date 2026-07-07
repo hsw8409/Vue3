@@ -74,12 +74,12 @@ const newRegi = (i?: string) => {
     });
 };
 
-const commonCode = useCommonCodeStore();
-const EAT100 = computed(() => commonCode.get('EAT100'));
-const EAT050 = computed(() => commonCode.get('EAT050'));
-const EAT150 = computed(() => commonCode.get('EAT150'));
+const commonCodeStore = useCommonCodeStore();
+const EAT100 = computed(() => commonCodeStore.getCode('EAT100'));
+const EAT050 = computed(() => commonCodeStore.getCode('EAT050'));
+const EAT150 = computed(() => commonCodeStore.getCode('EAT150'));
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 // ==================================================
 // 그리드 영역
@@ -216,16 +216,18 @@ const columnLayout = [
             type: 'ButtonRenderer',
             labelText: t('user.label.passwordInitialize'), // PW초기화
             onClick: (e: any) => {
-                popup.confirm(t('user.message.passwordInitializeConfirm'), undefined, {
+                popupStore.confirm(t('user.message.passwordInitializeConfirm'), undefined, {
                     onOk: async () => {
                         const passwd = generateRandomPassword(10);
                         randomPassword({ ...e.item, passwd })
                             .then(() => {
                                 // "res-${passwd}"으로 초기화하였습니다.\n로그인 후 비밀번호 재설정 부탁드립니다.
-                                popup.alert(t('user.message.procPasswordInitialize', [passwd]));
+                                popupStore.alert(
+                                    t('user.message.procPasswordInitialize', [passwd]),
+                                );
                             })
                             .then(search)
-                            .catch((e) => popup.alert(e.message));
+                            .catch((e) => popupStore.alert(e.message));
                     },
                 });
             },
@@ -250,13 +252,12 @@ const search = () => {
         utils.stringUtil.getByteB(searchBox.usrName) > 50
     ) {
         // 입력한 값이 너무 깁니다.
-        popup.alert(t('com.message.messageTooLong'));
+        popupStore.alert(t('com.message.messageTooLong'));
         userIdRef.value.blur();
         userNameRef.value.blur();
         return;
     }
 
-    grid?.showAjaxLoader();
     const params = {
         userId: searchBox.usrId,
         userNm: searchBox.usrName,
@@ -270,11 +271,8 @@ const search = () => {
             grid?.setGridData(res?.data?.result ?? []);
         })
         .catch((e) => {
-            popup.alert(e.message);
-        }) // <-- 여기에 있던 세미콜론(;)을 제거해야 합니다.
-        .finally(() => {
-            grid?.removeAjaxLoader();
-        });
+            popupStore.alert(e.message);
+        }); // <-- 여기에 있던 세미콜론(;)을 제거해야 합니다.
 };
 
 // 패스워드 초기화

@@ -116,7 +116,7 @@ export const saveLabel = (params: ItemLabelProps) => {
 // ========================================================
 // 팝업 품목 조회
 export const selectPopupItem = (params: ItemProps) => {
-    return api.get<ApiResponse<ItemProps>>(`${BASE}/itemDetail/selectPopupItem`, { params });
+    return api.get<ApiResponse<ItemProps[]>>(`${BASE}/itemDetail/selectPopupItem`, { params });
 };
 
 // ========================================================

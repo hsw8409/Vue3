@@ -10,12 +10,12 @@
 // =====================================================================================================
 // import 영역
 // =====================================================================================================
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import TokenService from '@/common/service/token';
 import { biz } from '@/common/utils/biz';
 import { selectFavoriteMenu } from '@/api/favorite';
 import { useFavoriteStore } from '@/common/stores/favorite';
+import { useAuthStore } from '@/common/stores/auth';
 import type { SelectedMenuProps } from '@/types/menu';
 
 // =====================================================================================================
@@ -47,8 +47,8 @@ const favorite = reactive({
     off: 'btn_favorite off',
 });
 
-// 로그인 사용자 정보
-const loginUser = TokenService.getUser();
+const authStore = useAuthStore();
+const loginUser = computed(() => authStore.user);
 
 // 공통 버튼 리스트 정적 타이핑
 const btnList = ref<ButtonItem[]>([]);
@@ -69,11 +69,11 @@ const ButtonEvent = (fncName: string) => {
 // 즐겨찾기 토글 (추가/삭제)
 const favoriteToggle = async () => {
     const menuCd = props.menuInfo?.mcd;
-    if (!menuCd || !loginUser?.userId) return;
+    if (!menuCd || !loginUser.value?.userId) return;
 
     try {
         // 스토어 액션 호출: 여기서 알아서 API 호출 후 목록을 갱신함
-        await favStore.toggleFavorite(loginUser.userId, menuCd, favorite.onOffFlag);
+        await favStore.toggleFavorite(loginUser.value.userId, menuCd, favorite.onOffFlag);
 
         // 버튼 상태값만 로컬에서 반전
         favorite.onOffFlag = !favorite.onOffFlag;

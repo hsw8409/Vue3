@@ -41,7 +41,6 @@ export interface UserProps {
     custNm?: string; // 거래처명
     accessToken?: string; // 토큰
     refreshToken?: string; // 리플레시토큰
-
     role?: string; // 권한
     loginInOutFg?: string; // 로그아웃 플래그?
     connIp?: string; // 접속ip
@@ -59,7 +58,6 @@ export interface UserLogProps {
     alUserTypeNm?: string; // 그룹명
     alCountLogdate?: string; // 접속일자집계
     userTypeCd?: string; // 유저타입코드
-
     alLogtime?: string;
     logip?: string;
     cdt?: string;

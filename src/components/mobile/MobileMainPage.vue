@@ -37,8 +37,8 @@ interface AxiosErrorProp {
 // =====================================================================================================
 // 변수 선언 영역
 // =====================================================================================================
-const auth = useAuthStore();
-const popup = usePopupStore();
+const authStore = useAuthStore();
+const popupStore = usePopupStore();
 
 const emitter = inject<Emitter<Record<string, any>>>('emitter');
 
@@ -90,10 +90,10 @@ const success = () => {
 
 const logout = () => {
     // 💡 이전 팝업 스토어 규격(세 번째 인자 옵션 객체)에 맞춰 확실하게 바인딩
-    popup.confirm('로그아웃 하시겠습니까?', undefined, {
+    popupStore.confirm('로그아웃 하시겠습니까?', undefined, {
         onOk: async () => {
             try {
-                await auth.logout();
+                await authStore.logout();
                 // 모든 활성화된 팝업이 있다면 일괄 닫기(선택 사항) 후 이동
                 router.push('/mlogin');
             } catch (error) {
@@ -104,14 +104,14 @@ const logout = () => {
 };
 
 const axiosError = (prop: AxiosErrorProp) => {
-    popup.alert(`[${prop.type}]\n${prop.msg}`);
+    popupStore.alert(`[${prop.type}]\n${prop.msg}`);
 };
 
 onMounted(async () => {
     const loginUser = TokenService.getUser();
 
     if (loginUser && Number(loginUser?.resetTarget) === 1) {
-        auth.logout();
+        authStore.logout();
     }
 
     selectComCd().then((res) => {

@@ -148,9 +148,9 @@ export const validator = {
             const errorMsg = v$.value?.$errors?.[0]?.$message as string;
 
             if (errorMsg) {
-                const popup = usePopupStore();
+                const popupStore = usePopupStore();
 
-                popup.alert(errorMsg); // 🌟 주입받은 통로로 안전하게 얼럿 표출
+                popupStore.alert(errorMsg); // 🌟 주입받은 통로로 안전하게 얼럿 표출
                 return false;
             }
         }

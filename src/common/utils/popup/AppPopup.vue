@@ -25,7 +25,7 @@ interface PopupPosition {
 // =====================================================================================================
 // 변수 선언
 // =====================================================================================================
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 const positions = reactive<Record<string, PopupPosition>>({});
 
@@ -43,7 +43,7 @@ const dragInfo = ref<{ id: string | null; startX: number; startY: number }>({
  *
  */
 const handleDimClick = (item: PopupProps) => {
-    if (item.type === 'biz') popup.closePopup(item.id);
+    if (item.type === 'biz') popupStore.closePopup(item.id);
 };
 
 /**
@@ -137,7 +137,7 @@ onUnmounted(() => {
 
 <template>
     <div
-        v-for="(item, index) in popup.popups"
+        v-for="(item, index) in popupStore.popups"
         :key="item.id"
         class="popup_overlay"
         :data-popup-id="item.id"
@@ -151,7 +151,11 @@ onUnmounted(() => {
                 @mousedown="startDrag($event, item)"
             >
                 <div class="popup_title">{{ item.props?.title || '' }}</div>
-                <button class="popup_close_btn" @mousedown.stop @click="popup.closePopup(item.id)">
+                <button
+                    class="popup_close_btn"
+                    @mousedown.stop
+                    @click="popupStore.closePopup(item.id)"
+                >
                     ✕
                 </button>
             </div>
@@ -159,7 +163,7 @@ onUnmounted(() => {
                 <component
                     :is="item.component"
                     v-bind="item.props"
-                    @close="popup.closePopup(item.id)"
+                    @close="popupStore.closePopup(item.id)"
                 />
             </div>
         </div>

@@ -50,15 +50,15 @@ const myGrid = ref<AUIGridProps | null>(null);
 const myGridUser = ref<AUIGridProps | null>(null);
 const myGridProgram = ref<AUIGridProps | null>(null);
 
-const commonCode = useCommonCodeStore();
-const EAT050 = computed(() => commonCode.get('EAT050'));
-const EAT150 = computed(() => commonCode.get('EAT150'));
-const COM010 = computed(() => commonCode.get('COM010'));
-const COM900 = computed(() => commonCode.get('COM900'));
+const commonCodeStore = useCommonCodeStore();
+const EAT050 = computed(() => commonCodeStore.getCode('EAT050'));
+const EAT150 = computed(() => commonCodeStore.getCode('EAT150'));
+const COM010 = computed(() => commonCodeStore.getCode('COM010'));
+const COM900 = computed(() => commonCodeStore.getCode('COM900'));
 
 let clickedRow_grid1 = {}; // 그리드 선택행
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 // ==================================================
 // 그리드 영역
@@ -359,7 +359,7 @@ const reset = () => {
 
     if (result) {
         // 변경사항이 있습니다. 변경사항이 저장되지 않습니다. 계속하시겠습니까?
-        popup.confirm(
+        popupStore.confirm(
             t('com.message.confirmContinue', [t('com.message.changeNotSavedProceed')]),
             undefined,
             {
@@ -387,40 +387,33 @@ const getClickedRow = () => {
 const searchMenuGroupInfo = (toSelectRowId?: string) => {
     //메뉴그룹 그리드 조회
     const gridGroup = myGrid.value;
-    const gridProgram = myGridProgram.value;
-    gridGroup?.showAjaxLoader();
-    selectMenuGroup()
-        .then((res) => {
-            // 그리드 데이터 삽입
-            gridGroup?.setGridData(res.data.result ?? []);
-            const menuGrpCd =
-                toSelectRowId === '-'
-                    ? res?.data?.result?.reduce(
-                          (prev: any, next: any) =>
-                              prev.menuGrpCd > next.menuGrpCd ? prev.menuGrpCd : next.menuGrpCd,
-                          { menuGrpCd: 0 },
-                      )
-                    : toSelectRowId;
 
-            gridGroup?.removeAjaxLoader();
-            if (toSelectRowId) {
-                let toSelectIdx = -1;
-                gridGroup
-                    ?.getGridData()
-                    .map((v: any, i: any) =>
-                        v.menuGrpCd === menuGrpCd ? (toSelectIdx = i) : undefined,
-                    );
-                gridGroup?.setSelectionBlock(toSelectIdx, 1, 1, 1);
-                gridGroup?.setRowPosition(toSelectIdx - 5);
-                gridProgram?.removeAjaxLoader();
-                return;
-            }
-            setClickedRow(); //재조회 하는 경우 클릭행 리셋
-        })
-        .catch(function (e) {
-            gridGroup?.removeAjaxLoader();
-            return e;
-        });
+    selectMenuGroup().then((res) => {
+        // 그리드 데이터 삽입
+        gridGroup?.setGridData(res.data.result ?? []);
+        const menuGrpCd =
+            toSelectRowId === '-'
+                ? res?.data?.result?.reduce(
+                      (prev: any, next: any) =>
+                          prev.menuGrpCd > next.menuGrpCd ? prev.menuGrpCd : next.menuGrpCd,
+                      { menuGrpCd: 0 },
+                  )
+                : toSelectRowId;
+
+        if (toSelectRowId) {
+            let toSelectIdx = -1;
+            gridGroup
+                ?.getGridData()
+                .map((v: any, i: any) =>
+                    v.menuGrpCd === menuGrpCd ? (toSelectIdx = i) : undefined,
+                );
+            gridGroup?.setSelectionBlock(toSelectIdx, 1, 1, 1);
+            gridGroup?.setRowPosition(toSelectIdx - 5);
+
+            return;
+        }
+        setClickedRow(); //재조회 하는 경우 클릭행 리셋
+    });
 };
 
 // 사용여부 컬럼 데이터 변경
@@ -446,30 +439,19 @@ const searchMenuProgram = (obj: any) => {
     }
     const params = { menuGrpCd: obj.menuGrpCd, chainCd: obj.chainCd };
 
-    gridUser?.showAjaxLoader();
-    gridProgram?.showAjaxLoader();
+    selectMenuGroupUserProgram(params).then((res) => {
+        // 그리드 데이터 삽입
+        gridUser?.setGridData(res?.data?.result?.userDtos ?? []);
 
-    selectMenuGroupUserProgram(params)
-        .then((res) => {
-            // 그리드 데이터 삽입
-            gridUser?.setGridData(res?.data?.result?.userDtos ?? []);
+        gridProgram?.setGridData(
+            res?.data?.result?.programDtos?.map((v: MenuGroupPropgramProps) => ({
+                ...v,
+                menuGrpCd,
+            })) ?? [],
+        );
 
-            gridProgram?.setGridData(
-                res?.data?.result?.programDtos?.map((v: MenuGroupPropgramProps) => ({
-                    ...v,
-                    menuGrpCd,
-                })) ?? [],
-            );
-            gridUser?.removeAjaxLoader();
-            gridProgram?.removeAjaxLoader();
-
-            setCheckedRowsByValue();
-        })
-        .catch(function (e) {
-            gridUser?.removeAjaxLoader();
-            gridProgram?.removeAjaxLoader();
-            return e;
-        });
+        setCheckedRowsByValue();
+    });
 };
 
 // 메뉴그룹 변경시 프로그램정보 변경내역이 있는 경우 알림 처리
@@ -478,7 +460,7 @@ const fn_selectionChange = (event: any, flag: any) => {
     const result = utils.validator.checkGridChanges(gridItems);
 
     if (flag != 'uncheck' && result) {
-        popup.alert(
+        popupStore.alert(
             t('com.message.proceedAfterSaveOrReset', [t('com.message.changeNotSavedProceed')]),
         );
 
@@ -517,7 +499,7 @@ const save = async () => {
     // 저장할 데이터 체크
     if (!result) {
         // 저장할 데이터가 없습니다.
-        popup.alert(t('com.message.noDataToSave'));
+        popupStore.alert(t('com.message.noDataToSave'));
         return false;
     }
 
@@ -535,25 +517,20 @@ const save = async () => {
     const confirmCallback = () => {
         saveMenuGroupProgram(saveParams) //저장
             .then((_res) => {
-                gridProgram?.showAjaxLoader();
                 // {0}건 처리 되었습니다.
-                popup.alert(t('com.message.itemProcessed'));
+                popupStore.alert(t('com.message.itemProcessed'));
 
                 gridProgram?.setGridData([]);
                 searchMenuGroupInfo((getClickedRow() as { item: any }).item.menuGrpCd);
 
-                gridGroup?.removeAjaxLoader();
-                gridProgram?.removeAjaxLoader();
                 return;
             })
             .catch((e) => {
-                gridGroup?.removeAjaxLoader();
-                gridProgram?.removeAjaxLoader();
-                return e;
+                popupStore.alert(e);
             });
     };
     // 저장하시겠습니까?
-    popup.confirm(t('com.message.confirmSave'), undefined, {
+    popupStore.confirm(t('com.message.confirmSave'), undefined, {
         onOk: async () => {
             confirmCallback();
         },
@@ -572,7 +549,7 @@ const newMenuGroup = () => {
 
     if (result) {
         // 프로그램 정보 수정사항이 있습니다. 저장/초기화 후 진행해주세요.
-        popup.alert(
+        popupStore.alert(
             t('com.message.proceedAfterSaveOrReset', [t('menu.message.programInfoChanged')]),
         );
     }
@@ -592,14 +569,14 @@ const delMenuGroup = () => {
     const selectedRows = myGrid.value?.getSelectedRows();
 
     if (!selectedRows?.length) {
-        popup.alert(t('com.message.noDataSelected'));
+        popupStore.alert(t('com.message.noDataSelected'));
         return;
     }
 
     const target = selectedRows[0];
 
     if (target.alUserCnt) {
-        popup.alert(t('menu.message.notDeleteWithUsers'));
+        popupStore.alert(t('menu.message.notDeleteWithUsers'));
         return;
     }
 
@@ -690,7 +667,7 @@ const fn_cellEditEnd = (event: any, gridName: any) => {
                 //미사용으로 변경하는 경우, 사용자가 있으면
                 gridGroup?.updateRow({ ...event.item, useYn: event.oldValue }, event.rowIndex); //기본값 원래값으로 되돌림
                 // 사용자가 있는 경우 미사용으로 변경할 수 없습니다.
-                popup.alert(t('menu.message.notUpdateWithUsers'));
+                popupStore.alert(t('menu.message.notUpdateWithUsers'));
             }
         }
     }

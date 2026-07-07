@@ -36,7 +36,7 @@ const emit = defineEmits<{
     (e: 'close'): void;
 }>();
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 const hasTitle = computed(() => !!props.title?.trim());
 
@@ -51,7 +51,7 @@ const onOkClick = (): void => {
     props.onOk?.();
 
     if (props.id) {
-        popup.closePopup(props.id);
+        popupStore.closePopup(props.id);
     } else {
         emit('close');
     }
@@ -65,7 +65,7 @@ const onCancelClick = (): void => {
     props.onCancel?.();
 
     if (props.id) {
-        popup.closePopup(props.id);
+        popupStore.closePopup(props.id);
     } else {
         emit('close');
     }

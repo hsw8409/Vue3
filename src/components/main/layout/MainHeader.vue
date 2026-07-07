@@ -25,8 +25,8 @@ import { usePopupStore } from '@/common/stores/popup';
 // 변수 선언 영역
 // =====================================================================================================
 const router = useRouter();
-const auth = useAuthStore();
-const popup = usePopupStore();
+const authStore = useAuthStore();
+const popupStore = usePopupStore();
 
 // 부모로부터 주입받은 유저 정보 (기본값 설정)
 const loginUser = inject<any>('loginUser', {});
@@ -46,10 +46,10 @@ const chainNm = computed<string>(() => String(TokenService.getUser()?.chainNm ||
 // 로그아웃 처리
 const logout = () => {
     // 💡 이전 팝업 스토어 규격(세 번째 인자 옵션 객체)에 맞춰 확실하게 바인딩
-    popup.confirm('로그아웃 하시겠습니까?', undefined, {
+    popupStore.confirm('로그아웃 하시겠습니까?', undefined, {
         onOk: async () => {
             try {
-                await auth.logout();
+                await authStore.logout();
                 // 모든 활성화된 팝업이 있다면 일괄 닫기(선택 사항) 후 이동
                 router.push('/login');
             } catch (error) {
@@ -61,7 +61,7 @@ const logout = () => {
 
 // 마이페이지 정보 수정 팝업 오픈
 const myPage = () => {
-    popup.openPopup('biz', 'UI_USR_P03', {
+    popupStore.openPopup('biz', 'UI_USR_P03', {
         userId: searchParameter.userId,
         userNm: searchParameter.userNm,
         width: 800,

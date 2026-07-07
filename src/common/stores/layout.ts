@@ -1,5 +1,5 @@
 /**
- * @file     layout.ts
+ * @file     /stores/layout.ts
  * @menu     레이아웃 관련 store
  * @author   astems
  * @since    2026-06-17
@@ -12,23 +12,36 @@
 // import 영역
 // =====================================================================================================
 import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 
 // =====================================================================================================
 // 사용자 정의 함수 영역
 // =====================================================================================================
-export const useLayoutStore = defineStore('layout', {
-    state: () => ({
-        layoutHeight: 0,
-    }),
-    getters: {
-        // 예: 컨텐츠 영역의 남은 높이를 계산해야 할 때 유용
-        getContentHeight: (state) => (windowHeight: number) => {
-            return windowHeight - state.layoutHeight;
-        },
-    },
-    actions: {
-        setLayoutHeight(height: number) {
-            this.layoutHeight = height;
-        },
-    },
+export const useLayoutStore = defineStore('layout', () => {
+    // 1. State
+    const layoutHeight = ref<number>(0);
+    const isLnbHidden = ref<boolean>(false);
+
+    // 2. Getters
+    // 함수를 반환하는 computed를 통해 동적 계산
+    const getContentHeight = computed(() => (windowHeight: number) => {
+        return windowHeight - layoutHeight.value;
+    });
+
+    // 3. Actions
+    const setLayoutHeight = (height: number) => {
+        layoutHeight.value = height;
+    };
+
+    const setLnbHidden = (state: boolean) => {
+        isLnbHidden.value = state;
+    };
+
+    return {
+        layoutHeight,
+        isLnbHidden,
+        getContentHeight,
+        setLayoutHeight,
+        setLnbHidden,
+    };
 });

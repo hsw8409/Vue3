@@ -28,9 +28,9 @@ import { useLoadingStore } from '@/common/stores/loadingState';
 // 변수 선언 영역
 // =====================================================================================================
 const router = useRouter();
-const layout = useLayoutStore();
-const auth = useAuthStore();
-const loading = useLoadingStore();
+const layoutStore = useLayoutStore();
+const authStore = useAuthStore();
+const loadingStore = useLoadingStore();
 
 const appContainer = ref<HTMLElement | null>(null);
 const isMobile = ref(false);
@@ -55,7 +55,7 @@ const setupResizeObserver = () => {
 
         const { width, height } = entry.contentRect;
 
-        layout.setLayoutHeight(height);
+        layoutStore.setLayoutHeight(height);
         isMobile.value = width <= 768;
     });
 
@@ -66,7 +66,7 @@ const setupResizeObserver = () => {
 // Hook 영역
 // =====================================================================================================
 watch(
-    () => auth.isLoggedIn,
+    () => authStore.isLoggedIn,
     (isLoggedIn) => {
         if (!isLoggedIn) {
             // 불필요한 라우터 push 방지
@@ -91,7 +91,7 @@ onUnmounted(() => {
     <div ref="appContainer" style="min-height: 100vh">
         <AppPopup />
 
-        <MainLoading v-if="loading.isLoading" />
+        <MainLoading v-if="loadingStore.isLoading" />
 
         <router-view />
     </div>

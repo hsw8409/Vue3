@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /*
- * @file     MenuTab.vue
+ * @file     MainTab.vue
  * @menu     메뉴 탭 제어 컴포넌트
  * @author   astems
  * @since    2026-06-25
@@ -15,96 +15,43 @@ import {
     defineAsyncComponent,
     ref,
     inject,
-    nextTick,
     onUpdated,
-    onBeforeUnmount,
     onBeforeUpdate,
     watch,
     provide,
-    shallowRef,
     type Component,
     type Ref,
-    type ComputedRef,
 } from 'vue';
+import { storeToRefs } from 'pinia';
 import HomeView from '@/components/main/layout/HomeView.vue';
 import { usePopupStore } from '@/common/stores/popup';
+import { useMenuStore } from '@/common/stores/menu';
+import { useTabStore } from '@/common/stores/tab';
 import { utils } from '@/common/utils';
+
+import type { SelectedMenuProps } from '@/types/menu';
 
 // =====================================================================================================
 // Type 선언 영역
 // =====================================================================================================
 
-interface TabItem {
-    component: Component;
-    mcd: string;
-    sname: string;
-    key: number;
-    refreshing: boolean;
-    params: Record<string, any>;
+interface SelectedPageProps extends SelectedMenuProps {
+    params?: Record<string, unknown>;
 }
 
 // =====================================================================================================
 // 변수 선언 영역
 // =====================================================================================================
 
-// ==================================================
-// 부모 컴포넌트로부터 주입(Inject) 및 상위 전송(Emits) 정의
-// ==================================================
-const hideToggle = inject<Ref<boolean>>('hideToggle');
-// 💡 부모 컴포넌트의 computed 주입 방식에 맞추어 ComputedRef 래핑 타입 지정
-const menuList = inject<ComputedRef<any[]>>('menuList');
+const popupStore = usePopupStore();
+const menuStore = useMenuStore();
+const tabStore = useTabStore();
+
+const hideToggle = inject<Ref<boolean>>('hideToggle', ref(false));
 
 const emit = defineEmits<{
     (e: 'menuSet', menu: any): void;
-    (e: 'favoriteToggleEmit', val: boolean): void;
 }>();
-
-const popup = usePopupStore();
-
-// Vite 동적 모듈 로더 파일 스캔
-const modules = import.meta.glob('/src/views/**/*.vue');
-
-// ==================================================
-// DOM & 컴포넌트 인스턴스 참조 레퍼런스 (Refs)
-// ==================================================
-const tabList = ref<HTMLElement[]>([]);
-onBeforeUpdate(() => {
-    tabList.value = []; // 업데이트 직전 배열을 비워 순서 유실 방지
-});
-
-// ==================================================
-// 반응형 상태 변수 선언
-// ==================================================
-const tabs = shallowRef<TabItem[]>([]);
-const menuName = ref<any[]>([]);
-const currentIndex = ref(-1);
-const draggingIndex = ref(-1);
-const nowWidth = ref(0);
-const calcSize = ref(270);
-
-const isContextMenuVisible = ref(false);
-const contextMenuX = ref(0);
-const contextMenuY = ref(0);
-const contextIndex = ref(-1);
-
-// ==================================================
-// 연산된 프로퍼티 (Computed)
-// ==================================================
-const currentTabComponent = computed<Component>(() => {
-    return tabs.value[currentIndex.value]?.component || HomeView;
-});
-
-const currentTabKey = computed<string | number>(() => {
-    return tabs.value[currentIndex.value]?.key || 'home-view';
-});
-
-const currentMenu = computed(() => {
-    return menuName.value[currentIndex.value];
-});
-
-// ==================================================
-// 자식 컴포넌트 방향 데이터 공유 (Provide)
-// ==================================================
 
 provide(
     'currentMenu',
@@ -112,214 +59,161 @@ provide(
 );
 provide('addTab', (i: any) => addTab(i));
 
+// Vite 동적 모듈 로더 파일 스캔
+const modules = import.meta.glob('/src/views/**/*.vue');
+
+const tabList = ref<HTMLElement[]>([]);
+onBeforeUpdate(() => {
+    tabList.value = [];
+});
+
+const draggingIndex = ref(-1);
+const nowWidth = ref(0);
+const calcSize = ref(270);
+
+const { tabs, activeIndex } = storeToRefs(tabStore);
+
+const currentIndex = computed({
+    get() {
+        return activeIndex.value;
+    },
+
+    set(value: number) {
+        tabStore.setActive(value);
+    },
+});
+
+const currentTabComponent = computed<Component>(() => {
+    const component = tabStore.activeTab?.component;
+
+    console.log('현재 component:', component);
+
+    return component ?? HomeView;
+});
+
+const currentTabKey = computed<string | number>(() => {
+    return tabStore.activeTab?.key ?? 'home-view';
+});
+
+const currentMenu = computed(() => {
+    return tabStore.activeTab;
+});
+
 // =====================================================================================================
 // 사용자 정의 함수 영역
 // =====================================================================================================
 const scrollToTab = (index: number) => {
-    if (
-        tabs.value.length === 0 ||
-        currentIndex.value === tabs.value.length ||
-        !tabList.value ||
-        !tabList.value[index]
-    ) {
+    if (tabs.value.length === 0 || !tabList.value[index]) {
         return;
     }
 
-    const element = tabList.value[index];
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-    }
+    tabList.value[index].scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'start',
+    });
 
     emit('menuSet', currentMenu.value);
 };
 
-const contextMenuControl = (flag: boolean) => {
-    if (flag) {
-        document.addEventListener('click', hideContextMenu);
-        document.addEventListener('keydown', handleKeyEvents);
-    } else {
-        document.removeEventListener('click', hideContextMenu);
-        document.removeEventListener('keydown', handleKeyEvents);
+const addTab = async (i: SelectedPageProps) => {
+    const selectedMenu = menuStore.getSelectedMenu(i.mcd);
+
+    if (!selectedMenu) {
+        return false;
     }
-};
-
-const showContextMenu = (event: MouseEvent, tab: any, index: number) => {
-    contextMenuX.value = event.clientX;
-    contextMenuY.value = (event as any).layerY || event.clientY;
-    contextIndex.value = index;
-    isContextMenuVisible.value = true;
-    contextMenuControl(true);
-};
-
-const hideContextMenu = () => {
-    isContextMenuVisible.value = false;
-    contextMenuControl(false);
-};
-
-const handleKeyEvents = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' || e.key === 'Enter') {
-        hideContextMenu();
-    }
-};
-
-// 탭 추가 함수
-const addTab = async (i: any) => {
-    const originList = menuList?.value || [];
-    if (!originList.length) return false;
-
-    const findItem = originList.find((menu) => menu.mcd == i.mcd && menu.lv === 3);
-
-    if (!findItem) return false;
-
-    const findmItem = originList.find((menu) => menu.mcd === findItem.pcd && menu.lv === 2);
-
-    const findlItem = originList.find((menu) => menu.mcd === findmItem.pcd && menu.lv === 1);
-
-    const selectedMenu = {
-        lname: findlItem.mnm,
-        mname: findmItem.mnm,
-        sname: findItem.mnm,
-        path: findItem.mpath,
-        mcd: findItem.mcd,
-        fileNm: findItem.fileNm,
-        progCd: findItem.progCd,
-    };
 
     try {
-        if (utils.obj.isBlank(modules[selectedMenu.path])) {
-            popup.alert(`화면[ ${selectedMenu.sname} ]이 존재하지 않습니다.`);
+        if (!selectedMenu.path) {
+            popupStore.alert('화면 경로가 존재하지 않습니다.');
+
             return false;
         }
 
-        const findTabItem = tabs.value.findIndex((tab) => tab.mcd === selectedMenu.mcd);
+        if (utils.obj.isBlank(modules[selectedMenu.path])) {
+            popupStore.alert(`화면[ ${selectedMenu.sname} ]이 존재하지 않습니다.`);
 
-        // 기존 탭의 params 보존
-        const oldParams = findTabItem >= 0 ? (tabs.value[findTabItem]?.params ?? {}) : {};
-
-        const params = i.params ?? oldParams;
-
-        if (findTabItem === -1) {
-            menuName.value.push(selectedMenu);
-
-            tabs.value = [
-                ...tabs.value,
-                {
-                    component: defineAsyncComponent(
-                        modules[selectedMenu.path] as () => Promise<Component>,
-                    ),
-                    mcd: selectedMenu.mcd,
-                    sname: selectedMenu.sname,
-                    key: Date.now(),
-                    refreshing: false,
-                    params,
-                },
-            ];
-
-            await nextTick();
-
-            currentIndex.value = tabs.value.length - 1;
-        } else {
-            tabs.value = tabs.value.map((tab, idx) => {
-                if (idx === findTabItem) {
-                    return {
-                        ...tab,
-                        params,
-                    };
-                }
-
-                return tab;
-            });
-
-            currentIndex.value = findTabItem;
+            return false;
         }
+
+        const loader = modules[selectedMenu.path] as () => Promise<Component>;
+
+        const component = defineAsyncComponent(loader);
+
+        tabStore.openTab({
+            mcd: selectedMenu.mcd,
+            sname: selectedMenu.sname,
+            lname: selectedMenu.lname,
+            mname: selectedMenu.mname,
+            path: selectedMenu.path,
+            fileNm: selectedMenu.fileNm,
+            component,
+            params: i.params ?? {},
+        });
 
         return true;
     } catch (error: any) {
-        popup.alert(`${error?.message || error}\n새로고침 후 이용해주세요.`);
+        popupStore.alert(`${error?.message || error}\n새로고침 후 이용해주세요.`);
 
         return false;
     }
 };
 
 const layoutSizeChanged = (e: boolean) => {
-    if (!currentMenu.value) return;
+    if (!currentMenu.value) {
+        return;
+    }
+
     const elements = document.querySelectorAll(
         '[id^="aui-grid-wrap-"]:not([id="aui-grid-wrap-0"])',
     );
-    const array = Array.from(elements).map((v: any) => ({ id: v.id, width: v.clientWidth }));
+
+    const array = Array.from(elements).map((v: any) => ({
+        id: v.id,
+        width: v.clientWidth,
+    }));
 
     const contWrapWidth = document.getElementsByClassName('cont_wrap').item(0)?.clientWidth || 0;
+
     nowWidth.value = contWrapWidth;
-    const girdParent = array.map(({ id, width }) => {
+
+    const gridParent = array.map(({ id, width }) => {
         const ratio = width / contWrapWidth;
-        const widthP = width + ratio * calcSize.value;
-        const widthM = width - ratio * calcSize.value;
-        return { id, widthP, widthM };
+
+        return {
+            id,
+
+            widthP: width + ratio * calcSize.value,
+
+            widthM: width - ratio * calcSize.value,
+        };
     });
 
-    girdParent.forEach(({ id, widthP, widthM }) => {
+    gridParent.forEach(({ id, widthP, widthM }) => {
         const targetWidth = e ? widthM : widthP;
+
         window.AUIGrid?.resize(`#${id}`, targetWidth);
     });
 };
 
 const removeTab = (index: number) => {
-    if (tabs.value.length == 0) return;
-
-    if (index >= 0) {
-        const nextTabs = [...tabs.value];
-        nextTabs.splice(index, 1);
-        tabs.value = nextTabs;
-
-        menuName.value.splice(index, 1);
-
-        if (currentIndex.value === 0) {
-            currentIndex.value = 0;
-        } else if (currentIndex.value >= index) {
-            --currentIndex.value;
-        }
-    } else {
-        tabs.value = [];
-        menuName.value = [];
-        currentIndex.value = -1;
-    }
+    tabStore.closeTab(index);
 
     emit('menuSet', currentMenu.value);
 };
 
-// 💡 컨텍스트 메뉴 내 특정 기능 핸들러
-const refreshTab = (index: number) => {
-    // 탭이 존재하는지만 방어 코드로 체크하고 target 변수 선언은 제거합니다.
-    if (!tabs.value[index]) return;
+const closeAllTabs = () => {
+    tabStore.closeAll();
 
-    tabs.value = tabs.value.map((tab, idx) => {
-        if (idx === index) {
-            return { ...tab, key: Date.now(), refreshing: true };
-        }
-        return tab;
-    });
-
-    setTimeout(() => {
-        tabs.value = tabs.value.map((tab, idx) => {
-            if (idx === index) return { ...tab, refreshing: false };
-            return tab;
-        });
-    }, 300);
-    hideContextMenu();
+    emit('menuSet', undefined);
 };
 
 const tabLeft = () => {
-    if (tabs.value.length <= 1 || currentIndex.value === 0) return;
-    --currentIndex.value;
+    tabStore.moveLeft();
 };
 
 const tabRight = () => {
-    if (tabs.value.length <= 1 || currentIndex.value === tabs.value.length - 1) return;
-    ++currentIndex.value;
-};
-
-const favoriteToggle = (b: boolean) => {
-    emit('favoriteToggleEmit', b);
+    tabStore.moveRight();
 };
 
 const handleDragStart = (index: number) => {
@@ -327,31 +221,34 @@ const handleDragStart = (index: number) => {
 };
 
 const handleDragOver = (index: number) => {
-    if (draggingIndex.value === -1 || index === draggingIndex.value) return;
+    if (draggingIndex.value === -1 || draggingIndex.value === index) {
+        return;
+    }
 
-    const nextTabs = [...tabs.value];
-    nextTabs.splice(index, 0, nextTabs.splice(draggingIndex.value, 1)[0]!);
-    tabs.value = nextTabs;
+    tabStore.moveTab(
+        draggingIndex.value,
 
-    menuName.value.splice(index, 0, menuName.value.splice(draggingIndex.value, 1)[0]);
-    currentIndex.value = index;
+        index,
+    );
+
     draggingIndex.value = index;
 };
 
 const handleDragEnd = () => {
     draggingIndex.value = -1;
+
     emit('menuSet', currentMenu.value);
 };
 
 const homeView = () => {
-    currentIndex.value = -1;
-    emit('menuSet', currentMenu.value);
+    tabStore.home();
+
+    emit('menuSet', undefined);
 };
 
 defineExpose({
     addTab,
     layoutSizeChanged,
-    favoriteToggle,
 });
 
 // =====================================================================================================
@@ -361,45 +258,54 @@ onUpdated(() => {
     const elements = document.querySelectorAll(
         '[id^="aui-grid-wrap-"]:not([id="aui-grid-wrap-0"])',
     );
+
     const contEl = document.getElementsByClassName('cont_wrap');
 
     if (elements.length > 0 && contEl.length !== 0) {
-        if (!currentMenu.value) return;
-        const array = Array.from(elements).map((v: any) => ({ id: v.id, width: v.clientWidth }));
+        if (!currentMenu.value) {
+            return;
+        }
+
+        const array = Array.from(elements).map((v: any) => ({
+            id: v.id,
+
+            width: v.clientWidth,
+        }));
+
         const contWrapWidth = contEl.item(0)?.clientWidth || 0;
 
-        const girdParent = array.map(({ id, width }) => {
+        const gridParent = array.map(({ id, width }) => {
             const ratio = width / contWrapWidth;
+
             const hasGridChanged =
                 nowWidth.value === contWrapWidth ||
                 (nowWidth.value >= contWrapWidth + 20 && nowWidth.value <= contWrapWidth + 30);
-            const widthP = hasGridChanged ? width + ratio * calcSize.value : width;
-            const widthM = hasGridChanged ? width - ratio * calcSize.value : width;
-            return { id, widthP, widthM };
+
+            return {
+                id,
+
+                widthP: hasGridChanged ? width + ratio * calcSize.value : width,
+
+                widthM: hasGridChanged ? width - ratio * calcSize.value : width,
+            };
         });
 
-        // 💡 주입 데이터 언래핑 언더 가드 보정
-        const isHide =
-            typeof hideToggle === 'object' && 'value' in hideToggle
-                ? hideToggle.value
-                : !!hideToggle;
+        const isHide = hideToggle?.value ?? false;
 
-        girdParent.forEach(({ id, widthP, widthM }) => {
-            const targetWidth = isHide ? widthM : widthP;
-            window.AUIGrid?.resize(`#${id}`, targetWidth);
+        gridParent.forEach(({ id, widthP, widthM }) => {
+            window.AUIGrid?.resize(`#${id}`, isHide ? widthM : widthP);
         });
     }
-});
-
-onBeforeUnmount(() => {
-    contextMenuControl(false);
 });
 
 watch(currentIndex, (newIndex) => {
-    if (tabs.value.length === newIndex) return;
     if (newIndex >= 0) {
         scrollToTab(newIndex);
     }
+});
+
+watch(hideToggle, (value) => {
+    layoutSizeChanged(!!value);
 });
 </script>
 
@@ -420,12 +326,8 @@ watch(currentIndex, (newIndex) => {
                             if (el) tabList[index] = el as HTMLElement;
                         }
                     "
-                    :class="[
-                        currentIndex === index ? 'on' : 'off',
-                        tab.refreshing ? 'tab-refreshing' : '',
-                    ]"
+                    :class="[currentIndex === index ? 'on' : 'off']"
                     draggable="true"
-                    @contextmenu.prevent="showContextMenu($event, tab, index)"
                     @dragstart="handleDragStart(index)"
                     @dragover.prevent="handleDragOver(index)"
                     @dragend.prevent="handleDragEnd"
@@ -459,7 +361,7 @@ watch(currentIndex, (newIndex) => {
                 type="button"
                 class="allClose"
                 title="현재 탭 닫기"
-                @click.stop.prevent="removeTab(currentIndex)"
+                @click.stop.prevent="removeTab(tabStore.activeIndex)"
             >
                 <span>CLOSE</span>
             </button>
@@ -467,33 +369,12 @@ watch(currentIndex, (newIndex) => {
                 type="button"
                 class="allClose2"
                 title="모든 탭 닫기"
-                @click.stop.prevent="removeTab(-1)"
+                @click.stop.prevent="closeAllTabs"
             >
                 <span>CLOSE ALL</span>
             </button>
         </div>
     </div>
-
-    <ul
-        v-if="isContextMenuVisible"
-        class="context-menu"
-        :style="{ left: contextMenuX + 'px', top: contextMenuY + 'px', background: '#fff' }"
-    >
-        <li
-            class="aui-grid-context-item"
-            style="padding: 8px 14px; cursor: pointer"
-            @click="refreshTab(contextIndex)"
-        >
-            🔄 현재 탭 새로고침
-        </li>
-        <li
-            class="aui-grid-context-item"
-            style="padding: 8px 14px; cursor: pointer; color: red"
-            @click="removeTab(contextIndex)"
-        >
-            ❌ 현재 탭 닫기
-        </li>
-    </ul>
 
     <Suspense>
         <template #default>
@@ -503,7 +384,7 @@ watch(currentIndex, (newIndex) => {
                         :is="currentTabComponent"
                         :key="currentTabKey"
                         :menu-info="currentMenu"
-                        :params="tabs[currentIndex]?.params || {}"
+                        :params="tabStore.activeTab?.params || {}"
                     />
                 </KeepAlive>
             </div>

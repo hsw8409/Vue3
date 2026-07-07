@@ -45,7 +45,7 @@ interface UserForm {
 // 변수 선언 영역
 // =====================================================================================================
 const { t } = useI18n();
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 
 const props = defineProps<{
     id: string;
@@ -127,7 +127,7 @@ const isEdited = () => {
         (field) => normalizeEmpty(resetUserForm[field]) !== normalizeEmpty(userForm.value[field]),
     );
     if (!changed) {
-        popup.alert(t('com.message.noDataToSave'));
+        popupStore.alert(t('com.message.noDataToSave'));
         return false;
     }
     return true;
@@ -143,15 +143,15 @@ const save = async () => {
 
     try {
         const res = await updateMypage(userForm.value);
-        popup.alert(res?.data?.result);
+        popupStore.alert(res?.data?.result);
 
         // 부모에서 후처리가 필요하면 호출
         await props.onOk?.();
 
         // 현재 팝업 닫기
-        popup.closePopup(props.id);
+        popupStore.closePopup(props.id);
     } catch (e: any) {
-        popup.alert(e.message);
+        popupStore.alert(e.message);
     }
 };
 
@@ -187,7 +187,7 @@ const search = async () => {
         userForm.value = structuredClone(formData);
         Object.assign(resetUserForm, structuredClone(formData));
     } catch (e: any) {
-        popup.alert(e.message);
+        popupStore.alert(e.message);
     }
 };
 const bindPhoneFormatter = (source: 'formatTelNo' | 'formatHpNo', target: 'telNo' | 'hpNo') => {
@@ -212,7 +212,7 @@ bindPhoneFormatter('formatHpNo', 'hpNo');
  *
  */
 const openPasswordPopup = () => {
-    popup.openPopup('biz', 'UI_USR_P02', {
+    popupStore.openPopup('biz', 'UI_USR_P02', {
         userId: userForm.value.userId,
         passwd: userForm.value.passwd,
         width: 600,

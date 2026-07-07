@@ -44,7 +44,7 @@ const props = withDefaults(defineProps<Props>(), {
     popupPg: '',
 });
 
-const popup = usePopupStore();
+const popupStore = usePopupStore();
 const inputRef = ref<HTMLInputElement | null>(null);
 const emit = defineEmits(['update:modelValue', 'enter']);
 
@@ -67,7 +67,7 @@ const popupSelect = (selected: any) => {
     });
 };
 const popupHandler = async () => {
-    const { popupPromise } = popup.openPopup('biz', popupPage.value, {
+    const { popupPromise } = popupStore.openPopup('biz', popupPage.value, {
         param: {
             ...props.modelValue,
             ...props.params,

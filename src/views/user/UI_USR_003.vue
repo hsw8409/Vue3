@@ -28,6 +28,7 @@ import ComButton from '@/components/form/ComButton.vue';
 
 import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import { useCommonCodeStore } from '@/common/stores/commonCode';
+import { usePopupStore } from '@/common/stores/popup';
 
 import { selectUserLoginLog, selectLogByDate } from '@/api/user'; //backend
 
@@ -48,8 +49,8 @@ defineProps<{
 const { t } = useI18n();
 const layoutStore = useLayoutStore();
 
-const commonCode = useCommonCodeStore();
-const EAT050 = computed(() => commonCode.get('EAT050'));
+const commonCodeStore = useCommonCodeStore();
+const EAT050 = computed(() => commonCodeStore.getCode('EAT050'));
 
 const defaultSearchState = () => ({
     searchDateStart: new Date(),
@@ -64,6 +65,8 @@ const datePeriodParam = ref({
     searchDateStart: new Date(),
     searchDateEnd: new Date(),
 });
+
+const popupStore = usePopupStore();
 
 // ==================================================
 // 그리드 영역
@@ -155,7 +158,6 @@ const search = async () => {
     const gridDtl = myGridDtl.value;
 
     gridDtl?.clearGridData();
-    grid?.showAjaxLoader();
 
     try {
         const params = {
@@ -166,10 +168,8 @@ const search = async () => {
         };
         const res = await selectUserLoginLog(params);
         grid?.setGridData(res?.data?.result ?? []);
-    } catch (e) {
-        console.error('Search failed', e);
-    } finally {
-        grid?.removeAjaxLoader();
+    } catch (e: any) {
+        popupStore.alert(e);
     }
 };
 
@@ -190,13 +190,13 @@ const drawDtl = async (item: any) => {
             .replace(/[^0-9]/g, ''),
     };
 
-    gridDtl?.showAjaxLoader();
-    try {
-        const result = await selectLogByDate(params);
-        gridDtl?.setGridData(result?.data?.result ?? []);
-    } finally {
-        gridDtl?.removeAjaxLoader();
-    }
+    selectLogByDate(params)
+        .then((res) => {
+            gridDtl?.setGridData(res?.data?.result ?? []);
+        })
+        .catch((e) => {
+            popupStore.alert(e.message);
+        });
 };
 
 /** 개월 선택 버튼 */
