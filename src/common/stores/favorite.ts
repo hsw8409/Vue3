@@ -1,5 +1,5 @@
 /**
- * @file     /stores/favorite.ts
+ * @file     /common/stores/favorite.ts
  * @menu     즐겨찾기 관리 store
  * @author   astems
  * @since    2026-06-23

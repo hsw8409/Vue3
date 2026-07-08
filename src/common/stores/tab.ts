@@ -1,5 +1,5 @@
 /**
- * @file     /stores/tab.ts
+ * @file     /common/stores/tab.ts
  * @menu     탭메뉴 관련 store
  * @author   astems
  * @since    2026-07-06

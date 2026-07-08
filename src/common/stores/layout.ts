@@ -1,5 +1,5 @@
 /**
- * @file     /stores/layout.ts
+ * @file     /common/stores/layout.ts
  * @menu     레이아웃 관련 store
  * @author   astems
  * @since    2026-06-17

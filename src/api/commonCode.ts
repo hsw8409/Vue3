@@ -13,15 +13,15 @@
 // import 영역
 // =====================================================================================================
 import api from '@/common/axios/api'; // axios api
-import type { ApiResponse } from '@/types/axios'; // axios api 응답
-import type { CommonCodeGroupProps, CommonCodeGProps } from '@/types/commonCode'; // 공통코드 타입
 
 // =====================================================================================================
-// Type 선언
+// Type 선언 영역
 // =====================================================================================================
+import type { ApiResponse } from '@/types/api'; // axios api 응답
+import type { CommonCodeGroupProps, CommonCodeProps } from '@/types/commonCode'; // 공통코드 타입
 
 // =====================================================================================================
-// 변수 선언
+// 변수 선언 영역
 // =====================================================================================================
 const BASE = '/api/v1/biz/commonCode';
 
@@ -34,8 +34,8 @@ export const selectGroupList = (params: CommonCodeGroupProps) => {
 };
 
 // 공통코드상세 조회
-export const selectDetailList = (params: CommonCodeGProps) => {
-    return api.get<ApiResponse<CommonCodeGProps[]>>(`${BASE}/selectDetailList`, { params });
+export const selectDetailList = (params: CommonCodeProps) => {
+    return api.get<ApiResponse<CommonCodeProps[]>>(`${BASE}/selectDetailList`, { params });
 };
 
 // 공통코드 저장

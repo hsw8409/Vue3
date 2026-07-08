@@ -15,6 +15,8 @@ import { ref, computed, provide, onMounted, onUnmounted, inject } from 'vue';
 import { useAuthStore } from '@/common/stores/auth';
 import { usePopupStore } from '@/common/stores/popup';
 import { useCommonCodeStore } from '@/common/stores/commonCode';
+import { useMenuStore } from '@/common/stores/menu';
+import { useFavoriteStore } from '@/common/stores/favorite';
 
 import MainHeader from '@/components/main/layout/MainHeader.vue';
 import MainLeft from '@/components/main/layout/MainLeft.vue';
@@ -47,7 +49,8 @@ type GlobalEvent = {
 // =====================================================================================================
 const authStore = useAuthStore();
 const popupStore = usePopupStore();
-
+const menuStore = useMenuStore();
+const favStore = useFavoriteStore();
 const commonCodeStore = useCommonCodeStore();
 
 const emitter = inject<Emitter<GlobalEvent>>('emitter');
@@ -91,7 +94,11 @@ const menuSet = (m: MenuItemProps) => {
 onMounted(async () => {
     const loginUser = TokenService.getUser();
 
-    if (loginUser && Number(loginUser?.resetTarget) === 1) {
+    if (!loginUser || !loginUser.userId) {
+        return;
+    }
+
+    if (Number(loginUser.resetTarget) === 1) {
         authStore.logout();
         return;
     }
@@ -100,7 +107,19 @@ onMounted(async () => {
         emitter.on('errorMessageEvent', axiosError);
     }
 
-    await commonCodeStore.fetchAll();
+    // 공통코드, 메뉴, 즐겨찾기 목록을 가져옴
+    try {
+        await Promise.all([
+            commonCodeStore.fetchAll(),
+            menuStore.fetchMenuList({
+                loginChainCd: loginUser.chainCd ?? '',
+                loginId: loginUser.userId,
+            }),
+            favStore.fetchFavoriteList(loginUser.userId),
+        ]);
+    } catch (error) {
+        console.error('데이터 로딩 중 오류 발생:', error);
+    }
 });
 
 onUnmounted(() => {

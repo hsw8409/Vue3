@@ -24,7 +24,7 @@ export interface CommonCodeGroupProps {
     updDtime?: string;
 }
 
-export interface CommonCodeGProps {
+export interface CommonCodeProps {
     commCd?: string;
     dtlCommCd?: string;
     dtlCommNm?: string;

@@ -1,5 +1,5 @@
 /**
- * @file     /stores/auth.ts
+ * @file     /common/stores/auth.ts
  * @menu     인증 상태 관리 store
  * @author   astems
  * @since    2026-06-23

@@ -1,5 +1,5 @@
 /**
- * @file     /stores/commonCode.ts
+ * @file     /common/stores/commonCode.ts
  * @menu     공통코드 관리 store
  * @author   astems
  * @since    2026-07-02

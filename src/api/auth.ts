@@ -13,20 +13,15 @@
 // import 영역
 // =====================================================================================================
 import api from '@/common/axios/api'; // axios api
-import type { ApiResponse } from '@/types/axios';
-import type { UserProps, UserLogProps } from '@/types/auth';
-import type { TokenProps } from '@/types/auth';
 
 // =====================================================================================================
-// Type 선언
+// Type 선언 영역
 // =====================================================================================================
-export interface LoginResProps {
-    user: UserProps;
-    token: TokenProps;
-}
+import type { ApiResponse } from '@/types/api';
+import type { UserProps, UserLogProps, LoginResProps } from '@/types/auth';
 
 // =====================================================================================================
-// 변수 선언
+// 변수 선언 영역
 // =====================================================================================================
 const BASE = '/api/v1/biz/user';
 

@@ -11,4 +11,5 @@ export interface ApiResponse<T = any> {
     status?: string;
     timestamp?: string;
     result?: T;
+    message?: string;
 }

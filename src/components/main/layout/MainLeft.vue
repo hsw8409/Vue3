@@ -10,7 +10,7 @@
 // =====================================================================================================
 // import 영역
 // =====================================================================================================
-import { ref, watch, inject, onMounted, computed } from 'vue';
+import { ref, watch, inject, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 
 import { useMenuStore } from '@/common/stores/menu';
@@ -303,20 +303,6 @@ const filterFlag = computed(() => searchQuery.value.trim() !== '');
 // =====================================================================================================
 // Hook 영역
 // =====================================================================================================
-
-onMounted(async () => {
-    if (!loginUser?.userId) {
-        return;
-    }
-
-    await menuStore.fetchMenuList({
-        loginChainCd: loginUser.chainCd ?? '',
-
-        loginId: loginUser.userId,
-    });
-
-    await favStore.fetchFavoriteList(loginUser.userId);
-});
 
 /**
  *  즐겨찾기 TAB 선택시 메뉴 트리 전체 접히기

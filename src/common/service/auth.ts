@@ -1,5 +1,5 @@
 /**
- * @file     /service/auth.ts
+ * @file     /common/service/auth.ts
  * @menu     로그인 서비스
  * @author   astems
  * @since    2026-06-17
@@ -15,10 +15,16 @@ import TokenService from '@/common/service/token'; // 토큰 서비스
 
 import { utils } from '@/common/utils'; // 유틸
 
+import { login, logout } from '@/api/auth';
+
+// =====================================================================================================
+// Type 선언
+// =====================================================================================================
 import type { UserProps, TokenProps } from '@/types/auth'; // 권한 타입
 
-import { login, logout } from '@/api/auth'; // api
-
+// =====================================================================================================
+// 사용자 정의 함수 영역
+// =====================================================================================================
 class AuthService {
     /**
      * 로그인 서비스

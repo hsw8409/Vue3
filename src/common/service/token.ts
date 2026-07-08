@@ -1,5 +1,5 @@
 /**
- * @file     /service/token.ts
+ * @file     /common/service/token.ts
  * @menu     토큰 서비스
  * @author   astems
  * @since    2026-06-17

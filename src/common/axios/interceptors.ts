@@ -1,5 +1,5 @@
 /**
- * @file     interceptors.ts
+ * @file     /common/axios/interceptors.ts
  * @menu     api 호출시 인터셉터 역할
  * @author   astems
  * @since    2026-06-22
@@ -17,11 +17,12 @@ import { log } from '@/common/utils/log';
 import { useLoadingStore } from '@/common/stores/loadingState';
 import { useAuthStore } from '@/common/stores/auth';
 
+// =====================================================================================================
+// Type 선언 영역
+// =====================================================================================================
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import type { ApiResponse } from '@/types/api';
 
-// =====================================================================================================
-// Type 선언
-// =====================================================================================================
 type Mitt = {
     emit: (event: string, payload?: any) => void;
 };
@@ -31,14 +32,8 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     isTokenNull?: boolean;
 }
 
-interface ApiResponse<T = any> {
-    code?: number;
-    message?: string;
-    result?: T;
-}
-
 // =====================================================================================================
-// 변수 선언
+// 변수 선언 영역
 // =====================================================================================================
 
 // -------------------- state --------------------

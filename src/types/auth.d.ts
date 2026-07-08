@@ -69,3 +69,8 @@ export interface LoginProps {
     loginChainCd?: string;
     loginId?: string;
 }
+
+export interface LoginResProps {
+    user: UserProps;
+    token: TokenProps;
+}

@@ -12,14 +12,14 @@
 // =====================================================================================================
 import { AxiosRequestConfig } from 'axios';
 import api from '@/common/axios/api';
-import type { ApiResponse } from '@/types/axios';
-import type { CommonCodeGProps } from '@/types/commonCode';
-import type { LoginProps } from '@/types/auth';
-import type { MenuProps } from '@/types/menu';
 
 // =====================================================================================================
 // Type 선언
 // =====================================================================================================
+import type { ApiResponse } from '@/types/api';
+import type { CommonCodeProps } from '@/types/commonCode';
+import type { LoginProps } from '@/types/auth';
+import type { MenuProps } from '@/types/menu';
 
 // =====================================================================================================
 // 변수 선언
@@ -41,5 +41,5 @@ export const selectMenu = (params?: LoginProps) => {
 
 // 공통코드 조회
 export const selectComCd = () => {
-    return api.post<ApiResponse<CommonCodeGProps>>(`${BASE}/selectCommCd`);
+    return api.post<ApiResponse<CommonCodeProps>>(`${BASE}/selectCommCd`);
 };

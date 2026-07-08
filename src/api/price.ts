@@ -13,12 +13,12 @@
 // import 영역
 // =====================================================================================================
 import api from '@/common/axios/api';
-import type { ApiResponse } from '@/types/axios';
-import type { PriceCopyReqProps, PriceGroupProps, PriceItemProps } from '@/types/price';
 
 // =====================================================================================================
 // Type 선언
 // =====================================================================================================
+import type { ApiResponse } from '@/types/api';
+import type { PriceCopyReqProps, PriceGroupProps, PriceItemProps } from '@/types/price';
 
 // =====================================================================================================
 // 변수 선언

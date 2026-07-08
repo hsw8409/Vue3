@@ -1,5 +1,5 @@
 /**
- * @file     /stores/menu.ts
+ * @file     /common/stores/menu.ts
  * @menu     메뉴목록 관리 store
  * @author   astems
  * @since    2026-07-06

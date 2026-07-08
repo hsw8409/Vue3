@@ -1,5 +1,5 @@
 /**
- * @file     loadingState.ts
+ * @file     /common/service/loadingState.ts
  * @menu     로딩바
  * @author   astems
  * @since    2026-06-17
