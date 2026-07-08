@@ -123,3 +123,15 @@ export interface MenuGroupPropgramProps {
     updDtime?: string; // 시스템구분코드
     sysGbCd?: string; //퇴사일자
 }
+
+export interface MenuMethodsProps {
+    search?(): void | Promise<void>;
+    reset?(): void | Promise<void>;
+    save?(): void | Promise<void>;
+    newRegi?(): void | Promise<void>;
+    copy?(): void | Promise<void>;
+    pageMove?(): void | Promise<void>;
+
+    // 화면별로 추가 액션이 필요하면 허용
+    [key: string]: (() => void | Promise<void>) | undefined;
+}

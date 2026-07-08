@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * @file     VueHeader.vue
- * @menu     상단 공통 헤더
+ * @file     MainHeader.vue
+ * @menu     메인 상단 공통 헤더
  * @author   astems
  * @since    2026-06-17
  * @version  1.0
@@ -17,6 +17,8 @@ import TokenService from '@/common/service/token';
 import { useAuthStore } from '@/common/stores/auth';
 import { usePopupStore } from '@/common/stores/popup';
 
+import type { UserProps } from '@/types/auth'; // 권한 타입
+
 // =====================================================================================================
 // Type 선언 영역
 // =====================================================================================================
@@ -29,7 +31,9 @@ const authStore = useAuthStore();
 const popupStore = usePopupStore();
 
 // 부모로부터 주입받은 유저 정보 (기본값 설정)
-const loginUser = inject<any>('loginUser', {});
+const loginUser = inject<UserProps>('loginUser', {});
+
+console.info('loginUser>>', loginUser);
 
 // 마이페이지 팝업용 고정 파라미터 (안전하게 계산되도록 맵핑)
 const searchParameter = {
@@ -43,7 +47,10 @@ const chainNm = computed<string>(() => String(TokenService.getUser()?.chainNm ||
 // =====================================================================================================
 // 사용자 정의 함수 영역
 // =====================================================================================================
-// 로그아웃 처리
+/**
+ * 로그아웃
+ *
+ */
 const logout = () => {
     // 💡 이전 팝업 스토어 규격(세 번째 인자 옵션 객체)에 맞춰 확실하게 바인딩
     popupStore.confirm('로그아웃 하시겠습니까?', undefined, {
@@ -59,7 +66,10 @@ const logout = () => {
     });
 };
 
-// 마이페이지 정보 수정 팝업 오픈
+/**
+ *  마이페이지 오픈(개인정보 수정)
+ *
+ */
 const myPage = () => {
     popupStore.openPopup('biz', 'UI_USR_P03', {
         userId: searchParameter.userId,

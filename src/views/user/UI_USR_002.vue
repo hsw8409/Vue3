@@ -36,6 +36,7 @@ import { selectMenuGroupUsing } from '@/api/menu'; //backend
 import { checkUserIdDuplication, insertUser, selectUser, updateUser } from '@/api/user'; //backend
 
 import type { UserProps } from '@/types/auth';
+import type { SelectedMenuProps, MenuMethodsProps } from '@/types/menu';
 
 // =====================================================================================================
 // Type 선언 영역
@@ -50,7 +51,7 @@ interface PageParams {
 // =====================================================================================================
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
 const props = defineProps<{
-    menuInfo: any;
+    menuInfo: SelectedMenuProps;
     params: PageParams;
 }>();
 
@@ -193,7 +194,8 @@ const save = async function () {
     // 재직구분이 '퇴사'인 경우 퇴사일자는 필수
     if (user.value.employGbnFg === '30' && !leaveDate.value) {
         // 퇴사일자를 입력해주세요.
-        return popupStore.alert(t('com.message.inputItemL', [t('user.label.leaveDate')]));
+        popupStore.alert(t('com.message.inputItemL', [t('user.label.leaveDate')]));
+        return;
     }
     // ID중복 체크를 하지 않은 경우
     if (!idCheckFg) {
@@ -389,6 +391,12 @@ const loadUserDetail = async (userId: string) => {
     }
 };
 
+const methods: MenuMethodsProps = {
+    reset,
+    save,
+    pageMove,
+};
+
 // =====================================================================================================
 // Hook 영역
 // =====================================================================================================
@@ -442,7 +450,7 @@ onActivated(() => {
 <template>
     <!-- 메뉴&공통버튼영역 -->
     <!-- 초기화, 저장, 목록 -->
-    <MenuTop ref="menuTopRef" :menu-info="$props.menuInfo" :methods="{ reset, save, pageMove }" />
+    <MenuTop ref="menuTopRef" :menu-info="props.menuInfo" :methods="methods" />
 
     <MenuContent>
         <!-- S : Input Form -->

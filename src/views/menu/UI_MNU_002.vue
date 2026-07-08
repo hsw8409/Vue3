@@ -27,7 +27,7 @@ import { useCommonCodeStore } from '@/common/stores/commonCode';
 import { utils } from '@/common/utils';
 
 import { selectMenuGroup, selectMenuGroupUserProgram, saveMenuGroupProgram } from '@/api/menu'; //backend
-import { MenuGroupPropgramProps } from '@/types/menu';
+import type { MenuGroupPropgramProps, SelectedMenuProps, MenuMethodsProps } from '@/types/menu';
 
 // =====================================================================================================
 // Type 선언 영역
@@ -38,9 +38,9 @@ import { MenuGroupPropgramProps } from '@/types/menu';
 // =====================================================================================================
 
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
-defineProps<{
-    menuInfo: any;
-    params: Record<string, any>;
+const props = defineProps<{
+    menuInfo: SelectedMenuProps;
+    params: Record<string, undefined>;
 }>();
 
 // 메세지 변수
@@ -500,7 +500,7 @@ const save = async () => {
     if (!result) {
         // 저장할 데이터가 없습니다.
         popupStore.alert(t('com.message.noDataToSave'));
-        return false;
+        return;
     }
 
     // 필수 체크
@@ -673,6 +673,11 @@ const fn_cellEditEnd = (event: any, gridName: any) => {
     }
 };
 
+const methods: MenuMethodsProps = {
+    reset,
+    save,
+};
+
 // =====================================================================================================
 // Hook 영역
 // =====================================================================================================
@@ -687,8 +692,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <!-- 초기화, 저장 -->
-    <MenuTop :menu-info="$props.menuInfo" :methods="{ reset, save: () => save() }" />
+    <MenuTop ref="menuTopRef" :menu-info="props.menuInfo" :methods="methods" />
     <MenuContent>
         <div class="halfDiv">
             <div>

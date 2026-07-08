@@ -17,14 +17,10 @@ import { useMenuStore } from '@/common/stores/menu';
 import { useFavoriteStore } from '@/common/stores/favorite';
 
 import type { MenuItemProps, SelectedMenuProps } from '@/types/menu';
+import type { UserProps } from '@/types/auth'; // 권한 타입
 // =====================================================================================================
 // Type 선언 영역
 // =====================================================================================================
-
-interface LoginUser {
-    userId?: string;
-    chainCd?: string;
-}
 
 interface MenuTabParam {
     mcd: string;
@@ -33,7 +29,7 @@ interface MenuTabParam {
 // =====================================================================================================
 // 변수 선언 영역
 // =====================================================================================================
-const loginUser = inject<LoginUser | null>('loginUser', null);
+const loginUser = inject<UserProps>('loginUser', {});
 
 const emit = defineEmits<{
     (e: 'hide-menu-toggled', isLnbOn: boolean): void;
@@ -61,6 +57,10 @@ const menuTree = ref<MenuItemProps[]>([]);
 // =====================================================================================================
 // 사용자 정의 함수 영역
 // =====================================================================================================
+/**
+ *  메뉴목록을 구조체로 변경한다.
+ *
+ */
 const buildTree = (list: MenuItemProps[] = [], parentId = 'ROOT'): MenuItemProps[] => {
     return list
         .filter((item) => item?.pcd === parentId)
@@ -75,16 +75,10 @@ const buildTree = (list: MenuItemProps[] = [], parentId = 'ROOT'): MenuItemProps
         }));
 };
 
-const closeMenuRecursive = (menu: MenuItemProps) => {
-    menu.show = false;
-
-    menu.children?.forEach(closeMenuRecursive);
-};
-
-const closeAllMenus = () => {
-    menuTree.value.forEach(closeMenuRecursive);
-};
-
+/**
+ *  메뉴 선택
+ *
+ */
 const goPage = (mcd: string) => {
     const menu = menuStore.getSelectedMenu(mcd);
 
@@ -98,6 +92,10 @@ const goPage = (mcd: string) => {
     });
 };
 
+/**
+ *  메뉴 숨김
+ *
+ */
 const hideMenu = () => {
     isFavOn.value = false;
 
@@ -106,6 +104,10 @@ const hideMenu = () => {
     emit('hide-menu-toggled', isLnbOn.value);
 };
 
+/**
+ *  메뉴 TAB선택
+ *
+ */
 const menuOnOff = () => {
     if (!isLnbOn.value) {
         isLnbOn.value = true;
@@ -116,12 +118,20 @@ const menuOnOff = () => {
     isFavOn.value = false;
 };
 
+/**
+ *  메뉴검색 값 삭제
+ *
+ */
 const removeSearch = () => {
     searchQuery.value = '';
 
     searchInput.value?.focus();
 };
 
+/**
+ *  메뉴 트리 접히기
+ *
+ */
 const childHide = (b: boolean, i: number) => {
     const targetMenu = menuTree.value[i];
 
@@ -308,17 +318,30 @@ onMounted(async () => {
     await favStore.fetchFavoriteList(loginUser.userId);
 });
 
-watch(isFavOn, (nv) => {
-    if (nv) {
-        closeAllMenus();
-    }
-});
+/**
+ *  즐겨찾기 TAB 선택시 메뉴 트리 전체 접히기
+ *
+ */
+// const closeAllMenus = () => {
+//     const closeMenuRecursive = (menu: MenuItemProps) => {
+//         menu.show = false;
 
-watch(isLnbOn, (nv) => {
-    if (!nv) {
-        closeAllMenus();
-    }
-});
+//         menu.children?.forEach(closeMenuRecursive);
+//     };
+//     menuTree.value.forEach(closeMenuRecursive);
+// };
+//
+// watch(isFavOn, (nv) => {
+//     if (nv) {
+//         closeAllMenus();
+//     }
+// });
+
+// watch(isLnbOn, (nv) => {
+//     if (!nv) {
+//         closeAllMenus();
+//     }
+// });
 
 watch(
     () => menuStore.menuList,

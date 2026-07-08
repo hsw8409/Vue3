@@ -25,6 +25,8 @@ import dayjs from 'dayjs';
 
 import { mobilePurchaseList } from '@/api/mobile';
 
+import type { SelectedMenuProps } from '@/types/menu';
+
 // =====================================================================================================
 // Type 선언 영역
 // =====================================================================================================
@@ -42,9 +44,9 @@ interface InCustParam {
 // =====================================================================================================
 
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
-defineProps<{
-    menuInfo: any;
-    params: Record<string, any>;
+const _props = defineProps<{
+    menuInfo: SelectedMenuProps;
+    params: Record<string, undefined>;
 }>();
 
 const myGrid = ref<AUIGridProps | null>(null);

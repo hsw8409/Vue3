@@ -28,6 +28,7 @@ import { usePopupStore } from '@/common/stores/popup';
 import { useCommonCodeStore } from '@/common/stores/commonCode';
 
 import { selectUserList, randomPassword } from '@/api/user'; //backend
+import type { SelectedMenuProps, MenuMethodsProps } from '@/types/menu';
 
 // =====================================================================================================
 // Type 선언 영역
@@ -38,9 +39,9 @@ import { selectUserList, randomPassword } from '@/api/user'; //backend
 // =====================================================================================================
 
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
-defineProps<{
-    menuInfo: any;
-    params: Record<string, any>;
+const props = defineProps<{
+    menuInfo: SelectedMenuProps;
+    params: Record<string, undefined>;
 }>();
 
 // 메세지 변수
@@ -301,6 +302,12 @@ const pageChange = () => {
     }
 };
 
+const methods: MenuMethodsProps = {
+    reset,
+    search,
+    newRegi,
+};
+
 // =====================================================================================================
 // Hook 영역
 // =====================================================================================================
@@ -314,7 +321,7 @@ onMounted(() => {
 <template>
     <!-- 메뉴&공통버튼영역 -->
     <!-- 초기화, 조회, 신규 -->
-    <MenuTop ref="menuTopRef" :menu-info="$props.menuInfo" :methods="{ reset, search, newRegi }" />
+    <MenuTop ref="menuTopRef" :menu-info="props.menuInfo" :methods="methods" />
 
     <MenuContent>
         <!--- S : 검색조건 -->

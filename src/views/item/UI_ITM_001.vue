@@ -35,7 +35,9 @@ import {
     saveItemL,
     saveItemM,
     saveItemS,
-} from '@/api/item'; //backend
+} from '@/api/item';
+
+import type { SelectedMenuProps, MenuMethodsProps } from '@/types/menu';
 
 // =====================================================================================================
 // Type 선언 영역
@@ -46,9 +48,9 @@ import {
 // =====================================================================================================
 
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
-defineProps<{
-    menuInfo: any;
-    params: Record<string, any>;
+const props = defineProps<{
+    menuInfo: SelectedMenuProps;
+    params: Record<string, undefined>;
 }>();
 
 // 메세지 변수
@@ -640,6 +642,10 @@ const lengthValidation = (event: any) => {
     }
 };
 
+const methods: MenuMethodsProps = {
+    reset,
+};
+
 // =====================================================================================================
 // Hook 영역
 // =====================================================================================================
@@ -657,7 +663,7 @@ onMounted(() => {
 <template>
     <!-- 메뉴&공통버튼영역 -->
     <!-- 초기화 -->
-    <MenuTop ref="menuTopRef" :menu-info="$props.menuInfo" :methods="{ reset }" />
+    <MenuTop ref="menuTopRef" :menu-info="props.menuInfo" :methods="methods" />
 
     <MenuContent>
         <div class="thirdDiv">

@@ -16,7 +16,7 @@ import { biz } from '@/common/utils/biz';
 import { selectFavoriteMenu } from '@/api/favorite';
 import { useFavoriteStore } from '@/common/stores/favorite';
 import { useAuthStore } from '@/common/stores/auth';
-import type { SelectedMenuProps } from '@/types/menu';
+import type { SelectedMenuProps, MenuMethodsProps } from '@/types/menu';
 
 // =====================================================================================================
 // Type 선언 영역
@@ -33,8 +33,8 @@ interface ButtonItem {
 // =====================================================================================================
 const props = defineProps<{
     menuInfo?: SelectedMenuProps;
-    methods?: Record<string, () => void>;
-    params?: Record<string, any>;
+    methods?: MenuMethodsProps;
+    params?: Record<string, undefined>;
 }>();
 
 // 다국어 메시지 훅
@@ -58,11 +58,11 @@ const favStore = useFavoriteStore();
 // 사용자 정의 함수 영역
 // =====================================================================================================
 // 공통 버튼 클릭 시 부모가 전달한 함수(methods) 매핑 실행
-const ButtonEvent = (fncName: string) => {
-    if (!props.methods) return;
-    const fnc = props.methods[fncName];
+const buttonEvent = async (fncName: string) => {
+    const fnc = props.methods?.[fncName];
+
     if (typeof fnc === 'function') {
-        fnc();
+        await fnc();
     }
 };
 
@@ -175,7 +175,7 @@ onMounted(() => {
                 type="button"
                 class="default"
                 :disabled="btn.disabled"
-                @click="ButtonEvent(btn.btnFnc)"
+                @click="buttonEvent(btn.btnFnc)"
             >
                 <span>{{ btn.btnIcon ? btn.btnIcon + ' ' : '' }}{{ btn.btnNm }}</span>
             </button>

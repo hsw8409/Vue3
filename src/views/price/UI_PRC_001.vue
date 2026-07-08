@@ -44,13 +44,15 @@ import {
     saveExcelItemList /*엑셀업로드저장*/,
 } from '@/api/price';
 
+import type { SelectedMenuProps, MenuMethodsProps } from '@/types/menu';
+
 // =====================================================================================================
 // 변수 선언 영역
 // =====================================================================================================
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
-defineProps<{
-    menuInfo: any;
-    params: Record<string, any>;
+const props = defineProps<{
+    menuInfo: SelectedMenuProps;
+    params: Record<string, undefined>;
 }>();
 
 // 공통 메세지 변수
@@ -1390,6 +1392,13 @@ const fnExcelUploadDownload = (param?: any) => {
         });
 };
 
+const methods: MenuMethodsProps = {
+    excelSampleDown,
+    excelSampleUpload,
+    search,
+    save,
+};
+
 // =====================================================================================================
 // HOOK 영역
 // =====================================================================================================
@@ -1405,10 +1414,7 @@ onMounted(() => {
 <template>
     <!-- 메뉴&공통버튼영역 -->
     <!-- 엑셀양식다운, 엑셀양식업로드, 초기화, 저장  -->
-    <MenuTop
-        :menu-info="$props.menuInfo"
-        :methods="{ excelSampleDown, excelSampleUpload, search, save }"
-    />
+    <MenuTop ref="menuTopRef" :menu-info="props.menuInfo" :methods="methods" />
 
     <MenuContent>
         <div class="halfDiv2">

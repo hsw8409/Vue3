@@ -31,10 +31,10 @@ import { useLayoutStore } from '@/common/stores/layout'; // 레이아웃 store
 import { usePopupStore } from '@/common/stores/popup';
 import { useCommonCodeStore } from '@/common/stores/commonCode';
 
-// api
 import { selectCategories, selectItem, saveItemReg } from '@/api/item';
 
 import type { CategoryGroupsProps, CategoryProps } from '@/types/item';
+import type { SelectedMenuProps, MenuMethodsProps } from '@/types/menu';
 
 // =====================================================================================================
 // Type 선언 영역
@@ -94,9 +94,9 @@ interface ItemDetailProps {
 // 변수 선언 영역
 // =====================================================================================================
 // 메인화면은 필수 - 메뉴정보를 받기 위한 props
-defineProps<{
-    menuInfo: any;
-    params: Record<string, any>;
+const props = defineProps<{
+    menuInfo: SelectedMenuProps;
+    params: Record<string, undefined>;
 }>();
 
 // 공통 메세지 변수
@@ -723,14 +723,19 @@ const minOrderQtyOptions = ['1', '2', '3', '4', '5'].map((v) => ({
     dtlCommCd: v,
     dtlCommNm: v,
 }));
+
+const methods: MenuMethodsProps = {
+    reset,
+    search,
+    newRegi,
+    save,
+    copy,
+};
 </script>
 
 <template>
     <!-- 메뉴&공통버튼영역 -->
-    <MenuTop
-        :menu-info="$props.menuInfo"
-        :methods="{ reset, search, newRegi, save: () => save(), copy }"
-    />
+    <MenuTop ref="menuTopRef" :menu-info="props.menuInfo" :methods="methods" />
 
     <MenuContent>
         <!-- S : 검색조건-->
